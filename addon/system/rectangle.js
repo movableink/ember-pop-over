@@ -66,8 +66,8 @@ Rectangle.reopenClass({
     return Rectangle.create(rect);
   },
 
-  ofView: function (view) {
-    return this.ofElement(get(view, 'element'));
+  ofView: function (view, boxModel) {
+    return this.ofElement(get(view, 'element'), boxModel);
   },
 
   ofElement: function (element, boxModel) {
