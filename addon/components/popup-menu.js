@@ -1,5 +1,6 @@
 import Ember from "ember";
 import Rectangle from "../system/rectangle";
+import Flow from "../system/flow";
 import { getLayout } from "dom-ruler";
 
 var assert = Ember.assert;
@@ -46,14 +47,17 @@ var PopupMenuComponent = Ember.Component.extend({
   pointer: null,
 
   flow: function (key, flowName) {
+    var generator;
     if (flowName) {
-      var flow = this.container.lookup('popup-menu/flow:' + flowName);
+      generator = this.container.lookup('popup-menu/flow:' + flowName);
       assert(fmt(
         ("The flow named '%@1' was not registered with PopupMenuComponent.\n" +
-         "Register your flow by using `PopupMenuComponent.registerFlow('%@1', function () { ... });`."), [flowName]), flow);
-      return flow;
+         "Register your flow by using `PopupMenuComponent.registerFlow('%@1', function () { ... });`."), [flowName]), generator);
+    } else {
+      generator = this.container.lookup('popup-menu/flow:around');
     }
-    return this.container.lookup('flow:around');
+
+    return get(generator.call(Flow.create()), 'constraints');
   }.property(),
 
   /**
@@ -62,6 +66,7 @@ var PopupMenuComponent = Ember.Component.extend({
    */
   for: function (key, value) {
     if (value) {
+      this.__for = value;
       if (Ember.View.detectInstance(value)) {
         return get(value, 'element');
       } else if (typeof value === "string") {
@@ -120,7 +125,7 @@ var PopupMenuComponent = Ember.Component.extend({
       $(window).on(event, eventManager[event]);
     });
 
-    this.on('isVisible:change', this, this.retile);
+    this.addObserver('isVisible', this, this.retile);
   }.on('didInsertElement'),
 
   removeWindowEvents: function () {
@@ -129,13 +134,15 @@ var PopupMenuComponent = Ember.Component.extend({
       $(window).off(event, eventManager[event]);
     });
 
-    this.off('isVisible:change', this, this.retile);
+    this.removeObserver('isVisible', this, this.retile);
     this.__events = null;
   }.on('willDestroyElement'),
 
 
   notifyForWillChange: function () {
-    next(this, 'notifyPropertyChange', 'for');
+    if (this.__for) {
+      next(set, this, 'for', this.__for);
+    }
   }.on('didInsertElement'),
 
   attachEventsToTargetElement: function () {
@@ -152,7 +159,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
       this.__targetEvents = eventManager;
       keys(eventManager).forEach(function (event) {
-        target.on(event, eventManager[event]);
+        $target.on(event, eventManager[event]);
       });
 
       if ($target.attr('id')) {
@@ -162,7 +169,7 @@ var PopupMenuComponent = Ember.Component.extend({
         });
       }
     }
-  }.observes('targetElement'),
+  }.observes('for'),
 
   removeEvents: function () {
     var eventManager = this.__targetEvents;
@@ -353,9 +360,8 @@ var PopupMenuComponent = Ember.Component.extend({
     var self = this;
     var animation = this.container.lookup('popup-menu/animation:' + animationName);
     next(this, function () {
-      var outAnimation = animation.out;
-      if (outAnimation) {
-        var promise = outAnimation.call(this);
+      if (animation) {
+        var promise = animation.out.call(this);
         promise.then(function () {
           set(self, 'isVisible', false);
         });
@@ -373,9 +379,8 @@ var PopupMenuComponent = Ember.Component.extend({
     var animation = this.container.lookup('popup-menu/animation:' + animationName);
     set(this, 'isVisible', true);
     scheduleOnce('afterRender', this, function () {
-      var inAnimation = animation['in'];
-      if (inAnimation) {
-        deferred.resolve(inAnimation.call(this));
+      if (animation) {
+        deferred.resolve(animation['in'].call(this));
       } else {
         deferred.resolve();
       }

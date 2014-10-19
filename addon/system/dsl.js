@@ -1,16 +1,11 @@
 import Ember from "ember";
-import Flow from "./flow";
-
-var slice = Array.prototype.slice;
-var get = Ember.get;
 
 var registerFlow = function (container, flowName, constraintGenerator) {
-  var constraints = get(slice.call(constraintGenerator.call(Flow.create()), 'constraints'));
-  container.register('popup-menu/flow:' + flowName, constraints);
+  container.register('popup-menu/flow:' + flowName, constraintGenerator, { instantiate: false });
 };
 
 var registerAnimation = function (container, animationName, animator) {
-  container.register('popup-menu/flow:' + animationName, animator);
+  container.register('popup-menu/animat:' + animationName, animator, { instantiate: false });
 };
 
 export { registerFlow, registerAnimation };
