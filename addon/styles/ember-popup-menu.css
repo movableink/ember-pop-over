@@ -1,0 +1,37 @@
+.popup-menu {
+  position: absolute;
+  z-index: 100;
+  background-color: #333;
+  color: white;
+}
+
+.popup-menu_pointer {
+  position: absolute;
+  display:  block;
+  border-style: solid;
+  border-width: 10px;
+  height: 0;
+  width: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.orient-above > .popup-menu_pointer {
+  border-color: #333 transparent transparent transparent;
+  bottom: -20px;
+}
+
+.orient-below > .popup-menu_pointer {
+  border-color: transparent transparent #333 transparent;
+  top: -20px;
+}
+
+.orient-left > .popup-menu_pointer {
+  border-color: transparent transparent transparent #333;
+  right: -20px;
+}
+
+.orient-right > .popup-menu_pointer {
+  border-color: transparent #333 transparent transparent;
+  left: -20px;
+}

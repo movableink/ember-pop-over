@@ -438,7 +438,7 @@ var PopupMenuComponent = Ember.Component.extend({
     solution = constraint.solveFor(Rectangle.ofElement(window),
                                    Rectangle.ofView(this),
                                    Rectangle.ofElement(get(this, 'for')),
-                                   Rectangle.ofElement($pointer[0]));
+                                   Rectangle.ofElement($pointer[0], 'borders'));
     this._solution = solution;
 
     if (get(this, 'isActive')) {

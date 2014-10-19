@@ -70,8 +70,11 @@ Rectangle.reopenClass({
     return this.ofElement(get(view, 'element'));
   },
 
-  ofElement: function (element) {
+  ofElement: function (element, boxModel) {
     var size = getLayout(element);
+    if (boxModel) {
+      size = size[boxModel];
+    }
     var offset = $(element).offset() || { top: $(element).scrollTop(), left: $(element).scrollLeft() };
 
     return Rectangle.create({
