@@ -3,18 +3,19 @@ import Rectangle from "../system/rectangle";
 import { getLayout } from "dom-ruler";
 
 var assert = Ember.assert;
-var oneWay = Ember.computed.oneWay;
 var bind = Ember.run.bind;
 var scheduleOnce = Ember.run.scheduleOnce;
 var next = Ember.run.next;
-var mixin = Ember.mixin;
-var isArray = Ember.isArray;
 var get = Ember.get;
 var set = Ember.set;
 var fmt = Ember.String.fmt;
 var w = Ember.String.w;
+var keys = Ember.keys;
+var copy = Ember.copy;
+var alias = Ember.computed.alias;
 
 var RSVP = Ember.RSVP;
+var $ = Ember.$;
 
 var labelForTarget = function ($target) {
   if ($target[0].tagName.toLowerCase() === 'label') {
@@ -45,8 +46,8 @@ var PopupMenuComponent = Ember.Component.extend({
   pointer: null,
 
   flow: function (key, flowName) {
-    if (value) {
-      var flow = this.container.lookup('flow:' + flowName);
+    if (flowName) {
+      var flow = this.container.lookup('popup-menu/flow:' + flowName);
       assert(fmt(
         ("The flow named '%@1' was not registered with PopupMenuComponent.\n" +
          "Register your flow by using `PopupMenuComponent.registerFlow('%@1', function () { ... });`."), [flowName]), flow);
@@ -155,7 +156,7 @@ var PopupMenuComponent = Ember.Component.extend({
       });
 
       if ($target.attr('id')) {
-        var selector = "label[for='%@']".fmt($target('attr', id));
+        var selector = fmt("label[for='%@']", $target.attr('id'));
         keys(eventManager).forEach(function (event) {
           $(document).on(event, selector, eventManager[event]);
         });
@@ -173,7 +174,7 @@ var PopupMenuComponent = Ember.Component.extend({
       });
 
       if ($target.attr('id')) {
-        var selector = "label[for='%@']".fmt($target('attr', id));
+        var selector = fmt("label[for='%@']", $target.attr('id'));
         keys(eventManager).forEach(function (event) {
           $(document).off(event, selector, eventManager[event]);
         });
@@ -251,7 +252,7 @@ var PopupMenuComponent = Ember.Component.extend({
     }
     var targetView = Ember.View.views[$target.attr('id')];
 
-    if (targetView && targetView.nearestOfType(PopupMenu)) {
+    if (targetView && targetView.nearestOfType(PopupMenuComponent)) {
       targetView.trigger('click');
     } else {
       // If the user waits more than 200ms between mouseDown and mouseUp,
@@ -347,11 +348,12 @@ var PopupMenuComponent = Ember.Component.extend({
   },
 
 
-  hide: function (animation) {
+  hide: function (animationName) {
     var deferred = RSVP.defer();
     var self = this;
+    var animation = this.container.lookup('popup-menu/animation:' + animationName);
     next(this, function () {
-      var outAnimation = animations[animation].out;
+      var outAnimation = animation.out;
       if (outAnimation) {
         var promise = outAnimation.call(this);
         promise.then(function () {
@@ -360,17 +362,18 @@ var PopupMenuComponent = Ember.Component.extend({
         deferred.resolve(promise);
       } else {
         set(self, 'isVisible', false);
-        deferred.resolve(promise);  
+        deferred.resolve();
       }
     });
     return deferred.promise;
   },
 
-  show: function (animation) {
+  show: function (animationName) {
     var deferred = RSVP.defer();
+    var animation = this.container.lookup('popup-menu/animation:' + animationName);
     set(this, 'isVisible', true);
     scheduleOnce('afterRender', this, function () {
-      var inAnimation = animations[animation]['in'];
+      var inAnimation = animation['in'];
       if (inAnimation) {
         deferred.resolve(inAnimation.call(this));
       } else {

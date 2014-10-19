@@ -4,6 +4,8 @@ import { getLayout } from "dom-ruler";
 var get = Ember.get;
 var alias = Ember.computed.alias;
 
+var $ = Ember.$;
+
 var Rectangle = Ember.Object.extend({
 
   x: alias('left'),

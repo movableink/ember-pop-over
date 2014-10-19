@@ -4,7 +4,7 @@ var RSVP = Ember.RSVP;
 var get = Ember.get;
 var scheduleOnce = Ember.run.scheduleOnce;
 
-export {
+export default {
   in: function () {
     var $element = this.$();
 
@@ -57,4 +57,3 @@ export {
     });
   }
 };
-

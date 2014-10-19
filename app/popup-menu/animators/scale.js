@@ -3,7 +3,7 @@ import Ember from "ember";
 var RSVP = Ember.RSVP;
 var scheduleOnce = Ember.run.scheduleOnce;
 
-export {
+export default {
   in: function () {
     var $element = this.$();
 
@@ -30,4 +30,3 @@ export {
     });
   }
 };
-

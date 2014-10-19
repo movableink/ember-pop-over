@@ -5,6 +5,7 @@ var reads = Ember.computed.reads;
 var slice = Array.prototype.slice;
 var get = Ember.get;
 var set = Ember.set;
+var isArray = Ember.isArray;
 
 var Orientation = Ember.Object.extend({
 

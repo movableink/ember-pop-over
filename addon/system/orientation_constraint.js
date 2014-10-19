@@ -1,5 +1,9 @@
 import Ember from "ember";
 
+var get = Ember.get;
+var set = Ember.set;
+var mixin = Ember.mixin;
+
 var OrientationConstraint = Ember.Object.extend({
 
   orientation: null,
