@@ -15,6 +15,9 @@ var keys = Ember.keys;
 var copy = Ember.copy;
 var alias = Ember.computed.alias;
 
+var addObserver = Ember.addObserver;
+var removeObserver = Ember.removeObserver;
+
 var RSVP = Ember.RSVP;
 var $ = Ember.$;
 
@@ -82,7 +85,7 @@ var PopupMenuComponent = Ember.Component.extend({
     if (value) {
       var activators = value;
       if (typeof value === "string") {
-        activators = w(value);        
+        activators = w(value);
       }
       assert("%@ are not valid activators.\nValid activators are 'focus', 'hover', 'click', and 'hold'".fmt(value),
              get(copy(activators).removeObjects(["focus", "hover", "click", "hold"]), 'length') === 0);
@@ -100,13 +103,24 @@ var PopupMenuComponent = Ember.Component.extend({
     if (value) {
       var observers = value;
       if (typeof value === "string") {
-        observers = w(value);        
+        observers = w(value);
       }
       return observers;
     }
     return [];
   }.property(),
 
+  willChangeWillChange: function () {
+    get(this, 'willChange').forEach(function (key) {
+      removeObserver(this, key, this, 'retile');
+    }, this);
+  }.observesBefore('willChange'),
+
+  willChangeDidChange: function () {
+    get(this, 'willChange').forEach(function (key) {
+      addObserver(this, key, this, 'retile');
+    }, this);
+  }.observes('willChange'),
 
   // ..............................................
   // Event management
@@ -286,7 +300,23 @@ var PopupMenuComponent = Ember.Component.extend({
   },
 
 
-  isActive: function () {
+  isActive: function (key, value) {
+    if (value != null) {
+      if (value === false) {
+        set(this, 'isTargetFocused', false);
+        set(this, 'isHoveringOverTarget', false);
+        set(this, 'isTargetActive', false);
+      } else if (value === true) {
+        if (activators.contains('click') || activators.contains('hold')) {
+          set(this, 'isTargetActive', true);
+        } else if (activators.contains('focus')) {
+          set(this, 'isTargetFocused', true);
+        } else if (activators.contains('hover')) {
+          set(this, 'isHoveringOverTarget', true);
+        }
+      }
+    }
+
     var activators = get(this, 'on');
     var isActive = false;
 
@@ -298,7 +328,7 @@ var PopupMenuComponent = Ember.Component.extend({
       isActive = isActive || get(this, 'isHoveringOverTarget');
     }
 
-    if (activators.contains('click') || activators.contains('click')) {
+    if (activators.contains('click') || activators.contains('hold')) {
       isActive = isActive || get(this, 'isTargetActive');
     }
 

@@ -7,8 +7,8 @@ export default function () {
                          })
    .then(this.orientBelow.andSnapTo(this.center, this.rightEdge, this.leftEdge)
                          .where(function (boundingRect, _, targetRect) {
-                            var centerY = targetBox.height / 2 + targetBox.y,
-                                halfway = boundingBox.height / 2;
+                            var centerY = targetRect.height / 2 + targetRect.y,
+                                halfway = boundingRect.height / 2;
                             return centerY < halfway;
                          })
    )
