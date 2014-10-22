@@ -51,17 +51,15 @@ var PopupMenuComponent = Ember.Component.extend({
   pointer: null,
 
   flow: function (key, flowName) {
-    var generator;
     if (flowName) {
-      generator = this.container.lookup('popup-menu/flow:' + flowName);
+      var constraints = this.container.lookup('popup-constraint:' + flowName);
       assert(fmt(
         ("The flow named '%@1' was not registered with PopupMenuComponent.\n" +
-         "Register your flow by using `PopupMenuComponent.registerFlow('%@1', function () { ... });`."), [flowName]), generator);
-    } else {
-      generator = this.container.lookup('popup-menu/flow:around');
+         "Register your flow by using `PopupMenuComponent.registerFlow('%@1', function () { ... });`."), [flowName]), constraints);
+      return constraints;
     }
 
-    return get(generator.call(Flow.create()), 'constraints');
+    return this.container.lookup('popup-constraint:around');
   }.property(),
 
   /**
@@ -368,7 +366,7 @@ var PopupMenuComponent = Ember.Component.extend({
   hide: function (animationName) {
     var deferred = RSVP.defer();
     var self = this;
-    var animation = this.container.lookup('popup-menu/animation:' + animationName);
+    var animation = this.container.lookup('popup-animation:' + animationName);
     next(this, function () {
       if (animation) {
         var promise = animation.out.call(this);
@@ -386,7 +384,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
   show: function (animationName) {
     var deferred = RSVP.defer();
-    var animation = this.container.lookup('popup-menu/animation:' + animationName);
+    var animation = this.container.lookup('popup-animation:' + animationName);
     set(this, 'isVisible', true);
     scheduleOnce('afterRender', this, function () {
       if (animation) {
