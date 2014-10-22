@@ -65,7 +65,9 @@ var PopupMenuComponent = Ember.Component.extend({
     The target element of the popup menu.
     Can be a view, id, or element.
    */
-  for: null,
+  for: function (key, value) {
+    return value;
+  }.property(),
 
   targetElement: function () {
     var value = get(this, 'for');
@@ -152,9 +154,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
 
   notifyForWillChange: function () {
-    if (get(this, 'for')) {
-      next(set, this, 'notifyPropertyChange', 'targetElement');
-    }
+    next(this, 'notifyPropertyChange', 'targetElement');
   }.on('didInsertElement'),
 
   attachEventsToTargetElement: function () {
@@ -181,7 +181,7 @@ var PopupMenuComponent = Ember.Component.extend({
         });
       }
     }
-  },
+  }.observes('targetElement'),
 
   removeEvents: function () {
     var eventManager = this.__targetEvents;
@@ -201,7 +201,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
       this.__targetEvents = null;
     }
-  }.on('willDestroyElement'),
+  }.observesBefore('targetElement').on('willDestroyElement'),
 
 
   targetFocus: function () {
@@ -299,6 +299,9 @@ var PopupMenuComponent = Ember.Component.extend({
 
 
   isActive: function (key, value) {
+    var activators = get(this, 'on');
+    var isActive = false;
+
     if (value != null) {
       if (value === false) {
         set(this, 'isTargetFocused', false);
@@ -314,9 +317,6 @@ var PopupMenuComponent = Ember.Component.extend({
         }
       }
     }
-
-    var activators = get(this, 'on');
-    var isActive = false;
 
     if (activators.contains('focus')) {
       isActive = isActive || get(this, 'isTargetFocused');
@@ -346,15 +346,21 @@ var PopupMenuComponent = Ember.Component.extend({
     var animation = get(this, 'animation');
     var self = this;
 
-    this.__animating = true;
-    if (get(this, 'isActive')) {
+    var isActive = get(this, 'isActive');
+    var isInactive = !isActive;
+    var isVisible = get(this, 'isVisible');
+    var isHidden = !isVisible;
+
+    if (isActive && isHidden) {
+      this.__animating = true;
       this.show(animation).then(function () {
         $(document).on('mousedown', proxy);
         self.__animating = false;
       });
 
     // Remove click events immediately
-    } else {
+    } else if (isInactive && isVisible) {
+      this.__animating = true;
       $(document).off('mousedown', proxy);
       this.hide(animation).then(function () {
         self.__animating = false;
