@@ -201,7 +201,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
       this.__targetEvents = null;
     }
-  }.on('willDestroyElement'),
+  }.observesBefore('for').on('willDestroyElement'),
 
 
   targetFocus: function () {
@@ -330,7 +330,7 @@ var PopupMenuComponent = Ember.Component.extend({
       isActive = isActive || get(this, 'isTargetActive');
     }
 
-    return isActive;
+    return !!isActive;
   }.property('on', 'isTargetFocused', 'isHoveringOverTarget', 'isTargetActive'),
 
 
