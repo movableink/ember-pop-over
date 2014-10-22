@@ -1,7 +1,5 @@
 import Ember from "ember";
 
-var get = Ember.get;
-var set = Ember.set;
 var mixin = Ember.mixin;
 
 var OrientationConstraint = Ember.Object.extend({
@@ -14,35 +12,34 @@ var OrientationConstraint = Ember.Object.extend({
 
   condition: null,
 
-  solveFor: function (boundingBox, clientBox, targetBox, pointerBox) {
-    var solution = Ember.Object.create({
-          orientation: get(this, 'orientation')
-        }),
-        padding;
+  solveFor: function (boundingRect, popupRect, targetRect, pointerRect) {
+    var orientation = this.orientation;
+    var pointer;
+    var padding;
 
     // Orient the pane
-    switch (this.orientation) {
+    switch (orientation) {
     case 'above':
-      set(clientBox, 'top', get(targetBox, 'top') - get(pointerBox, 'height') - get(clientBox, 'height'));
-      set(pointerBox, 'top', get(clientBox, 'height'));
+      popupRect.setY(targetRect.top - pointerRect.height - popupRect.height);
+      pointerRect.setY( popupRect.height);
       break;
     case 'below':
-      set(clientBox, 'top', get(targetBox, 'bottom') + get(pointerBox, 'height'));
-      set(pointerBox, 'top', get(pointerBox, 'height') * -1);
+      popupRect.setY(targetRect.bottom + pointerRect.height);
+      pointerRect.setY(pointerRect.height * -1);
       break;
     case 'left':
-      set(clientBox, 'left', get(targetBox, 'left') - get(pointerBox, 'width') - get(clientBox, 'width'));
-      set(pointerBox, 'left', get(clientBox, 'width'));
+      popupRect.setX(targetRect.left - pointerRect.width - popupRect.width);
+      pointerRect.setX(popupRect.width);
       break;
     case 'right':
-      set(clientBox, 'left', get(targetBox, 'right') + get(pointerBox, 'width'));
-      set(pointerBox, 'left', get(pointerBox, 'width') * -1);
+      popupRect.setX(targetRect.right + pointerRect.width);
+      pointerRect.setX(pointerRect.width * -1);
       break;
     }
 
     // The pane should slide in the direction specified by the flow
     if (this.behavior === 'slide') {
-      switch (this.orientation) {
+      switch (orientation) {
       case 'above':
       case 'below':
         // Divide the target box into thirds and use those
@@ -52,107 +49,107 @@ var OrientationConstraint = Ember.Object.extend({
         // |            |            |            |
         // +--------------------------------------+
         var horizontal = {
-          firstThird:  (get(targetBox, 'width') / 2 - get(clientBox, 'width') / 2) -
-                       (get(targetBox, 'width') / 3 - get(clientBox, 'width') / 3) / 2,
-          secondThird: (get(targetBox, 'width') / 2 - get(clientBox, 'width') / 2) +
-                       (get(targetBox, 'width') / 3 - get(clientBox, 'width') / 3) / 2
+          firstThird:  (targetRect.width / 2 - popupRect.width / 2) -
+                       (targetRect.width / 3 - popupRect.width / 3) / 2,
+          secondThird: (targetRect.width / 2 - popupRect.width / 2) +
+                       (targetRect.width / 3 - popupRect.width / 3) / 2
         };
         var leftEdge;
 
         switch (this.guideline[0]) {
         case 'left-edge':
-          leftEdge = Math.min(get(targetBox, 'width') / 2  - (get(pointerBox, 'width') * 1.5), 0);
+          leftEdge = Math.min(targetRect.width / 2  - (pointerRect.width * 1.5), 0);
           break;
         case 'center':
-          leftEdge = get(targetBox, 'width') / 2 - get(clientBox, 'width') / 2;
+          leftEdge = targetRect.width / 2 - popupRect.width / 2;
           break;
         case 'right-edge':
-          leftEdge = get(targetBox, 'width') - get(clientBox, 'width');
+          leftEdge = targetRect.width - popupRect.width;
           break;
         }
 
 
-        var leftSideX  = get(targetBox, 'left') + leftEdge;
-        var rightSideX = leftSideX + get(clientBox, 'width');
-        padding = get(pointerBox, 'width');
+        var leftSideX  = targetRect.left + leftEdge;
+        var rightSideX = leftSideX + popupRect.width;
+        padding = pointerRect.width;
 
         // Adjust the popup so it remains in view
-        if (leftSideX < get(boundingBox, 'left') + padding) {
-          leftEdge = get(boundingBox, 'left') + padding;
-        } else if (rightSideX > get(boundingBox, 'right') - padding) {
-          leftEdge = get(boundingBox, 'right') - get(clientBox, 'width') - padding;
+        if (leftSideX < boundingRect.left + padding) {
+          leftEdge = boundingRect.left + padding;
+        } else if (rightSideX > boundingRect.right - padding) {
+          leftEdge = boundingRect.right - popupRect.width - padding;
         } else {
           leftEdge = leftSideX;
         }
 
-        var deltaX = get(targetBox, 'left') - leftEdge;
+        var deltaX = targetRect.left - leftEdge;
 
         // Solve for the pointers
         if (Math.abs(deltaX) < Math.abs(horizontal.firstThird)) {
-          solution.pointer = 'left-edge';
-          set(pointerBox, 'left', deltaX + Math.min(get(pointerBox, 'width'), get(targetBox, 'width') / 2 - get(pointerBox, 'width') / 2));
+          pointer = 'left-edge';
+          pointerRect.setX(deltaX + Math.min(pointerRect.width, targetRect.width / 2 - pointerRect.width / 2));
         } else if (Math.abs(deltaX) < Math.abs(horizontal.secondThird)) {
-          solution.pointer = 'center';
-          set(pointerBox, 'left', deltaX + get(targetBox, 'width') / 2 - get(pointerBox, 'width') / 2);
+          pointer = 'center';
+          pointerRect.setX(deltaX + targetRect.width / 2 - pointerRect.width / 2);
         } else {
-          solution.pointer = 'right-edge';
-          set(pointerBox, 'left', deltaX + get(targetBox, 'width') - get(pointerBox, 'width') * 3 / 2);
+          pointer = 'right-edge';
+          pointerRect.setX(deltaX + targetRect.width - pointerRect.width * 3 / 2);
         }
-        set(clientBox, 'left', leftEdge);
+        popupRect.setX(leftEdge);
         break;
       case 'left':
       case 'right':
         var vertical = {
-          firstThird:  (get(targetBox, 'height') / 2 - get(clientBox, 'height') / 2) -
-                       (get(targetBox, 'height') / 3 - get(clientBox, 'height') / 3) / 2,
-          secondThird: (get(targetBox, 'height') / 2 - get(clientBox, 'height') / 2) +
-                       (get(targetBox, 'height') / 3 - get(clientBox, 'height') / 3) / 2
+          firstThird:  (targetRect.height / 2 - popupRect.height / 2) -
+                       (targetRect.height / 3 - popupRect.height / 3) / 2,
+          secondThird: (targetRect.height / 2 - popupRect.height / 2) +
+                       (targetRect.height / 3 - popupRect.height / 3) / 2
         };
         var topEdge;
 
         switch (this.guideline[0]) {
         case 'top-edge':
-          topEdge = Math.min(get(targetBox, 'height') / 2  - get(pointerBox, 'height') * 1.5, 0);
+          topEdge = Math.min(targetRect.height / 2  - pointerRect.height * 1.5, 0);
           break;
         case 'center':
-          topEdge = get(targetBox, 'height') / 2 - get(clientBox, 'height') / 2;
+          topEdge = targetRect.height / 2 - popupRect.height / 2;
           break;
         case 'bottom-edge':
-          topEdge = get(targetBox, 'height') - get(clientBox, 'height');
+          topEdge = targetRect.height - popupRect.height;
           break;
         }
 
-        var topSideY    = get(targetBox, 'top') + topEdge;
-        var bottomSideY = topSideY + get(clientBox, 'height');
-        padding = get(pointerBox, 'height');
+        var topSideY    = targetRect.top + topEdge;
+        var bottomSideY = topSideY + popupRect.height;
+        padding = pointerRect.height;
 
         // Adjust the popup so it remains in view
-        if (topSideY < get(boundingBox, 'top') + padding) {
-          topEdge = get(boundingBox, 'top') + padding;
-        } else if (bottomSideY > get(boundingBox, 'bottom') - padding) {
-          topEdge = get(boundingBox, 'bottom') - get(clientBox, 'height') - padding;
+        if (topSideY < boundingRect.top + padding) {
+          topEdge = boundingRect.top + padding;
+        } else if (bottomSideY > boundingRect.bottom - padding) {
+          topEdge = boundingRect.bottom - popupRect.height - padding;
         } else {
           topEdge = topSideY;
         }
 
-        var deltaY = get(targetBox, 'top') - topEdge;
+        var deltaY = targetRect.top - topEdge;
 
         // Solve for the pointers
         if (Math.abs(deltaY) < Math.abs(vertical.firstThird)) {
-          solution.pointer = 'top-edge';
-          set(pointerBox, 'top', deltaY + Math.min(get(pointerBox, 'height'), get(targetBox, 'height') / 2 - get(pointerBox, 'height') / 2));
+          pointer = 'top-edge';
+          pointerRect.setY(deltaY + Math.min(pointerRect.height, targetRect.height / 2 - pointerRect.height / 2));
         } else if (Math.abs(deltaY) < Math.abs(vertical.secondThird)) {
-          solution.pointer = 'center';
-          set(pointerBox, 'top', deltaY + get(targetBox, 'height') / 2 - get(pointerBox, 'height') / 2);
+          pointer = 'center';
+          pointerRect.setY(deltaY + targetRect.height / 2 - pointerRect.height / 2);
         } else {
-          solution.pointer = 'bottom-edge';
-          set(pointerBox, 'top', deltaY + get(targetBox, 'height') - get(pointerBox, 'height') * 3 / 2);
+          pointer = 'bottom-edge';
+          pointerRect.setY(deltaY + targetRect.height - pointerRect.height * 3 / 2);
         }
-        set(clientBox, 'top', topEdge);
+        popupRect.setY(topEdge);
       }
 
     } else if (this.behavior === 'snap') {
-      solution.pointer = this.guideline;
+      pointer = this.guideline;
 
       switch (this.guideline) {
 
@@ -161,13 +158,13 @@ var OrientationConstraint = Ember.Object.extend({
         switch (this.orientation) {
         case 'above':
         case 'below':
-          set(clientBox, 'left', get(targetBox, 'left') + get(targetBox, 'width') / 2 - get(clientBox, 'width') / 2);
-          set(pointerBox, 'left', get(clientBox, 'width') / 2 - get(pointerBox, 'width') / 2);
+          popupRect.setX(targetRect.left + targetRect.width / 2 - popupRect.width / 2);
+          pointerRect.setX(popupRect.width / 2 - pointerRect.width / 2);
           break;
         case 'left':
         case 'right':
-          set(clientBox, 'top', get(targetBox, 'top') + get(targetBox, 'height') / 2 - get(clientBox, 'height') / 2);
-          set(pointerBox, 'top', get(clientBox, 'height') / 2 - get(pointerBox, 'height') / 2);
+          popupRect.setY(targetRect.top + targetRect.height / 2 - popupRect.height / 2);
+          pointerRect.setY(popupRect.height / 2 - pointerRect.height / 2);
         }
         break;
 
@@ -175,35 +172,35 @@ var OrientationConstraint = Ember.Object.extend({
       // If the pointer is skewed towards the far end of the target view,
       // the popup is adjusted so the cursor is centered on the view
       case 'top-edge':
-        var offsetTop = Math.min(get(targetBox, 'height') / 2 - (get(pointerBox, 'height') * 1.5), 0);
-        set(clientBox, 'top', get(targetBox, 'top') + offsetTop);
-        set(pointerBox, 'top', get(pointerBox, 'height'));
+        var offsetTop = Math.min(targetRect.height / 2 - (pointerRect.height * 1.5), 0);
+        popupRect.setY(targetRect.top + offsetTop);
+        pointerRect.setY(pointerRect.height);
         break;
 
       case 'bottom-edge':
-        var offsetBottom = Math.min(get(targetBox, 'height') / 2 - (get(pointerBox, 'height') * 1.5), 0);
-        set(clientBox, 'top', get(targetBox, 'bottom') - offsetBottom - get(clientBox, 'height'));
-        set(pointerBox, 'top', get(clientBox, 'height') - get(pointerBox, 'height') * 2);
+        var offsetBottom = Math.min(targetRect.height / 2 - (pointerRect.height * 1.5), 0);
+        popupRect.setY(targetRect.bottom - offsetBottom - popupRect.height);
+        pointerRect.setY(popupRect.height - pointerRect.height * 2);
         break;
 
       case 'right-edge':
-        var offsetRight = Math.min(get(targetBox, 'width') / 2 - (get(pointerBox, 'width') * 1.5), 0);
-        set(clientBox, 'left', get(targetBox, 'right') - offsetRight - get(clientBox, 'width'));
-        set(pointerBox, 'left', get(clientBox, 'width') - get(pointerBox, 'width') * 2);
+        var offsetRight = Math.min(targetRect.width / 2 - (pointerRect.width * 1.5), 0);
+        popupRect.setX(targetRect.right - offsetRight - popupRect.width);
+        pointerRect.setX(popupRect.width - pointerRect.width * 2);
         break;
 
       case 'left-edge':
-        var offsetLeft = Math.min(get(targetBox, 'width') / 2 - (get(pointerBox, 'width') * 1.5), 0);
-        set(clientBox, 'left', get(targetBox, 'left') + offsetLeft);
-        set(pointerBox, 'left', get(pointerBox, 'width'));
+        var offsetLeft = Math.min(targetRect.width / 2 - (pointerRect.width * 1.5), 0);
+        popupRect.setX(targetRect.left + offsetLeft);
+        pointerRect.setX(pointerRect.width);
         break;
       }
     }
 
-    solution.clientBox = clientBox;
-    solution.pointerBox = pointerBox;
-
-    return solution;
+    return {
+      orientation: orientation,
+      pointer: pointer
+    };
   },
 
   staticBoundary: function (boundingBox, clientBox, targetBox, pointerBox) {

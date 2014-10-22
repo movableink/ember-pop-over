@@ -1,7 +1,6 @@
 import Ember from "ember";
 import Rectangle from "../system/rectangle";
 import Flow from "../system/flow";
-import { getLayout } from "dom-ruler";
 
 var assert = Ember.assert;
 var bind = Ember.run.bind;
@@ -38,11 +37,13 @@ var PopupMenuComponent = Ember.Component.extend({
   classNameBindings: ['orientationClassName', 'pointerClassName'],
 
   orientationClassName: function () {
-    return fmt('orient-%@', [get(this, 'orientation')]);
+    var orientation = get(this, 'orientation');
+    return orientation ? fmt('orient-%@', [orientation]) : null;
   }.property('orientation'),
 
   pointerClassName: function () {
-    return fmt('pointer-%@', [get(this, 'pointer')]);
+    var pointer = get(this, 'pointer');
+    return pointer ? fmt('pointer-%@', [pointer]) : null;
   }.property('pointer'),
 
   orientation: null,
@@ -120,7 +121,7 @@ var PopupMenuComponent = Ember.Component.extend({
     get(this, 'willChange').forEach(function (key) {
       addObserver(this, key, this, 'retile');
     }, this);
-  }.observes('willChange'),
+  }.observes('willChange').on('init'),
 
   // ..............................................
   // Event management
@@ -364,28 +365,6 @@ var PopupMenuComponent = Ember.Component.extend({
     }
   }.observes('isActive').on('init'),
 
-
-  retile: function () {
-    if (get(this, 'isVisible')) {
-      scheduleOnce('afterRender', this, 'tile');
-    }
-  },
-
-  adjust: function () {
-    if (get(this, 'isVisible')) {
-      scheduleOnce('afterRender', this, 'tile', true);
-    }
-  },
-
-  scroll: function () {
-    this.retile();
-  },
-
-  resize: function () {
-    this.retile();
-  },
-
-
   hide: function (animationName) {
     var deferred = RSVP.defer();
     var self = this;
@@ -419,102 +398,66 @@ var PopupMenuComponent = Ember.Component.extend({
     return deferred.promise;
   },
 
-  tile: function (animate) {
+  retile: function () {
+    if (get(this, 'isVisible')) {
+      scheduleOnce('afterRender', this, 'tile');
+    }
+  },
+
+  scroll: function () {
+    this.retile();
+  },
+
+  resize: function () {
+    this.retile();
+  },
+
+  tile: function () {
     // Don't tile if there's nothing to constrain the popup menu around
-    if (!get(this, 'element') || !get(this, 'for')) {
+    if (!get(this, 'element') || !get(this, 'for') && get(this, 'isActive')) {
       return;
     }
 
-    var constraints = get(this, 'flow'),
-        boundingBox = getLayout(window),
-        clientBox   = getLayout(get(this, 'element')).padding,
-        targetBox   = getLayout(get(this, 'for')).padding,
-        pointerBox  = getLayout(this.$().children('.popup-menu_pointer')[0]).borders,
-        constraint,
-        solution;
+    var $popup = this.$();
+    var $pointer = $popup.children('.popup-menu_pointer');
 
-    var targetOffset = $(get(this, 'for')).offset(),
-        scrollOffset = {
-          left: $(window).scrollLeft(),
-          top:  $(window).scrollTop()
-        };
+    var boundingRect = Rectangle.ofElement(window);
+    var popupRect = Rectangle.ofView(this, 'padding');
+    var targetRect = Rectangle.ofElement(get(this, 'for'), 'padding');
+    var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
-    targetBox.x = targetOffset.left - scrollOffset.left;
-    targetBox.y = targetOffset.top  - scrollOffset.top;
+    if (boundingRect.intersects(targetRect)) {
+      var constraints = get(this, 'flow');
+      var constraint = constraints.find(function (constraint) {
+        return constraint.satisfies(boundingRect, popupRect, targetRect, pointerRect);
+      });
 
-    // If the targetBox is completely invisible, don't tile
-    if (targetBox.x + targetBox.width  < 0                 ||
-        targetBox.x                    > boundingBox.width ||
-        targetBox.y + targetBox.height < 0                 ||
-        targetBox.y                    > boundingBox.height) {
-      return;
-    }
+      if (constraint == null) {
+        constraint = get(constraints, 'lastObject');
+      }
 
-    $(get(this, 'element')).css({ x: 0, y: 0 });
-    var clientOffset = $(get(this, 'element')).offset();
-    clientBox.x = clientOffset.left;
-    clientBox.y =  clientOffset.top;
+      var solution = constraint.solveFor(boundingRect, popupRect, targetRect, pointerRect);
 
-    constraint = constraints.find(function (constraint) {
-      return constraint.satisfies(boundingBox, clientBox, targetBox, pointerBox);
-    });
-
-    if (constraint == null) {
-      constraint = get(constraints, 'lastObject');
-    }
-
-    var $pointer = this.$().children('.popup-menu_pointer');
-
-    solution = constraint.solveFor(Rectangle.ofElement(window),
-                                   Rectangle.ofView(this, 'padding'),
-                                   Rectangle.ofElement(get(this, 'for'), 'padding'),
-                                   Rectangle.ofElement($pointer[0], 'borders'));
-    this._solution = solution;
-
-    if (get(this, 'isActive')) {
-      this.$().attr('style', '');
+      $popup.attr('style', '');
       $pointer.attr('style', '');
-    }
 
-    this.setProperties({
-      orientation: get(solution, 'orientation'),
-      pointer:     get(solution, 'pointer')
-    });
+      this.setProperties({
+        orientation: solution.orientation,
+        pointer:     solution.pointer
+      });
 
-    if (animate && get(this, 'solution')) {
-      var oldSolution  = get(this, 'solution'),
-          keys         = Ember.keys(get(solution, 'position')),
-          initialStyle = keys.reduce(function (style, key) {
-            style[key] = get(oldSolution, 'position')[key];
-            return style;
-          }, {});
-
-      this.$().css(initialStyle);
-
-      keys         = keys(get(solution, 'pointerPosition'));
-      initialStyle = keys.reduce(function (style, key) {
-        style[key] = get(oldSolution, 'pointerPosition')[key];
-        return style;
-      }, {});
-      $pointer.css(initialStyle);
-
-      this.$().transition(get(solution, 'position'), 250);
-      $pointer.transition(get(solution, 'pointerPosition'), 250);
-    } else {
-      var offset = this.$().offsetParent().offset();
-      var top = get(solution, 'clientBox.top') - offset.top;
-      var left = get(solution, 'clientBox.left') - offset.left;
-      this.$().css({
+      var offset = $popup.offsetParent().offset();
+      var top = popupRect.top - offset.top;
+      var left = popupRect.left - offset.left;
+      $popup.css({
         top: top + 'px',
         left: left + 'px'
       });
       $pointer.css({
-        top: get(solution, 'pointerBox.top') + 'px',
-        left: get(solution, 'pointerBox.left') + 'px'
+        top: pointerRect.top + 'px',
+        left: pointerRect.left + 'px'
       });
     }
-
-    set(this, 'solution', solution);
   }
 
 });

@@ -1,5 +1,3 @@
-import Ember from "ember";
-
 var registerFlow = function (container, flowName, constraintGenerator) {
   container.register('popup-menu/flow:' + flowName, constraintGenerator, { instantiate: false });
 };
