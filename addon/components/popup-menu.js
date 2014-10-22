@@ -343,7 +343,7 @@ var PopupMenuComponent = Ember.Component.extend({
     if (this.__animating) { return; }
 
     var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
-    var animation = get(this, 'animation') || 'scale';
+    var animation = get(this, 'animation');
     var self = this;
 
     this.__animating = true;
