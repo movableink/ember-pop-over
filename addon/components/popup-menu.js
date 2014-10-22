@@ -1,6 +1,5 @@
 import Ember from "ember";
 import Rectangle from "../system/rectangle";
-import Flow from "../system/flow";
 
 var assert = Ember.assert;
 var bind = Ember.run.bind;
