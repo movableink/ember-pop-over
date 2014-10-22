@@ -288,7 +288,7 @@ var PopupMenuComponent = Ember.Component.extend({
   documentClick: function (evt) {
     var target = get(this, 'for');
     var label = labelForTarget($(evt.target));
-    var clickedInsidePopup = evt.target === get(this, 'element') || $.contains(get(this, 'element'), evt.element);
+    var clickedInsidePopup = evt.target === get(this, 'element') || $.contains(get(this, 'element'), evt.target);
     var clickedLabel = label.attr('for') === $(target).attr('id');
     var clickedTarget = evt.target === target || $.contains(target, evt.target);
 
