@@ -67,7 +67,6 @@ var PopupMenuComponent = Ember.Component.extend({
    */
   for: function (key, value) {
     if (value) {
-      this.__for = value;
       if (Ember.View.detectInstance(value)) {
         return get(value, 'element');
       } else if (typeof value === "string") {
@@ -77,7 +76,7 @@ var PopupMenuComponent = Ember.Component.extend({
       }
     }
     return null;
-  }.property(),
+  }.property().volatile(),
 
   on: function (key, value) {
     if (value) {
@@ -152,9 +151,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
 
   notifyForWillChange: function () {
-    if (this.__for) {
-      next(set, this, 'for', this.__for);
-    }
+    next(set, this, 'attachEventsToTargetElement');
   }.on('didInsertElement'),
 
   attachEventsToTargetElement: function () {
@@ -181,7 +178,7 @@ var PopupMenuComponent = Ember.Component.extend({
         });
       }
     }
-  }.observes('for'),
+  },
 
   removeEvents: function () {
     var eventManager = this.__targetEvents;
@@ -201,7 +198,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
       this.__targetEvents = null;
     }
-  }.observesBefore('for').on('willDestroyElement'),
+  }.on('willDestroyElement'),
 
 
   targetFocus: function () {
