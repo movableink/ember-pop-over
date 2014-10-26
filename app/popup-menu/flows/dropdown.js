@@ -3,4 +3,4 @@ export default function () {
    .then(this.orientLeft.andSnapTo(this.topEdge, this.bottomEdge))
    .then(this.orientRight.andSnapTo(this.topEdge))
    .then(this.orientBelow.andSnapTo(this.center));  
-};
+}

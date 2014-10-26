@@ -13,4 +13,4 @@ export default function () {
                          })
    )
    .then(this.orientAbove.andSnapTo(this.center));
-};
+}

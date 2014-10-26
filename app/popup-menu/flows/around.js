@@ -4,4 +4,4 @@ export default function () {
    .then(this.orientBelow.andSnapTo(this.center, this.rightEdge, this.leftEdge))
    .then(this.orientLeft .andSlideBetween(this.topEdge, this.bottomEdge))
    .then(this.orientAbove.andSnapTo(this.center));
-};
+}

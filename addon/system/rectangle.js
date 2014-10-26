@@ -45,7 +45,6 @@ Rectangle.prototype = {
   setY: function (y) {
     this.translateY(y - this.y);
   }
-
 };
 
 Rectangle.intersection = function (rectA, rectB) {
@@ -53,14 +52,14 @@ Rectangle.intersection = function (rectA, rectB) {
   var x = Math.max(rectA.x, rectB.x);
   var y = Math.max(rectA.y, rectB.y);
   var right  = Math.min(rectA.right, rectB.right);
-  var bottom = Math.min(rectB.bottom, rectB.bottom);
+  var bottom = Math.min(rectA.bottom, rectB.bottom);
   var width, height;
 
-  if (rectA.right < rectB.left ||
-      rectB.right < rectA.left ||
-      rectA.bottom < rectB.top ||
-      rectB.bottom < rectA.top) {
-    width = height = 0;
+  if (rectA.right <= rectB.left ||
+      rectB.right <= rectA.left ||
+      rectA.bottom <= rectB.top ||
+      rectB.bottom <= rectA.top) {
+    x = y = width = height = 0;
   } else {
     width  = Math.max(0, right - x);
     height = Math.max(0, bottom - y);
