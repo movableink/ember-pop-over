@@ -434,7 +434,7 @@ var PopupMenuComponent = Ember.Component.extend({
       var solution;
       for (var i = 0, len = constraints.length; i < len; i++) {
         solution = constraints[i].solveFor(boundingRect, targetRect, popupRect, pointerRect);
-        if (solution && boundingRect.contains(targetRect)) { break; }
+        if (solution.valid) { break; }
       }
 
       $popup.attr('style', '');
