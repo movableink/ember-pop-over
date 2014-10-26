@@ -56,8 +56,8 @@ var snapBelow = function (target, popup, pointer) {
   pointer.setY(popup.height - pointer.height * 2);  
 };
 
-var slideHorizontally = function (boundary, target, popup, pointer) {
-  var range = this.guideline.map(function (guideline) {
+var slideHorizontally = function (edges, boundary, target, popup, pointer) {
+  var range = edges.map(function (guideline) {
     switch (guideline) {
     case 'left-edge':
       return target.x + Math.min(target.width / 2 - (pointer.width * 1.5), 0);
@@ -107,8 +107,8 @@ var slideHorizontally = function (boundary, target, popup, pointer) {
   }
 };
 
-var slideVertically = function (boundary, target, popup, pointer) {
-  var range = this.guideline.map(function (guideline) {
+var slideVertically = function (edges, boundary, target, popup, pointer) {
+  var range = edges.map(function (guideline) {
     switch (guideline) {
     case 'top-edge':
       return target.y + Math.min(target.height / 2 - (pointer.height * 1.5), 0);
@@ -181,11 +181,11 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
     switch (orientation) {
     case 'above':
     case 'below':
-      pointer = slideHorizontally(boundingRect, targetRect, popupRect, pointerRect);
+      pointer = slideHorizontally(this.guideline, boundingRect, targetRect, popupRect, pointerRect);
       break;
     case 'left':
     case 'right':
-      pointer = slideVertically(boundingRect, targetRect, popupRect, pointerRect);
+      pointer = slideVertically(this.guideline, boundingRect, targetRect, popupRect, pointerRect);
       break;
     }
 
