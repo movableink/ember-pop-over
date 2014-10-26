@@ -211,7 +211,7 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
   return {
     orientation: orientation,
     pointer: pointer,
-    valid: pointer && boundingRect.contains(targetRect)
+    valid: pointer && boundingRect.contains(popupRect)
   };
 };
 
