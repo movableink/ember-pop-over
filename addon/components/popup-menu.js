@@ -437,9 +437,6 @@ var PopupMenuComponent = Ember.Component.extend({
         if (solution.valid) { break; }
       }
 
-      $popup.attr('style', '');
-      $pointer.attr('style', '');
-
       this.setProperties({
         orientation: solution.orientation,
         pointer:     solution.pointer
