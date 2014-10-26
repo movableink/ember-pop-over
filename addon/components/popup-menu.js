@@ -431,15 +431,11 @@ var PopupMenuComponent = Ember.Component.extend({
 
     if (boundingRect.intersects(targetRect)) {
       var constraints = get(this, 'flow');
-      var constraint = constraints.find(function (constraint) {
-        return constraint.satisfies(boundingRect, popupRect, targetRect, pointerRect);
-      });
-
-      if (constraint == null) {
-        constraint = get(constraints, 'lastObject');
+      var solution;
+      for (var i = 0, len = constraints.length; i < len; i++) {
+        solution = constraints[i].solveFor(boundingRect, targetRect, popupRect, pointerRect);
+        if (solution && boundingRect.contains(targetRect)) { break; }
       }
-
-      var solution = constraint.solveFor(boundingRect, popupRect, targetRect, pointerRect);
 
       $popup.attr('style', '');
       $pointer.attr('style', '');

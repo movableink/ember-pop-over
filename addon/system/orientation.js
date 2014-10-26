@@ -1,5 +1,5 @@
 import Ember from "ember";
-import OrientationConstraint from "./orientation_constraint";
+import Constraint from "./constraint";
 
 var reads = Ember.computed.reads;
 var slice = Array.prototype.slice;
@@ -35,7 +35,7 @@ var Orientation = Ember.Object.extend({
       guideline = snapGuidelines[i];
 
       constraints.push(
-        OrientationConstraint.create({
+        new Constraint({
           orientation: orientation,
           behavior:    'snap',
           guideline:   guideline
@@ -54,7 +54,7 @@ var Orientation = Ember.Object.extend({
   },
 
   andSlideBetween: function () {
-    var constraint = OrientationConstraint.create({
+    var constraint = new Constraint({
       orientation: get(this, 'orientation'),
       behavior:    'slide',
       guideline:   slice.call(arguments)
