@@ -148,13 +148,13 @@ var slideVertically = function (edges, boundary, target, popup, pointer) {
   popup.setY(top);
 
   if (Math.abs(dY) < Math.abs(center - oneThird)) {
-    pointer.setX(dY + Math.min(pointer.height, target.height / 2 - pointer.height / 2));
+    pointer.setY(dY + Math.min(pointer.height, target.height / 2 - pointer.height / 2));
     return 'top-edge';
   } else if (Math.abs(dY) < Math.abs(center + oneThird)) {
-    pointer.setX(dY + target.height / 2 - pointer.height / 2);
+    pointer.setY(dY + target.height / 2 - pointer.height / 2);
     return 'center';
   } else {
-    pointer.setX(dY + target.height - pointer.height * 3 / 2);
+    pointer.setY(dY + target.height - pointer.height * 3 / 2);
     return 'bottom-edge';
   }
 };
