@@ -67,7 +67,7 @@ var slideHorizontally = function (edges, boundary, target, popup, pointer) {
       return target.x + target.width - popup.width;
     }
     return [-1, -1];
-  });
+  }).sort();
 
   var minX = range[0];
   var maxX = range[1];
@@ -120,11 +120,12 @@ var slideVertically = function (edges, boundary, target, popup, pointer) {
     return [-1, -1];
   });
 
+  var top = range[0];
+  var bottom = top + popup.height;
+
+  range = range.sort();
   var minY = range[0];
   var maxY = range[1];
-
-  var top = minY;
-  var bottom = top + popup.height;
 
   var padding = pointer.height;
 
@@ -136,7 +137,7 @@ var slideVertically = function (edges, boundary, target, popup, pointer) {
   }
 
   // Not a solution
-  if (top > maxY) {
+  if (top > maxY || top < minY) {
     return false;
   }
 
@@ -144,7 +145,7 @@ var slideVertically = function (edges, boundary, target, popup, pointer) {
   var center = target.height / 2 - popup.height / 2;
   var oneThird = (target.height / 3 - popup.height / 3) / 2;
 
-  popup.setX(top);
+  popup.setY(top);
 
   if (Math.abs(dY) < Math.abs(center - oneThird)) {
     pointer.setX(dY + Math.min(pointer.height, target.height / 2 - pointer.height / 2));
