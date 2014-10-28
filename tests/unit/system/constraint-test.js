@@ -94,6 +94,8 @@ test("vertical slide", function () {
 
     target = new Rectangle(45, y, 10, 10);
     solution = constraint.solveFor(bounds, target, popup, pointer);
+    equal(solution.orientation, orientation);
+    equal(solution.pointer, 'bottom-edge');
     ok(!solution.valid);
   });
 });
@@ -104,46 +106,51 @@ test("vertical slide from center -> bottom", function () {
   var popup  = new Rectangle(0, 0, 40, 70);
   var pointer = new Rectangle(0, 0, 0, 0);
 
-  var constraint = new Constraint({
-    orientation: 'right',
-    behavior: 'slide',
-    guideline: ['center', 'top-edge']
-  });
+  ['right', 'left'].forEach(function (orientation) {
+    var constraint = new Constraint({
+      orientation: orientation,
+      behavior: 'slide',
+      guideline: ['center', 'top-edge']
+    });
 
-  var solution;
+    var solution;
+    var left = orientation === 'right' ? 55 : 5;
 
-  for (var y = 0; y < 20; y++) {
-    target = new Rectangle(45, y, 10, 10);
-    solution = constraint.solveFor(bounds, target, popup, pointer);
-    equal(solution.orientation, 'right');
-    equal(solution.pointer, 'top-edge');
-    ok(solution.valid);
+    for (var y = 0; y < 20; y++) {
+      target = new Rectangle(45, y, 10, 10);
+      solution = constraint.solveFor(bounds, target, popup, pointer);
+      equal(solution.orientation, orientation);
+      equal(solution.pointer, 'top-edge');
+      ok(solution.valid);
 
-    equal(popup.top, 0);
-    equal(popup.left, 55);
-  }
-
-  for (; y <= 60; y++) {
-    target = new Rectangle(45, y, 10, 10);
-    solution = constraint.solveFor(bounds, target, popup, pointer);
-    equal(solution.orientation, 'right');
-    equal(solution.pointer, 'center');
-    ok(solution.valid);
-
-    if (y < 30) {
       equal(popup.top, 0);
-    } else {
-      equal(popup.top, y - 30);
+      equal(popup.left, left);
     }
-    equal(popup.left, 55);
-  }
 
-  target = new Rectangle(45, y, 10, 10);
-  solution = constraint.solveFor(bounds, target, popup, pointer);
-  ok(!solution.valid);
+    for (; y <= 60; y++) {
+      target = new Rectangle(45, y, 10, 10);
+      solution = constraint.solveFor(bounds, target, popup, pointer);
+      equal(solution.orientation, orientation);
+      equal(solution.pointer, 'center');
+      ok(solution.valid);
 
-  equal(popup.top, 30);
-  equal(popup.left, 55);
+      if (y < 30) {
+        equal(popup.top, 0);
+      } else {
+        equal(popup.top, y - 30);
+      }
+      equal(popup.left, left);
+    }
+
+    target = new Rectangle(45, y, 10, 10);
+    solution = constraint.solveFor(bounds, target, popup, pointer);
+    equal(solution.orientation, orientation);
+    equal(solution.pointer, 'center');
+    ok(!solution.valid);
+
+    equal(popup.top, 31);
+    equal(popup.left, left);
+  });
 });
 
 test("vertical slide from top -> center", function () {
@@ -152,49 +159,56 @@ test("vertical slide from top -> center", function () {
   var popup  = new Rectangle(0, 0, 40, 70);
   var pointer = new Rectangle(0, 0, 0, 0);
 
-  var constraint = new Constraint({
-    orientation: 'right',
-    behavior: 'slide',
-    guideline: ['bottom-edge', 'center']
-  });
+  ['right', 'left'].forEach(function (orientation) {
+    var constraint = new Constraint({
+      orientation: orientation,
+      behavior: 'slide',
+      guideline: ['bottom-edge', 'center']
+    });
 
-  var y = 29;
-  target = new Rectangle(45, y++, 10, 10);
-  var solution = constraint.solveFor(bounds, target, popup, pointer);
-  ok(!solution.valid);
+    var left = orientation === 'right' ? 55 : 5;
 
-  for (y; y < 40; y++) {
-    target = new Rectangle(45, y, 10, 10);
-    solution = constraint.solveFor(bounds, target, popup, pointer);
-    equal(solution.orientation, 'right');
-    equal(solution.pointer, 'center');
-    ok(solution.valid);
+    var y = 29;
+    target = new Rectangle(45, y++, 10, 10);
+    var solution = constraint.solveFor(bounds, target, popup, pointer);
+    ok(!solution.valid);
 
-    equal(popup.top, 0);
-    equal(popup.left, 55);
-  }
+    equal(popup.top, -1);
+    equal(popup.left, left);
 
-  for (; y <= 90; y++) {
-    target = new Rectangle(45, y, 10, 10);
-    solution = constraint.solveFor(bounds, target, popup, pointer);
-    equal(solution.orientation, 'right');
-    equal(solution.pointer, 'bottom-edge');
-    ok(solution.valid);
+    for (y; y < 40; y++) {
+      target = new Rectangle(45, y, 10, 10);
+      solution = constraint.solveFor(bounds, target, popup, pointer);
+      equal(solution.orientation, orientation);
+      equal(solution.pointer, 'center');
+      ok(solution.valid);
 
-    if (y <= 60) {
       equal(popup.top, 0);
-    } else {
-      equal(popup.top, y - 60);
+      equal(popup.left, left);
     }
-    equal(popup.left, 55);
-  }
 
-  target = new Rectangle(45, y, 10, 10);
-  solution = constraint.solveFor(bounds, target, popup, pointer);
-  ok(!solution.valid);
+    for (; y <= 90; y++) {
+      target = new Rectangle(45, y, 10, 10);
+      solution = constraint.solveFor(bounds, target, popup, pointer);
+      equal(solution.orientation, orientation);
+      equal(solution.pointer, 'bottom-edge');
+      ok(solution.valid);
 
-  equal(popup.top, 30);
-  equal(popup.left, 55);
+      if (y <= 60) {
+        equal(popup.top, 0);
+      } else {
+        equal(popup.top, y - 60);
+      }
+      equal(popup.left, left);
+    }
+
+    target = new Rectangle(45, y, 10, 10);
+    solution = constraint.solveFor(bounds, target, popup, pointer);
+    ok(!solution.valid);
+
+    equal(popup.top, 31);
+    equal(popup.left, left);
+  });
 });
 
 test("vertical slide from bottom -> center", function () {
@@ -203,44 +217,54 @@ test("vertical slide from bottom -> center", function () {
   var popup  = new Rectangle(0, 0, 40, 70);
   var pointer = new Rectangle(0, 0, 0, 0);
 
-  var constraint = new Constraint({
-    orientation: 'right',
-    behavior: 'slide',
-    guideline: ['top-edge', 'center']
-  });
+  ['right', 'left'].forEach(function (orientation) {
+    var constraint = new Constraint({
+      orientation: orientation,
+      behavior: 'slide',
+      guideline: ['top-edge', 'center']
+    });
 
-  var solution;
+    var left = orientation === 'right' ? 55 : 5;
 
-  for (var y = 0; y < 50; y++) {
-    target = new Rectangle(45, y, 10, 10);
-    solution = constraint.solveFor(bounds, target, popup, pointer);
-    equal(solution.orientation, 'right');
-    equal(solution.pointer, 'top-edge');
-    ok(solution.valid);
+    var y = -1;
+    target = new Rectangle(45, y++, 10, 10);
+    var solution = constraint.solveFor(bounds, target, popup, pointer);
+    ok(!solution.valid);
 
-    if (y < 30) {
-      equal(popup.top, y);
-    } else {
-      equal(popup.top, 30);
+    equal(popup.top, -1);
+    equal(popup.left, left);
+
+    for (; y < 50; y++) {
+      target = new Rectangle(45, y, 10, 10);
+      solution = constraint.solveFor(bounds, target, popup, pointer);
+      equal(solution.orientation, orientation);
+      equal(solution.pointer, 'top-edge');
+      ok(solution.valid);
+
+      if (y < 30) {
+        equal(popup.top, y);
+      } else {
+        equal(popup.top, 30);
+      }
+      equal(popup.left, left);
     }
-    equal(popup.left, 55);
-  }
 
-  for (; y <= 60; y++) {
+    for (; y <= 60; y++) {
+      target = new Rectangle(45, y, 10, 10);
+      solution = constraint.solveFor(bounds, target, popup, pointer);
+      equal(solution.orientation, orientation);
+      equal(solution.pointer, 'center');
+      ok(solution.valid);
+
+      equal(popup.top, 30);
+      equal(popup.left, left);
+    }
+
     target = new Rectangle(45, y, 10, 10);
     solution = constraint.solveFor(bounds, target, popup, pointer);
-    equal(solution.orientation, 'right');
-    equal(solution.pointer, 'center');
-    ok(solution.valid);
+    ok(!solution.valid);
 
-    equal(popup.top, 30);
-    equal(popup.left, 55);
-  }
-
-  target = new Rectangle(45, y, 10, 10);
-  solution = constraint.solveFor(bounds, target, popup, pointer);
-  ok(!solution.valid);
-
-  equal(popup.top, 30);
-  equal(popup.left, 55);
+    equal(popup.top, 31);
+    equal(popup.left, left);
+  });
 });

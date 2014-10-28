@@ -2,6 +2,7 @@ import Ember from "ember";
 
 var keys = Ember.keys;
 var compare = Ember.compare;
+var mixin = Ember.mixin;
 
 var orientAbove = function (target, popup, pointer) {
   popup.setY(target.top - pointer.height - popup.height);
@@ -85,26 +86,30 @@ var slideHorizontally = function (guidelines, boundary, target, popup, pointer) 
     left = boundary.right - popup.width - padding;
   }
 
-  // Not a solution
-  if (left > maxX || left < minX) {
-    return false;
-  }
+  var valid = left >= minX && left <= maxX;
+  left = Math.max(Math.min(left, maxX), minX);
 
   popup.setX(left);
 
   var dX = target.left - left;
   var oneThird = (edges['left-edge'] - edges['right-edge']) / 3;
+  var pointerClassName;
 
   if (dX < oneThird) {
     pointer.setX(dX + Math.min(pointer.width, target.width / 2 - pointer.width * 1.5));
-    return 'left-edge';
+    pointerClassName = 'left-edge';
   } else if (dX < oneThird * 2) {
     pointer.setX(dX + target.width / 2 - pointer.width / 2);
-    return 'center';
+    pointerClassName = 'center';
   } else {
     pointer.setX(dX + target.width - pointer.width * 1.5);
-    return 'right-edge';
+    pointerClassName = 'right-edge';
   }
+
+  return {
+    valid: valid,
+    pointer: pointerClassName
+  };
 };
 
 var slideVertically = function (guidelines, boundary, target, popup, pointer) {
@@ -135,26 +140,30 @@ var slideVertically = function (guidelines, boundary, target, popup, pointer) {
     top = boundary.bottom - popup.height - padding;
   }
 
-  // Not a solution
-  if (top > maxY || top < minY) {
-    return false;
-  }
+  var valid = top >= minY && top <= maxY;
+  top = Math.max(Math.min(top, maxY), minY);
 
   popup.setY(top);
 
   var dY = target.top - top;
   var oneThird = (edges['top-edge'] - edges['bottom-edge']) / 3;
+  var pointerClassName;
 
   if (dY < oneThird) {
     pointer.setY(dY + Math.min(pointer.height, target.height / 2 - pointer.height * 1.5));
-    return 'top-edge';
+    pointerClassName = 'top-edge';
   } else if (dY < oneThird * 2) {
     pointer.setY(dY + target.height / 2 - pointer.height / 2);
-    return 'center';
+    pointerClassName = 'center';
   } else {
     pointer.setY(dY + target.height - pointer.height * 1.5);
-    return 'bottom-edge';
+    pointerClassName = 'bottom-edge';
   }
+
+  return {
+    valid: valid,
+    pointer: pointerClassName
+  };
 };
 
 var Constraint = function (object) {
@@ -165,7 +174,10 @@ var Constraint = function (object) {
 
 Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, pointerRect) {
   var orientation = this.orientation;
-  var pointer;
+  var result = {
+    orientation: orientation,
+    valid: true
+  };
 
   // Orient the pane
   switch (orientation) {
@@ -180,17 +192,16 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
     switch (orientation) {
     case 'above':
     case 'below':
-      pointer = slideHorizontally(this.guideline, boundingRect, targetRect, popupRect, pointerRect);
+      mixin(result, slideHorizontally(this.guideline, boundingRect, targetRect, popupRect, pointerRect));
       break;
     case 'left':
     case 'right':
-      pointer = slideVertically(this.guideline, boundingRect, targetRect, popupRect, pointerRect);
+      mixin(result, slideVertically(this.guideline, boundingRect, targetRect, popupRect, pointerRect));
       break;
     }
 
   } else if (this.behavior === 'snap') {
-    pointer = this.guideline;
-
+    result.pointer = this.guideline;
     switch (this.guideline) {
     case 'center':
       switch (this.orientation) {
@@ -207,11 +218,8 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
     }
   }
 
-  return {
-    orientation: orientation,
-    pointer: pointer,
-    valid: pointer && boundingRect.contains(popupRect)
-  };
+  result.valid = result.valid && boundingRect.contains(popupRect);
+  return result;
 };
 
 export default Constraint;
