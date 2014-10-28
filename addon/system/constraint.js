@@ -1,6 +1,7 @@
 import Ember from "ember";
 
 var keys = Ember.keys;
+var compare = Ember.compare;
 
 var orientAbove = function (target, popup, pointer) {
   popup.setY(target.top - pointer.height - popup.height);
@@ -56,24 +57,24 @@ var snapBelow = function (target, popup, pointer) {
   pointer.setY(popup.height - pointer.height * 2);  
 };
 
-var slideHorizontally = function (edges, boundary, target, popup, pointer) {
-  var range = edges.map(function (guideline) {
-    switch (guideline) {
-    case 'left-edge':
-      return target.x + Math.min(target.width / 2 - (pointer.width * 1.5), 0);
-    case 'center':
-      return target.x + (target.width / 2 - popup.width / 2);
-    case 'right-edge':
-      return target.x + target.width - popup.width;
-    }
-    return [-1, -1];
-  }).sort();
+var slideHorizontally = function (guidelines, boundary, target, popup, pointer) {
+  var edges = {
+    'left-edge':  Math.min(target.width / 2 - (pointer.width * 1.5), 0),
+    'center':    (target.width / 2 - popup.width / 2),
+    'right-edge': target.width - popup.width
+  };
+  var range = guidelines.map(function (guideline) {
+    return edges[guideline] || [-1, -1];
+  });
 
-  var minX = range[0];
-  var maxX = range[1];
-
-  var left = minX;
+  var left = target.x + range[0];
   var right = left + popup.width;
+
+  range = range.sort(function (a, b) {
+    return compare(a, b);
+  });
+  var minX = target.x + range[0];
+  var maxX = target.x + range[1];
 
   var padding = pointer.width;
 
@@ -85,47 +86,45 @@ var slideHorizontally = function (edges, boundary, target, popup, pointer) {
   }
 
   // Not a solution
-  if (left > maxX) {
+  if (left > maxX || left < minX) {
     return false;
   }
 
-  var dX = target.left - left;
-  var center = target.width / 2 - popup.width / 2;
-  var oneThird = (target.width / 3 - popup.width / 3) / 2;
-
   popup.setX(left);
 
-  if (Math.abs(dX) < Math.abs(center - oneThird)) {
-    pointer.setX(dX + Math.min(pointer.width, target.width / 2 - pointer.width / 2));
+  var dX = target.left - left;
+  var oneThird = (edges['left-edge'] - edges['right-edge']) / 3;
+
+  if (dX < oneThird) {
+    pointer.setX(dX + Math.min(pointer.width, target.width / 2 - pointer.width * 1.5));
     return 'left-edge';
-  } else if (Math.abs(dX) < Math.abs(center + oneThird)) {
+  } else if (dX < oneThird * 2) {
     pointer.setX(dX + target.width / 2 - pointer.width / 2);
     return 'center';
   } else {
-    pointer.setX(dX + target.width - pointer.width * 3 / 2);
+    pointer.setX(dX + target.width - pointer.width * 1.5);
     return 'right-edge';
   }
 };
 
-var slideVertically = function (edges, boundary, target, popup, pointer) {
-  var range = edges.map(function (guideline) {
-    switch (guideline) {
-    case 'top-edge':
-      return target.y + Math.min(target.height / 2 - (pointer.height * 1.5), 0);
-    case 'center':
-      return target.y + (target.height / 2 - popup.height / 2);
-    case 'bottom-edge':
-      return target.y + target.height - popup.height;
-    }
-    return [-1, -1];
+var slideVertically = function (guidelines, boundary, target, popup, pointer) {
+  var edges = {
+    'top-edge':    Math.min(target.height / 2 - (pointer.height * 1.5), 0),
+    'center':      (target.height / 2 - popup.height / 2),
+    'bottom-edge': target.height - popup.height
+  };
+  var range = guidelines.map(function (guideline) {
+    return edges[guideline];
   });
 
-  var top = range[0];
+  var top = target.y + range[0];
   var bottom = top + popup.height;
 
-  range = range.sort();
-  var minY = range[0];
-  var maxY = range[1];
+  range = range.sort(function (a, b) {
+    return compare(a, b);
+  });
+  var minY = target.y + range[0];
+  var maxY = target.y + range[1];
 
   var padding = pointer.height;
 
@@ -141,20 +140,19 @@ var slideVertically = function (edges, boundary, target, popup, pointer) {
     return false;
   }
 
-  var dY = target.top - top;
-  var center = target.height / 2 - popup.height / 2;
-  var oneThird = (target.height / 3 - popup.height / 3) / 2;
-
   popup.setY(top);
 
-  if (Math.abs(dY) < Math.abs(center - oneThird)) {
-    pointer.setY(dY + Math.min(pointer.height, target.height / 2 - pointer.height / 2));
+  var dY = target.top - top;
+  var oneThird = (edges['top-edge'] - edges['bottom-edge']) / 3;
+
+  if (dY < oneThird) {
+    pointer.setY(dY + Math.min(pointer.height, target.height / 2 - pointer.height * 1.5));
     return 'top-edge';
-  } else if (Math.abs(dY) < Math.abs(center + oneThird)) {
+  } else if (dY < oneThird * 2) {
     pointer.setY(dY + target.height / 2 - pointer.height / 2);
     return 'center';
   } else {
-    pointer.setY(dY + target.height - pointer.height * 3 / 2);
+    pointer.setY(dY + target.height - pointer.height * 1.5);
     return 'bottom-edge';
   }
 };
