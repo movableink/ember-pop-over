@@ -141,7 +141,7 @@ var slideVertically = function (guidelines, boundary, target, popup, pointer) {
   }
 
   var valid = top >= minY && top <= maxY;
-  top = Math.max(Math.min(top, maxY), minY);
+  top = Math.max(Math.min(top, maxY), minY + padding);
 
   popup.setY(top);
 
@@ -150,13 +150,13 @@ var slideVertically = function (guidelines, boundary, target, popup, pointer) {
   var pointerClassName;
 
   if (dY < oneThird) {
-    pointer.setY(dY + Math.min(pointer.height, target.height / 2 - pointer.height * 1.5));
+    pointer.setY(dY + pointer.height + Math.min(target.height / 2 - (pointer.height * 1.5), 0));
     pointerClassName = 'top-edge';
   } else if (dY < oneThird * 2) {
     pointer.setY(dY + target.height / 2 - pointer.height / 2);
     pointerClassName = 'center';
   } else {
-    pointer.setY(dY + target.height - pointer.height * 1.5);
+    pointer.setY(dY - Math.min(target.height + (pointer.height * 1.5), 0));
     pointerClassName = 'bottom-edge';
   }
 
