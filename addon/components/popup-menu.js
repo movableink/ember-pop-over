@@ -1,7 +1,6 @@
 import Ember from "ember";
 import Rectangle from "../system/rectangle";
 
-var assert = Ember.assert;
 var bind = Ember.run.bind;
 var scheduleOnce = Ember.run.scheduleOnce;
 var next = Ember.run.next;
@@ -49,17 +48,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
   pointer: null,
 
-  flow: function (key, flowName) {
-    if (flowName) {
-      var constraints = this.container.lookup('popup-constraint:' + flowName);
-      assert(fmt(
-        ("The flow named '%@1' was not registered with PopupMenuComponent.\n" +
-         "Register your flow by using `PopupMenuComponent.registerFlow('%@1', function () { ... });`."), [flowName]), constraints);
-      return constraints;
-    }
-
-    return this.container.lookup('popup-constraint:around');
-  }.property(),
+  flow: 'around',
 
   /**
     The target element of the popup menu.
@@ -87,12 +76,12 @@ var PopupMenuComponent = Ember.Component.extend({
       if (typeof value === "string") {
         activators = w(value);
       }
-      assert("%@ are not valid activators.\nValid activators are 'focus', 'hover', 'click', and 'hold'".fmt(value),
+      Ember.assert("%@ are not valid activators.\nValid activators are 'focus', 'hover', 'click', and 'hold'".fmt(value),
              get(copy(activators).removeObjects(["focus", "hover", "click", "hold"]), 'length') === 0);
       return activators;
     }
 
-    assert("You must provide an event name to the {{popup-menu}}.\nValid events are 'focus', 'hover', 'click', and 'hold'", false);
+    Ember.assert("You must provide an event name to the {{popup-menu}}.\nValid events are 'focus', 'hover', 'click', and 'hold'", false);
   }.property(),
 
   /**
@@ -430,7 +419,11 @@ var PopupMenuComponent = Ember.Component.extend({
     var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
     if (boundingRect.intersects(targetRect)) {
-      var constraints = get(this, 'flow');
+      var flowName = get(this, 'flow');
+      var constraints = this.container.lookup('popup-constraint:' + flowName);
+      Ember.assert(fmt(
+        ("The flow named '%@1' was not registered with the {{popup-menu}}.\n" +
+         "Register your flow by creating a file at 'app/popup-menu/flows/%@1.js' with the following function body:\n\nexport default function %@1 () {\n  return this.orientBelow().andSnapTo(this.center);\n});"), [flowName]), constraints);
       var solution;
       for (var i = 0, len = constraints.length; i < len; i++) {
         solution = constraints[i].solveFor(boundingRect, targetRect, popupRect, pointerRect);
