@@ -1,7 +1,8 @@
 import Ember from "ember";
+import Flow from "ember-popup-menu/system/flow";
 import config from "../config/environment";
-import { registerFlow, registerAnimation } from "ember-popup-menu/system/dsl";
 
+var get = Ember.get;
 var keys = Ember.keys;
 
 export var initialize = function (container) {
@@ -11,7 +12,9 @@ export var initialize = function (container) {
     return matcher.test(path);
   }).forEach(function (path) {
     var flowName = path.replace(config.modulePrefix + '/popup-menu/flows/', '');
-    registerFlow(container, flowName, window.require(path)['default']);
+    var generator = window.require(path)['default'];
+    var constraints = get(generator.call(Flow.create()), 'constraints');
+    container.register('popup-constraint:' + flowName, constraints, { instantiate: false });
   });
 
   matcher = new RegExp(config.modulePrefix + '/popup-menu/animators/.*');
@@ -20,7 +23,9 @@ export var initialize = function (container) {
     return matcher.test(path);
   }).forEach(function (path) {
     var animatorName = path.replace(config.modulePrefix + '/popup-menu/animators/', '');
-    registerAnimation(container, animatorName, window.require(path)['default']);
+    var animator = window.require(path)['default'];
+
+    container.register('popup-animation:' + animationName, animator, { instantiate: false });
   });
 };
 
