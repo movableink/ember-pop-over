@@ -22,10 +22,10 @@ export var initialize = function (container) {
   keys(window.require.entries).filter(function (path) {
     return matcher.test(path);
   }).forEach(function (path) {
-    var animatorName = path.replace(config.modulePrefix + '/popup-menu/animators/', '');
-    var animator = window.require(path)['default'];
+    var animatonName = path.replace(config.modulePrefix + '/popup-menu/animators/', '');
+    var animaton = window.require(path)['default'];
 
-    container.register('popup-animation:' + animationName, animator, { instantiate: false });
+    container.register('popup-animation:' + animationName, animaton, { instantiate: false });
   });
 };
 
