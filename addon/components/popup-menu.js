@@ -137,6 +137,10 @@ var PopupMenuComponent = Ember.Component.extend({
       $(window).off(event, eventManager[event]);
     });
 
+    if (this.__documentClick) {
+      $(document).off('mousedown', this.__documentClick);
+    }
+
     this.removeObserver('isVisible', this, this.retile);
     this.__events = null;
   }.on('willDestroyElement'),
@@ -285,7 +289,6 @@ var PopupMenuComponent = Ember.Component.extend({
       set(this, 'isTargetActive', false);
     }
   },
-
 
   isActive: function (key, value) {
     var activators = get(this, 'on');
