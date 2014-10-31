@@ -44,6 +44,8 @@ var PopupMenuComponent = Ember.Component.extend({
     return pointer ? fmt('pointer-%@', [pointer]) : null;
   }.property('pointer'),
 
+  disabled: false,
+
   orientation: null,
 
   pointer: null,
@@ -198,22 +200,28 @@ var PopupMenuComponent = Ember.Component.extend({
 
 
   targetFocus: function () {
+    if (get(this, 'disabled')) { return; }
     set(this, 'isTargetFocused', true);
   },
 
   targetBlur: function () {
+    if (get(this, 'disabled')) { return; }
     set(this, 'isTargetFocused', false);
   },
 
   targetEnter: function () {
+    if (get(this, 'disabled')) { return; }
     set(this, 'isHoveringOverTarget', true);
   },
 
   targetLeave: function () {
+    if (get(this, 'disabled')) { return; }
     set(this, 'isHoveringOverTarget', false);
   },
 
   targetMouseDown: function (evt) {
+    if (get(this, 'disabled')) { return false; }
+
     var label = labelForTarget($(evt.target));
     var target = get(this, 'targetElement');
 
@@ -279,6 +287,8 @@ var PopupMenuComponent = Ember.Component.extend({
   },
 
   documentClick: function (evt) {
+    if (get(this, 'disabled')) { return; }
+
     var target = get(this, 'targetElement');
     var label = labelForTarget($(evt.target));
     var clickedInsidePopup = evt.target === get(this, 'element') || $.contains(get(this, 'element'), evt.target);
