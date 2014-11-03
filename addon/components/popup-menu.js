@@ -170,7 +170,7 @@ var PopupMenuComponent = Ember.Component.extend({
       });
 
       if ($target.attr('id')) {
-        var selector = fmt("label[for='%@']", $target.attr('id'));
+        var selector = fmt("label[for='%@']", [$target.attr('id')]);
         keys(eventManager).forEach(function (event) {
           $(document).on(event, selector, eventManager[event]);
         });
@@ -188,7 +188,7 @@ var PopupMenuComponent = Ember.Component.extend({
       });
 
       if ($target.attr('id')) {
-        var selector = fmt("label[for='%@']", $target.attr('id'));
+        var selector = fmt("label[for='%@']", [$target.attr('id')]);
         keys(eventManager).forEach(function (event) {
           $(document).off(event, selector, eventManager[event]);
         });
