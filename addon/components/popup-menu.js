@@ -226,7 +226,7 @@ var PopupMenuComponent = Ember.Component.extend({
     var target = get(this, 'targetElement');
 
     var clickedTarget = evt.target === target;
-    var clickedLabel = label && label.attr('targetElement') === $(target).attr('id');
+    var clickedLabel = label && label.attr('for') === $(target).attr('id');
 
     var isActive = get(this, 'isActive');
     if (clickedTarget || clickedLabel) {
@@ -263,7 +263,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
     // Treat clicks on <label> elements as triggers to
     // open the menu
-    if (label && label.attr('targetElement') === $(target).attr('id')) {
+    if (label && label.attr('for') === $(target).attr('id')) {
       return true;
     }
 
@@ -292,7 +292,7 @@ var PopupMenuComponent = Ember.Component.extend({
     var target = get(this, 'targetElement');
     var label = labelForTarget($(evt.target));
     var clickedInsidePopup = evt.target === get(this, 'element') || $.contains(get(this, 'element'), evt.target);
-    var clickedLabel = label.attr('targetElement') === $(target).attr('id');
+    var clickedLabel = label.attr('for') === $(target).attr('id');
     var clickedTarget = evt.target === target || $.contains(target, evt.target);
 
     if (!clickedInsidePopup && !clickedLabel && !clickedTarget) {
