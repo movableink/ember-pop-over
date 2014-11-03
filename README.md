@@ -1,12 +1,20 @@
-# Ember-popup-menu
+# ember {{popup-menu}}
 
-This README outlines the details of collaborating on this Ember addon.
+This popup-menu provides a pluggable interface for dealing with popups around your site. It has an inteface for registering constraint behaviors and animations.
+
+For use of the popup-menu as a tooltip, the following handlebars will do the trick:
+
+```handlebars
+<span id="help-me" class="icon-help"></span>
+{{#popup-menu for="help-me" on="hover"}}
+  Hey there!
+{{/popup-menu}}
+```
 
 ## Installation
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+* `npm install --save-dev ember-popup-menu`
+* `ember g ember-popup-menu`
 
 ## Running
 
