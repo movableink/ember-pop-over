@@ -75,7 +75,7 @@ test('on="click hold"', function() {
   });
 });
 
- test('on="hover"', function() {
+test('on="hover"', function() {
   expect(2);
   visit('/');
 
