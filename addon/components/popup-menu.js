@@ -225,7 +225,7 @@ var PopupMenuComponent = Ember.Component.extend({
     var label = labelForTarget($(evt.target));
     var target = get(this, 'targetElement');
 
-    var clickedTarget = evt.target === target;
+    var clickedTarget = evt.target === target || $.contains(target, evt.target);
     var clickedLabel = label && label.attr('for') === $(target).attr('id');
 
     var isActive = get(this, 'isActive');
