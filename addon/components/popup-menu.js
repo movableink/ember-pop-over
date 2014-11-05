@@ -157,8 +157,8 @@ var PopupMenuComponent = Ember.Component.extend({
     if (target) {
       var $target = $(target);
       var eventManager = {
-        focus: bind(this, 'targetFocus'),
-        blur: bind(this, 'targetBlur'),
+        focusin: bind(this, 'targetFocus'),
+        focusout: bind(this, 'targetBlur'),
         mouseenter: bind(this, 'targetEnter'),
         mouseleave: bind(this, 'targetLeave'),
         mousedown: bind(this, 'targetMouseDown')

@@ -1,5 +1,11 @@
 import Ember from 'ember';
 import startApp from '../helpers/start-app';
+import mouseUp from '../helpers/mouse-up';
+import mouseDown from '../helpers/mouse-down';
+import mouseEnter from '../helpers/mouse-enter';
+import mouseLeave from '../helpers/mouse-leave';
+import focus from '../helpers/focus';
+import blur from '../helpers/blur';
 
 var App;
 var later = Ember.run.later;
@@ -12,14 +18,6 @@ module('Acceptance: Events', {
     Ember.run(App, 'destroy');
   }
 });
-
-var mouseDown = function (selection) {
-  triggerEvent(selection, "mousedown");
-};
-
-var mouseUp = function (selection) {
-  triggerEvent(selection, "mouseup");
-};
 
 test('on="click"', function() {
   expect(4);
@@ -72,6 +70,57 @@ test('on="click hold"', function() {
   });
 
   click("#click-hold");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 0);
+  });
+});
+
+ test('on="hover"', function() {
+  expect(2);
+  visit('/');
+
+  mouseEnter("#hover");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  mouseLeave("#hover");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 0);
+  });
+});
+
+test('on="focus"', function() {
+  expect(2);
+  visit('/');
+
+  focus("#focus");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  blur("#focus");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 0);
+  });
+});
+
+test('on="hover focus"', function() {
+  expect(3);
+  visit('/');
+
+  focus("#hover-focus");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  mouseEnter("#hover-focus");
+  blur("#hover-focus");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  mouseLeave("#hover-focus");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 0);
   });
