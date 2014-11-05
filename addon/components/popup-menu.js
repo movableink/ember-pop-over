@@ -202,6 +202,7 @@ var PopupMenuComponent = Ember.Component.extend({
   targetFocus: function () {
     if (get(this, 'disabled')) { return; }
     set(this, 'isTargetFocused', true);
+    set(this, 'isTargetHeld', true);
   },
 
   targetBlur: function () {
@@ -216,6 +217,17 @@ var PopupMenuComponent = Ember.Component.extend({
 
   targetLeave: function () {
     if (get(this, 'disabled')) { return; }
+    set(this, 'isHoveringOverTarget', false);
+  },
+
+  mouseEnter: function () {
+    if (get(this, 'disabled')) { return; }
+    set(this, 'isHoveringOverSelf', true);
+  },
+
+  mouseLeave: function () {
+    if (get(this, 'disabled')) { return; }
+    set(this, 'isHoveringOverSelf', false);
     set(this, 'isHoveringOverTarget', false);
   },
 
@@ -271,10 +283,11 @@ var PopupMenuComponent = Ember.Component.extend({
       $target = $target.parents('ember-view');
     }
     var targetView = Ember.View.views[$target.attr('id')];
+    var activators = get(this, 'on');
 
     if (targetView && targetView.nearestOfType(PopupMenuComponent)) {
       targetView.trigger('click');
-    } else {
+    } else if (activators.contains('click') && activators.contains('hold')) {
       // If the user waits more than 400ms between mouseDown and mouseUp,
       // we can assume that they are clicking and dragging to the menu item,
       // and we should close the menu if they mouseup anywhere not inside
@@ -326,6 +339,9 @@ var PopupMenuComponent = Ember.Component.extend({
 
     if (activators.contains('hover')) {
       isActive = isActive || get(this, 'isHoveringOverTarget');
+      if (activators.contains('hold')) {
+        isActive = isActive || get(this, 'isHoveringOverSelf');
+      }
     }
 
     if (activators.contains('click') || activators.contains('hold')) {
@@ -333,7 +349,7 @@ var PopupMenuComponent = Ember.Component.extend({
     }
 
     return !!isActive;
-  }.property('on', 'isTargetFocused', 'isHoveringOverTarget', 'isTargetActive'),
+  }.property('on', 'isTargetFocused', 'isHoveringOverTarget', 'isTargetActive', 'isHoveringOverSelf'),
 
 
   /**

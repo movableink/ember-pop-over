@@ -20,7 +20,7 @@ module('Acceptance: Events', {
 });
 
 test('on="click"', function() {
-  expect(4);
+  expect(6);
   visit('/');
 
   click("#click");
@@ -41,6 +41,22 @@ test('on="click"', function() {
   click(".other");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 0);
+  });
+
+  mouseDown("#click");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  andThen(function () {
+    var defer = Ember.RSVP.defer();
+    later(defer, 'resolve', 400);
+    return defer.promise;
+  });
+
+  mouseUp("#click");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
   });
 });
 
@@ -85,6 +101,32 @@ test('on="hover"', function() {
   });
 
   mouseLeave("#hover");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 0);
+  });
+});
+
+test('on="hover hold"', function() {
+  expect(4);
+  visit('/');
+
+  mouseEnter("#hover-hold");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  mouseLeave("#hover-hold");
+  mouseEnter("#hover-hold-menu");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  mouseEnter("#hover-hold-menu .inner");
+  andThen(function () {
+    ok(find(".popup-menu:visible").length === 1);
+  });
+
+  mouseLeave("#hover-hold-menu");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 0);
   });

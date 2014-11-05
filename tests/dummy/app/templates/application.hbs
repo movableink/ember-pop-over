@@ -1,26 +1,31 @@
 <div class="other"></div>
 
-<div id="click"><span></span></div>
+<div id="click">Click<span></span></div>
 {{#popup-menu for="click" on="click"}}
   I have been clicked.
 {{/popup-menu}}
 
-<div id="click-hold"><span></span></div>
+<div id="click-hold">Click + Hold<span></span></div>
 {{#popup-menu for="click-hold" on="click hold"}}
   I have been clicked / held.
 {{/popup-menu}}
 
-<div id="hover"><span></span></div>
+<span id="hover">Hover<span></span></span>
 {{#popup-menu for="hover" on="hover"}}
   I have been hovered.
 {{/popup-menu}}
 
-<div id="focus"><span></span></div>
+<span id="hover-hold">Hover + Hold<span></span></span>
+{{#popup-menu id="hover-hold-menu" for="hover-hold" on="hover hold"}}
+  I have been hovered / held.<span class="inner"></span>
+{{/popup-menu}}
+
+<div id="focus">Focus<span></span></div>
 {{#popup-menu for="focus" on="focus"}}
   I have been focused.
 {{/popup-menu}}
 
-<div id="hover-focus"><span></span></div>
+<div id="hover-focus">Hover + Focus<span></span></div>
 {{#popup-menu for="hover-focus" on="focus hover"}}
   I have been focused / hovered.
 {{/popup-menu}}
