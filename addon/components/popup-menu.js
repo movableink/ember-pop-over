@@ -275,7 +275,7 @@ var PopupMenuComponent = Ember.Component.extend({
     if (targetView && targetView.nearestOfType(PopupMenuComponent)) {
       targetView.trigger('click');
     } else {
-      // If the user waits more than 200ms between mouseDown and mouseUp,
+      // If the user waits more than 400ms between mouseDown and mouseUp,
       // we can assume that they are clicking and dragging to the menu item,
       // and we should close the menu if they mouseup anywhere not inside
       // the menu.
