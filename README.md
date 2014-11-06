@@ -50,7 +50,7 @@ export default DropDown;
 
 ```handlebars
 <div id="current-user">Me</div>
-{{#drop-down for="help-me"}}
+{{#drop-down for="current-user"}}
   <ul>
     <li>Settings</li>
     <li>Billing</li>
