@@ -11,6 +11,53 @@ For use of the popup-menu as a tooltip, the following handlebars will do the tri
 {{/popup-menu}}
 ```
 
+## Recipes
+
+Tooltips:
+```javascript
+import PopupMenu from "ember-popup-menu/components/popup";
+
+var ToolTip = PopupMenu.extend({
+  classNames: ['tool-tip'],
+  layoutName: 'components/popup-menu',
+  on: ['hover', 'focus'],
+  flow: 'popup'
+});
+
+export default ToolTip;
+```
+
+```handlebars
+<span id="help-me" class="icon-help"></span>
+{{#tool-tip for="help-me"}}
+  Hey there!
+{{/tool-tip}}
+```
+
+Dropdown menu:
+```javascript
+import PopupMenu from "ember-popup-menu/components/popup";
+
+var DropDown = PopupMenu.extend({
+  classNames: ['drop-down'],
+  layoutName: 'components/popup-menu',
+  on: ['hover', 'focus', 'hold'],
+  flow: 'dropdown'
+});
+
+export default DropDown;
+```
+
+```handlebars
+<div id="current-user">Me</div>
+{{#drop-down for="help-me"}}
+  <ul>
+    <li>Settings</li>
+    <li>Billing</li>
+  </ul>
+{{/drop-down}}
+```
+
 ## Installation
 
 * `npm install --save-dev ember-popup-menu`
