@@ -121,8 +121,8 @@ var PopupMenuComponent = Ember.Component.extend({
     this.retile();
 
     var eventManager = {
-      scroll: bind(this, 'scroll'),
-      resize: bind(this, 'resize')
+      scroll: bind(this, 'retile'),
+      resize: bind(this, 'retile')
     };
     this.__events = eventManager;
 
@@ -423,14 +423,6 @@ var PopupMenuComponent = Ember.Component.extend({
     if (get(this, 'isVisible')) {
       scheduleOnce('afterRender', this, 'tile');
     }
-  },
-
-  scroll: function () {
-    this.retile();
-  },
-
-  resize: function () {
-    this.retile();
   },
 
   tile: function () {
