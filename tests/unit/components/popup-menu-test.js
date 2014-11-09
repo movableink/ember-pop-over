@@ -85,3 +85,38 @@ test('"retile" is called when will-change properties change', function() {
    });
   ok(!RETILE_CALLED);
 });
+
+test('classNames are applied when pointer and orientation are set', function() {
+  expect(5);
+
+  // creates the component instance
+  var component = this.subject({
+    on: "click"
+  });
+  this.append();
+
+  var $ = component.$();
+  equal($.prop('class'), "ember-view popup-menu");
+
+  run(function () {
+    set(component, 'orientation', 'above');
+  });
+  equal($.prop('class'), "ember-view popup-menu orient-above");
+
+  run(function () {
+    set(component, 'orientation', 'below');
+    set(component, 'pointer', 'center');
+  });
+  equal($.prop('class'), "ember-view popup-menu orient-below pointer-center");
+
+  run(function () {
+    set(component, 'orientation', null);
+    set(component, 'pointer', 'left');
+  });
+  equal($.prop('class'), "ember-view popup-menu pointer-left");
+
+  run(function () {
+    set(component, 'pointer', null);
+  });
+  equal($.prop('class'), "ember-view popup-menu");
+});
