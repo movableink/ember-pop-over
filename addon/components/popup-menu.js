@@ -111,6 +111,7 @@ var PopupMenuComponent = Ember.Component.extend({
     get(this, 'willChange').forEach(function (key) {
       addObserver(this, key, this, 'retile');
     }, this);
+    this.retile();
   }.observes('willChange').on('init'),
 
   // ..............................................
