@@ -1,6 +1,7 @@
 import Ember from "ember";
 import Target from "../system/target";
 import Rectangle from "../system/rectangle";
+import w from "../computed/w";
 
 var bind = Ember.run.bind;
 var scheduleOnce = Ember.run.scheduleOnce;
@@ -8,7 +9,6 @@ var next = Ember.run.next;
 var get = Ember.get;
 var set = Ember.set;
 var fmt = Ember.String.fmt;
-var w = Ember.String.w;
 
 var filterBy = Ember.computed.filterBy;
 var alias = Ember.computed.alias;
@@ -71,16 +71,7 @@ var PopupMenuComponent = Ember.Component.extend({
     Property that notifies the popup menu to retile
    */
   'will-change': alias('willChange'),
-  willChange: function (key, value) {
-    if (value) {
-      var observers = value;
-      if (typeof value === "string") {
-        observers = w(value);
-      }
-      return observers;
-    }
-    return [];
-  }.property(),
+  willChange: w(),
 
   willChangeWillChange: function () {
     get(this, 'willChange').forEach(function (key) {
