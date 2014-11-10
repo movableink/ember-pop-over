@@ -71,7 +71,7 @@ var ScrollSandbox = Ember.Mixin.create({
     the window.
    */
   mouseWheel: function (evt) {
-    var $element = this.$(),
+    var $element = this.$();
     var scrollTop = $element.scrollTop();
     var maximumScrollTop = $element.prop('scrollHeight') -
                            $element.outerHeight();
