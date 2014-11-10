@@ -159,8 +159,27 @@ var Target = Ember.Object.extend({
     return false;
   },
 
-  isActive: function () {
+  isActive: function (key, value) {
     var activators = get(this, 'on');
+    // Set
+    if (arguments.length > 1) {
+      if (value) {
+        if (activators.contains('focus')) {
+          set(this, 'focused', true);
+        } else if (activators.contains('hover')) {
+          set(this, 'hovered', true);
+        } else if (activators.contains('click')) {
+          set(this, 'active', true);
+        }
+      } else {
+        set(this, 'focused', false);
+        set(this, 'hovered', false);
+        set(this, 'active', false);
+      }
+      return value;
+    }
+
+    // Get
     var isActive = false;
 
     if (activators.contains('focus')) {

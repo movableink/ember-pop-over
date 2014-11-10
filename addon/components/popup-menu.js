@@ -185,6 +185,18 @@ var PopupMenuComponent = Ember.Component.extend({
     return get(activeTargets, 'length') > 0;
   }.property('activeTargets.length'),
 
+  activate: function (target) {
+    get(this, 'targets').findBy('target', target).set('isActive', true);
+  },
+
+  deactivate: function (target) {
+    if (target == null) {
+      get(this, 'targets').setEach('isActive', false);
+    } else {
+      get(this, 'targets').findBy('target', target).set('isActive', false);
+    }
+  },
+
   /**
     Before the menu is shown, setup click events
     to catch when the user clicks outside the
