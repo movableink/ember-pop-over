@@ -99,7 +99,11 @@ var Target = Ember.Object.extend(Ember.Evented, {
     };
 
     if (Ember.View.detectInstance(target)) {
-      target.one('didInsertElement', this, 'attach');
+      if (get(target, 'element')) {
+        this.attach();
+      } else {
+        target.one('didInsertElement', this, 'attach');
+      }
     }
   },
 
