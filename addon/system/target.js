@@ -84,10 +84,11 @@ var parseActivators = function (value) {
 };
 
 
-var Target = Ember.Object.extend({
+var Target = Ember.Object.extend(Ember.Evented, {
 
   init: function () {
-    Ember.assert("You cannot make the {{popup-menu}} a target of itself.", get(this, 'component') !== get(this, 'target'));
+    var target = get(this, 'target');
+    Ember.assert("You cannot make the {{popup-menu}} a target of itself.", get(this, 'component') !== target);
 
     this.eventManager = {
       focusin:    bind(this, 'focus'),
@@ -96,6 +97,10 @@ var Target = Ember.Object.extend({
       mouseleave: bind(this, 'mouseLeave'),
       mousedown:  bind(this, 'mouseDown')
     };
+
+    if (Ember.View.detectInstance(target)) {
+      target.one('didInsertElement', this, 'attach');
+    }
   },
 
   attach: function () {
@@ -103,8 +108,11 @@ var Target = Ember.Object.extend({
     var $element = $(element);
     var $document = $(document);
 
-    // Trap the element
-    this.element = element;
+    // Already attached or awaiting an element to exist
+    if (get(this, 'attached') || element == null) { return; }
+
+    set(this, 'attached', true);
+    set(this, 'element', element);
 
     var eventManager = this.eventManager;
 
