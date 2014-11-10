@@ -9,6 +9,7 @@ var set = Ember.set;
 var fmt = Ember.String.fmt;
 var w = Ember.String.w;
 var keys = Ember.keys;
+var guidFor = Ember.guidFor;
 var copy = Ember.copy;
 var alias = Ember.computed.alias;
 
@@ -17,6 +18,52 @@ var removeObserver = Ember.removeObserver;
 
 var RSVP = Ember.RSVP;
 var $ = Ember.$;
+
+var anyFlag = function (flags, flag) {
+  var flagKeys = keys(flags);
+  for (var i = 0, len = flagKeys.length; i < len; i++) {
+    var key = flagKeys[i];
+    if (flags[key] && get(flags[key], flag)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+var anyTargetClicked = function (targets, evt) {
+  for (var i = 0, len = targets.length; i < len; i++) {
+    if (isClicked(targets[i], evt)) {
+      return true;
+    }
+  }
+
+  var label = labelForEvent(evt);
+  if (label) {
+    for (i = 0, len = targets.length; i < len; i++) {
+      if (isLabelClicked(targets[i], label)) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+var isClicked = function (target, evt) {
+  var label = labelForEvent(evt);
+  return evt.target === target || $.contains(target, evt.target) ||
+         isLabelClicked(target, label);
+};
+
+var isLabelClicked = function (target, label) {
+  if (label == null) {
+    return false;
+  }
+  return $(label).attr('for') === $(target).attr('id');
+};
+
+var labelForEvent = function (evt) {
+  return labelForTarget($(evt.target));
+};
 
 var labelForTarget = function ($target) {
   if ($target[0].tagName.toLowerCase() === 'label') {
@@ -56,9 +103,7 @@ var PopupMenuComponent = Ember.Component.extend({
     The target element of the popup menu.
     Can be a view, id, or element.
    */
-  for: function (key, value) {
-    return value;
-  }.property(),
+  for: null,
 
   targetElement: function () {
     var value = get(this, 'for');
@@ -131,7 +176,7 @@ var PopupMenuComponent = Ember.Component.extend({
       $(window).on(event, eventManager[event]);
     });
 
-    this.addObserver('isVisible', this, this.retile);
+    addObserver(this, 'isVisible', this, 'retile');
   }.on('didInsertElement'),
 
   removeWindowEvents: function () {
@@ -144,7 +189,7 @@ var PopupMenuComponent = Ember.Component.extend({
       $(document).off('mousedown', this.__documentClick);
     }
 
-    this.removeObserver('isVisible', this, this.retile);
+    removeObserver(this, 'isVisible', this, 'retile');
     this.__events = null;
   }.on('willDestroyElement'),
 
@@ -154,18 +199,27 @@ var PopupMenuComponent = Ember.Component.extend({
   }.on('didInsertElement'),
 
   attachEventsToTargetElement: function () {
-    var target = get(this, 'targetElement');
-    if (target) {
+    var targets = [get(this, 'targetElement')];
+    var component = this;
+    var allFlags = this.__flags = {};
+    var eventManagers = this.__eventManagers = {};
+    var $document = $(document);
+
+    allFlags.self = Ember.Object.create();
+
+    targets.forEach(function (target) {
       var $target = $(target);
-      var eventManager = {
-        focusin: bind(this, 'targetFocus'),
-        focusout: bind(this, 'targetBlur'),
-        mouseenter: bind(this, 'targetEnter'),
-        mouseleave: bind(this, 'targetLeave'),
-        mousedown: bind(this, 'targetMouseDown')
+      var guid = guidFor(target);
+      var flags = allFlags[guid] = Ember.Object.create();
+
+      var eventManager = eventManagers[guid] = {
+        focusin:    bind(component, 'targetFocus', target, flags),
+        focusout:   bind(component, 'targetBlur', target, flags),
+        mouseenter: bind(component, 'targetEnter', target, flags),
+        mouseleave: bind(component, 'targetLeave', target, flags),
+        mousedown:  bind(component, 'targetMouseDown', target, flags)
       };
 
-      this.__targetEvents = eventManager;
       keys(eventManager).forEach(function (event) {
         $target.on(event, eventManager[event]);
       });
@@ -173,82 +227,95 @@ var PopupMenuComponent = Ember.Component.extend({
       if ($target.attr('id')) {
         var selector = fmt("label[for='%@']", [$target.attr('id')]);
         keys(eventManager).forEach(function (event) {
-          $(document).on(event, selector, eventManager[event]);
+          $document.on(event, selector, eventManager[event]);
         });
       }
-    }
+    });
   }.observes('targetElement'),
 
   removeEvents: function () {
-    var eventManager = this.__targetEvents;
-    var target = get(this, 'targetElement');
-    if (target && eventManager) {
+    var targets = [get(this, 'targetElement')];
+    var eventManagers = this.__eventManagers;
+    var $document = $(document);
+
+    if (eventManagers == null) {
+      return;
+    }
+
+    targets.forEach(function (target) {
+      var eventManager = eventManagers[guidFor(target)];
       var $target = $(target);
+      var id = $target.attr('id');
+
       keys(eventManager).forEach(function (event) {
         $target.off(event, eventManager[event]);
       });
 
-      if ($target.attr('id')) {
-        var selector = fmt("label[for='%@']", [$target.attr('id')]);
+
+      if (id) {
+        var selector = fmt("label[for='%@']", [id]);
         keys(eventManager).forEach(function (event) {
-          $(document).off(event, selector, eventManager[event]);
+          $document.off(event, selector, eventManager[event]);
         });
       }
+    });
 
-      this.__targetEvents = null;
-    }
+    this.__eventManagers = null;
   }.observesBefore('targetElement').on('willDestroyElement'),
 
-
-  targetFocus: function () {
+  targetFocus: function (target, flags) {
     if (get(this, 'disabled')) { return; }
-    set(this, 'isTargetFocused', true);
-    set(this, 'isTargetHeld', true);
+    set(flags, 'focused', true);
+    this.notifyPropertyChange('isActive');
   },
 
-  targetBlur: function () {
+  targetBlur: function (target, flags) {
     if (get(this, 'disabled')) { return; }
-    set(this, 'isTargetFocused', false);
+    set(flags, 'focused', false);
+    this.notifyPropertyChange('isActive');
   },
 
-  targetEnter: function () {
+  targetEnter: function (target, flags) {
     if (get(this, 'disabled')) { return; }
-    set(this, 'isHoveringOverTarget', true);
+    set(flags, 'hovered', true);
+    this.notifyPropertyChange('isActive');
   },
 
-  targetLeave: function () {
+  targetLeave: function (target, flags) {
     if (get(this, 'disabled')) { return; }
-    set(this, 'isHoveringOverTarget', false);
+    set(flags, 'hovered', false);
+    this.notifyPropertyChange('isActive');
   },
 
   mouseEnter: function () {
     if (get(this, 'disabled')) { return; }
-    set(this, 'isHoveringOverSelf', true);
+    var flags = this.__flags.self;
+    set(flags, 'hovered', true);
+    this.notifyPropertyChange('isActive');
   },
 
   mouseLeave: function () {
     if (get(this, 'disabled')) { return; }
-    set(this, 'isHoveringOverSelf', false);
-    set(this, 'isHoveringOverTarget', false);
+    var flags = this.__flags;
+    keys(flags).forEach(function (key) {
+      set(flags[key], 'hovered', false);
+    });
+    this.notifyPropertyChange('isActive');
   },
 
-  targetMouseDown: function (evt) {
+  targetMouseDown: function (target, flags, evt) {
     if (get(this, 'disabled')) { return false; }
 
-    var label = labelForTarget($(evt.target));
-    var target = get(this, 'targetElement');
-
-    var clickedTarget = evt.target === target || $.contains(target, evt.target);
-    var clickedLabel = label && label.attr('for') === $(target).attr('id');
-
     var isActive = get(this, 'isActive');
-    if (clickedTarget || clickedLabel) {
+    if (isClicked(target, evt)) {
       isActive = !isActive;
-      set(this, 'isTargetActive', isActive);
+      set(flags, 'active', isActive);
+      this.notifyPropertyChange('isActive');
       if (isActive) {
-        this.__holdStart = new Date().getTime();
-        this.__documentMouseUp = bind(this, 'targetMouseUp');
-        $(document).on('mouseup', this.__documentMouseUp);
+        var eventManager = this.__eventManagers[guidFor(target)];
+        flags.holdStart = new Date().getTime();
+        eventManager.mouseup = bind(this, 'targetMouseUp', target, flags, eventManager);
+        $(document).on('mouseup', eventManager.mouseup);
 
         evt.preventDefault();
       }
@@ -266,20 +333,19 @@ var PopupMenuComponent = Ember.Component.extend({
     When the user clicks the label, then holds the mouse down,
     the menu should close when they release the mouse.
    */
-  targetMouseUp: function (evt) {
-    $(document).off('mouseup', this.__documentMouseUp);
-    this.__documentMouseUp = null;
-    var target = get(this, 'targetElement');
+  targetMouseUp: function (target, flags, eventManager, evt) {
+    $(document).off('mouseup', eventManager.mouseup);
+    eventManager.mouseup = null;
 
-    var $target = $(evt.target);
-    var label = labelForTarget($target);
+    var label = labelForEvent(evt);
 
     // Treat clicks on <label> elements as triggers to
     // open the menu
-    if (label && label.attr('for') === $(target).attr('id')) {
+    if (isLabelClicked(target, label)) {
       return true;
     }
 
+    var $target = $(evt.target);
     if (!$target.hasClass('ember-view')) {
       $target = $target.parents('ember-view');
     }
@@ -293,8 +359,9 @@ var PopupMenuComponent = Ember.Component.extend({
       // we can assume that they are clicking and dragging to the menu item,
       // and we should close the menu if they mouseup anywhere not inside
       // the menu.
-      if (new Date().getTime() - this.__holdStart > 400) {
-        set(this, 'isTargetActive', false);
+      if (new Date().getTime() - flags.holdStart > 400) {
+        set(flags, 'active', false);
+        this.notifyPropertyChange('isActive');
       }
     }
     return true;
@@ -303,54 +370,62 @@ var PopupMenuComponent = Ember.Component.extend({
   documentClick: function (evt) {
     if (get(this, 'disabled')) { return; }
 
-    var target = get(this, 'targetElement');
-    var label = labelForTarget($(evt.target));
-    var clickedInsidePopup = evt.target === get(this, 'element') || $.contains(get(this, 'element'), evt.target);
-    var clickedLabel = label.attr('for') === $(target).attr('id');
-    var clickedTarget = evt.target === target || $.contains(target, evt.target);
+    var targets = [get(this, 'targetElement')];
+    var clickedInsidePopup = isClicked(get(this, 'element'), evt);
+    var clickedTarget = anyTargetClicked(targets, evt);
 
-    if (!clickedInsidePopup && !clickedLabel && !clickedTarget) {
-      set(this, 'isTargetActive', false);
+    if (!clickedInsidePopup && !clickedTarget) {
+      var flags = this.__flags;
+      keys(flags).forEach(function (key) {
+        set(flags[key], 'active', false);
+      });
+      this.notifyPropertyChange('isActive');
     }
   },
 
   isActive: function (key, value) {
     var activators = get(this, 'on');
     var isActive = false;
+    var allFlags = this.__flags || {};
+    var flags = allFlags.self || Ember.Object.create();
 
     if (value != null) {
       if (value === false) {
-        set(this, 'isTargetFocused', false);
-        set(this, 'isHoveringOverTarget', false);
-        set(this, 'isTargetActive', false);
+        keys(flags).forEach(function (key) {
+          set(allFlags[key], 'focused', false);
+          set(allFlags[key], 'hovered', false);
+          set(allFlags[key], 'active', false);
+        });
       } else if (value === true) {
         if (activators.contains('click') || activators.contains('hold')) {
-          set(this, 'isTargetActive', true);
+          set(flags, 'active', true);
         } else if (activators.contains('focus')) {
-          set(this, 'isTargetFocused', true);
+          set(flags, 'focused', true);
         } else if (activators.contains('hover')) {
-          set(this, 'isHoveringOverTarget', true);
+          set(flags, 'hovered', true);
         }
       }
     }
 
     if (activators.contains('focus')) {
-      isActive = isActive || get(this, 'isTargetFocused');
+      isActive = isActive || anyFlag(allFlags, 'focused');
     }
 
     if (activators.contains('hover')) {
-      isActive = isActive || get(this, 'isHoveringOverTarget');
+      allFlags.self = null;
+      isActive = isActive || anyFlag(allFlags, 'hovered');
       if (activators.contains('hold')) {
-        isActive = isActive || get(this, 'isHoveringOverSelf');
+        isActive = isActive || get(flags, 'hovered');
       }
+      allFlags.self = flags;
     }
 
     if (activators.contains('click') || activators.contains('hold')) {
-      isActive = isActive || get(this, 'isTargetActive');
+      isActive = isActive || anyFlag(allFlags, 'active');
     }
 
     return !!isActive;
-  }.property('on', 'isTargetFocused', 'isHoveringOverTarget', 'isTargetActive', 'isHoveringOverSelf'),
+  }.property('on'),
 
 
   /**
@@ -363,7 +438,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
     var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
     var animation = get(this, 'animation');
-    var self = this;
+    var component = this;
 
     var isActive = get(this, 'isActive');
     var isInactive = !isActive;
@@ -374,7 +449,7 @@ var PopupMenuComponent = Ember.Component.extend({
       this.__animating = true;
       this.show(animation).then(function () {
         $(document).on('mousedown', proxy);
-        self.__animating = false;
+        component.__animating = false;
       });
 
     // Remove click events immediately
@@ -382,24 +457,24 @@ var PopupMenuComponent = Ember.Component.extend({
       this.__animating = true;
       $(document).off('mousedown', proxy);
       this.hide(animation).then(function () {
-        self.__animating = false;
+        component.__animating = false;
       });
     }
   }.observes('isActive').on('init'),
 
   hide: function (animationName) {
     var deferred = RSVP.defer();
-    var self = this;
+    var component = this;
     var animation = this.container.lookup('popup-animation:' + animationName);
     next(this, function () {
       if (animation) {
         var promise = animation.out.call(this);
         promise.then(function () {
-          set(self, 'isVisible', false);
+          set(component, 'isVisible', false);
         });
         deferred.resolve(promise);
       } else {
-        set(self, 'isVisible', false);
+        set(component, 'isVisible', false);
         deferred.resolve();
       }
     });
