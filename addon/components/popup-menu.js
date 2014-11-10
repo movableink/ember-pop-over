@@ -12,6 +12,7 @@ var keys = Ember.keys;
 var guidFor = Ember.guidFor;
 var copy = Ember.copy;
 var alias = Ember.computed.alias;
+var isArray = Ember.isArray;
 
 var addObserver = Ember.addObserver;
 var removeObserver = Ember.removeObserver;
@@ -105,16 +106,28 @@ var PopupMenuComponent = Ember.Component.extend({
    */
   for: null,
 
-  targetElement: function () {
-    var value = get(this, 'for');
-    if (Ember.View.detectInstance(value)) {
-      return get(value, 'element');
-    } else if (typeof value === "string") {
-      return document.getElementById(value);
-    } else {
-      return value;
+  targetElements: function () {
+    var targets = get(this, 'for') || [];
+    if (typeof targets === "string") {
+      targets = w(targets);
     }
-    return null;
+
+    // Ember.View instances are array-like???
+    if (!isArray(targets) || Ember.View.detectInstance(targets)) {
+      targets = [targets];
+    }
+
+    var component = this;
+    return targets.map(function (target) {
+      if (Ember.View.detectInstance(target)) {
+        Ember.assert("You cannot make the {{popup-menu}} a target of itself.", component !== target);
+        return get(target, 'element');
+      } else if (typeof target === "string") {
+        return document.getElementById(target);
+      } else {
+        return target;
+      }
+    });
   }.property('for', 'for.element'),
 
   on: function (key, value) {
@@ -195,11 +208,11 @@ var PopupMenuComponent = Ember.Component.extend({
 
 
   notifyForWillChange: function () {
-    next(this, 'notifyPropertyChange', 'targetElement');
+    next(this, 'notifyPropertyChange', 'targetElements');
   }.on('didInsertElement'),
 
   attachEventsToTargetElement: function () {
-    var targets = [get(this, 'targetElement')];
+    var targets = get(this, 'targetElements');
     var component = this;
     var allFlags = this.__flags = {};
     var eventManagers = this.__eventManagers = {};
@@ -231,10 +244,10 @@ var PopupMenuComponent = Ember.Component.extend({
         });
       }
     });
-  }.observes('targetElement'),
+  }.observes('targetElements'),
 
   removeEvents: function () {
-    var targets = [get(this, 'targetElement')];
+    var targets = get(this, 'targetElements');
     var eventManagers = this.__eventManagers;
     var $document = $(document);
 
@@ -261,28 +274,32 @@ var PopupMenuComponent = Ember.Component.extend({
     });
 
     this.__eventManagers = null;
-  }.observesBefore('targetElement').on('willDestroyElement'),
+  }.observesBefore('targetElements').on('willDestroyElement'),
 
   targetFocus: function (target, flags) {
     if (get(this, 'disabled')) { return; }
+    set(this, 'activeTarget', target);
     set(flags, 'focused', true);
     this.notifyPropertyChange('isActive');
   },
 
   targetBlur: function (target, flags) {
     if (get(this, 'disabled')) { return; }
+    set(this, 'activeTarget', target);
     set(flags, 'focused', false);
     this.notifyPropertyChange('isActive');
   },
 
   targetEnter: function (target, flags) {
     if (get(this, 'disabled')) { return; }
+    set(this, 'activeTarget', target);
     set(flags, 'hovered', true);
     this.notifyPropertyChange('isActive');
   },
 
   targetLeave: function (target, flags) {
     if (get(this, 'disabled')) { return; }
+    set(this, 'activeTarget', target);
     set(flags, 'hovered', false);
     this.notifyPropertyChange('isActive');
   },
@@ -290,6 +307,7 @@ var PopupMenuComponent = Ember.Component.extend({
   mouseEnter: function () {
     if (get(this, 'disabled')) { return; }
     var flags = this.__flags.self;
+    set(this, 'activeTarget', get(this, 'element'));
     set(flags, 'hovered', true);
     this.notifyPropertyChange('isActive');
   },
@@ -310,6 +328,7 @@ var PopupMenuComponent = Ember.Component.extend({
     if (isClicked(target, evt)) {
       isActive = !isActive;
       set(flags, 'active', isActive);
+      set(this, 'activeTarget', target);
       this.notifyPropertyChange('isActive');
       if (isActive) {
         var eventManager = this.__eventManagers[guidFor(target)];
@@ -370,7 +389,7 @@ var PopupMenuComponent = Ember.Component.extend({
   documentClick: function (evt) {
     if (get(this, 'disabled')) { return; }
 
-    var targets = [get(this, 'targetElement')];
+    var targets = get(this, 'targetElements');
     var clickedInsidePopup = isClicked(get(this, 'element'), evt);
     var clickedTarget = anyTargetClicked(targets, evt);
 
@@ -503,7 +522,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
   tile: function () {
     // Don't tile if there's nothing to constrain the popup menu around
-    if (!get(this, 'element') || !get(this, 'targetElement') && get(this, 'isActive')) {
+    if (!get(this, 'element') || !get(this, 'activeTarget') && get(this, 'isActive')) {
       return;
     }
 
@@ -512,7 +531,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
     var boundingRect = Rectangle.ofElement(window);
     var popupRect = Rectangle.ofView(this, 'padding');
-    var targetRect = Rectangle.ofElement(get(this, 'targetElement'), 'padding');
+    var targetRect = Rectangle.ofElement(get(this, 'activeTarget'), 'padding');
     var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
     if (boundingRect.intersects(targetRect)) {

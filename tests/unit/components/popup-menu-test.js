@@ -11,18 +11,21 @@ var run = Ember.run;
 moduleForComponent('popup-menu', 'PopupMenuComponent');
 
 test('"for" takes an string id', function() {
-  expect(1);
+  expect(2);
 
   // creates the component instance
   var component = this.subject({
     on: "click"
   });
   set(component, 'for', "ember-testing-container");
-  equal(get(component, 'targetElement'), document.getElementById("ember-testing-container"));
+
+  var targets = get(component, 'targetElements');
+  equal(targets.length, 1);
+  equal(targets[0], document.getElementById("ember-testing-container"));
 });
 
 test('"for" takes an element', function() {
-  expect(1);
+  expect(2);
 
   // creates the component instance
   var component = this.subject({
@@ -30,11 +33,14 @@ test('"for" takes an element', function() {
   });
   var element = document.getElementById("ember-testing-container");
   set(component, 'for', element);
-  equal(get(component, 'targetElement'), element);
+
+  var targets = get(component, 'targetElements');
+  equal(targets.length, 1);
+  equal(targets[0], element);
 });
 
 test('"for" takes a view', function() {
-  expect(2);
+  expect(3);
 
   // creates the component instance
   var component = this.subject({
@@ -46,7 +52,10 @@ test('"for" takes a view', function() {
   ok(view);
   var element = get(view, 'element');
   set(component, 'for', view);
-  equal(get(component, 'targetElement'), element);
+
+  var targets = get(component, 'targetElements');
+  equal(targets.length, 1);
+  equal(targets[0], element);
 });
 
 test('"retile" is called when will-change properties change', function() {
