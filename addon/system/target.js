@@ -151,10 +151,10 @@ var Target = Ember.Object.extend(Ember.Evented, {
     }
 
     // Remove references for GC
-    this.element = null;
-    this.target = null;
     this.eventManager = null;
-    this.component = null;
+    set(this, 'element', null);
+    set(this, 'target', null);
+    set(this, 'component', null);
   },
 
   on: function (key, value) {
