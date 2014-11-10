@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import startApp from '../helpers/start-app';
 import mouseUp from '../helpers/mouse-up';
+import simpleClick from '../helpers/simple-click';
 import mouseDown from '../helpers/mouse-down';
 import mouseEnter from '../helpers/mouse-enter';
 import mouseLeave from '../helpers/mouse-leave';
@@ -23,22 +24,22 @@ test('on="click"', function() {
   expect(6);
   visit('/');
 
-  click("#click");
+  simpleClick("#click");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 1);
   });
 
-  click("#click");
+  simpleClick("#click");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 0);
   });
 
-  click("#click span");
+  simpleClick("#click span");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 1);
   });
 
-  click(".other");
+  simpleClick(".other", null, { which: 1 });
   andThen(function () {
     ok(find(".popup-menu:visible").length === 0);
   });
@@ -80,12 +81,12 @@ test('on="click hold"', function() {
     ok(find(".popup-menu:visible").length === 0);
   });
 
-  click("#click-hold");
+  simpleClick("#click-hold");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 1);
   });
 
-  click("#click-hold");
+  simpleClick("#click-hold");
   andThen(function () {
     ok(find(".popup-menu:visible").length === 0);
   });

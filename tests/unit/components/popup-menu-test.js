@@ -10,54 +10,6 @@ var run = Ember.run;
 
 moduleForComponent('popup-menu', 'PopupMenuComponent');
 
-test('"for" takes an string id', function() {
-  expect(2);
-
-  // creates the component instance
-  var component = this.subject({
-    on: "click"
-  });
-  set(component, 'for', "ember-testing-container");
-
-  var targets = get(component, 'targetElements');
-  equal(targets.length, 1);
-  equal(targets[0], document.getElementById("ember-testing-container"));
-});
-
-test('"for" takes an element', function() {
-  expect(2);
-
-  // creates the component instance
-  var component = this.subject({
-    on: "click"
-  });
-  var element = document.getElementById("ember-testing-container");
-  set(component, 'for', element);
-
-  var targets = get(component, 'targetElements');
-  equal(targets.length, 1);
-  equal(targets[0], element);
-});
-
-test('"for" takes a view', function() {
-  expect(3);
-
-  // creates the component instance
-  var component = this.subject({
-    on: "click"
-  });
-  this.append();
-
-  var view = get(component, 'parentView');
-  ok(view);
-  var element = get(view, 'element');
-  set(component, 'for', view);
-
-  var targets = get(component, 'targetElements');
-  equal(targets.length, 1);
-  equal(targets[0], element);
-});
-
 test('"retile" is called when will-change properties change', function() {
   expect(4);
 
