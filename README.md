@@ -120,8 +120,6 @@ We're going to make the date picker a combination of a text field and a configur
 import Ember from "ember";
 import nearestChild from "ember-popup-menu/computed/nearest-child";
 
-var next = Ember.run.next;
-
 var get = Ember.get;
 
 var DatePicker = Ember.Component.extend({
@@ -131,13 +129,11 @@ var DatePicker = Ember.Component.extend({
   popup: nearestChild('popup-menu'),
   
   attachTargets: function () {
-    next(this, function () {
-      var popup = get(this, 'popup');
-      var icon = get(this, 'icon');
+    var popup = get(this, 'popup');
+    var icon = get(this, 'icon');
 
-      popup.addTarget(icon, {
-        on: "click"  
-      });
+    popup.addTarget(icon, {
+      on: "click"  
     });
   }.on('didInsertElement')
 });
@@ -149,7 +145,7 @@ Let's walk through the code.
 
 First, we imported `nearestChild`. This is a computed property that returns the nearest child of a given type. We then use this property to get the popup-menu.
 
-Then we add the icon as a target for the popup menu that will toggle the menu when clicked. We do this on the next run loop to ensure that all the views have been appended to the DOM. If we don't do this, then there is the potential that the target is never properly attached.
+Then we add the icon as a target for the popup menu that will toggle the menu when clicked.
 
 For the next step, let's start showing the popup live and doing some iterative development. To do this, we'll need to start fiddling with the app directory.
 
@@ -184,7 +180,6 @@ First, let's automatically generate an ID for the icon. This way, the popup-menu
 import Ember from "ember";
 import nearestChild from "ember-popup-menu/computed/nearest-child";
 
-var next = Ember.run.next;
 var generateGuid = Ember.generateGuid;
 
 var get = Ember.get;
@@ -198,13 +193,11 @@ var DatePicker = Ember.Component.extend({
   popup: nearestChild('popup-menu'),
   
   attachTargets: function () {
-    next(this, function () {
-      var popup = get(this, 'popup');
-      var icon = get(this, 'icon');
+    var popup = get(this, 'popup');
+    var icon = get(this, 'icon');
 
-      popup.addTarget(icon, {
-        on: "click"  
-      });
+    popup.addTarget(icon, {
+      on: "click"  
     });
   }.on('didInsertElement'),
   
@@ -231,7 +224,6 @@ import Ember from "ember";
 import moment from 'moment';
 import nearestChild from "ember-popup-menu/computed/nearest-child";
 
-var next = Ember.run.next;
 var generateGuid = Ember.generateGuid;
 
 var get = Ember.get;
@@ -247,13 +239,11 @@ var DatePicker = Ember.Component.extend({
   popup: nearestChild('popup-menu'),
   
   attachTargets: function () {
-    next(this, function () {
-      var popup = get(this, 'popup');
-      var icon = get(this, 'icon');
+    var popup = get(this, 'popup');
+    var icon = get(this, 'icon');
 
-      popup.addTarget(icon, {
-        on: "click"  
-      });
+    popup.addTarget(icon, {
+      on: "click"  
     });
   }.on('didInsertElement'),
   
