@@ -75,7 +75,9 @@ After this we'll add `ember-popup-menu` and `ember-moment` as a dependencies (*n
 ```bash
 $ cd my-date-picker
 $ npm install --save ember-popup-menu
+$ ember g ember-popup-menu
 $ npm install --save ember-moment
+$ ember g ember-moment
 ```
 
 Now, we're ready to start authoring the addon. Let's first start by creating the component javascript file.
@@ -94,7 +96,7 @@ var DatePicker = Ember.Component.extend({
 
 });
 
-export DatePicker;
+export default DatePicker;
 ```
 
 Let's define our public API first. This is what you will use to interface with the component in handlebars:
@@ -107,7 +109,7 @@ var DatePicker = Ember.Component.extend({
   icon: null
 });
 
-export DatePicker;
+export default DatePicker;
 ```
 
 `value` is the date that is picked and `icon` is an icon used to display a calendar icon.
@@ -140,7 +142,7 @@ var DatePicker = Ember.Component.extend({
   }.on('didInsertElement')
 });
 
-export DatePicker;
+export default DatePicker;
 ```
 
 Let's walk through the code.
@@ -219,7 +221,7 @@ var DatePicker = Ember.Component.extend({
   month: null
 });
 
-export DatePicker;
+export default DatePicker;
 ```
 
 As a default, let's make month be the current month *or* the month of the selected value:
@@ -286,7 +288,7 @@ var DatePicker = Ember.Component.extend({
   }.property('value')
 });
 
-export DatePicker;
+export default DatePicker;
 ```
 
 With this much, we should be able to rotate through a list of months in the calendar year. Let's test this by commenting out the `{{calendar-month}}` component:
