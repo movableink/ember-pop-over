@@ -163,11 +163,13 @@ This simply exposes the date picker as a component consumable by the host applic
 Next, let's add a handlebars template for the date picker, under `templates/components/date-picker.hbs`:
 
 ```handlebars
-{{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}></span>
+{{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}>Open</span>
 {{#popup-menu flow="dropdown"}}
-  <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
-  <div class="month">{{moment month "MMMM"}}</div>
-  <a class="next-month" {{action "nextMonth"}}>&gt;</a>
+  <header>
+    <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
+    <div class="month">{{moment month "MMMM"}}</div>
+    <a class="next-month" {{action "nextMonth"}}>&gt;</a>
+  </header>
   {{calendar-month month=month year=year}}
 {{/popup-menu}}
 ```
@@ -284,11 +286,13 @@ export default DatePicker;
 With this much, we should be able to rotate through a list of months in the calendar year. Let's test this by commenting out the `{{calendar-month}}` component:
 
 ```handlebars
-{{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}></span>
+{{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}>Open</span>
 {{#popup-menu flow="dropdown"}}
-  <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
-  <div class="month">{{moment month "MMMM"}}</div>
-  <a class="next-month" {{action "nextMonth"}}>&gt;</a>
+  <header>
+    <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
+    <div class="month">{{moment month "MMMM"}}</div>
+    <a class="next-month" {{action "nextMonth"}}>&gt;</a>
+  </header>
   {{!calendar-month month=month year=year}}
 {{/popup-menu}}
 ```
@@ -409,7 +413,7 @@ export default CalendarDay;
 ```
 
 ```handlebars
-{{moment value "D"}}
+<span>{{moment value "D"}}</span>
 ```
 
 Now let's pop our stack and finish by writing a handler for `selectDate` in `date-picker.js`:
@@ -483,6 +487,78 @@ export default DatePicker;
 ```
 
 When we deactivate the popup, we're telling it that all targets are not active anymore. That way, the popup hides.
+
+To polish it off, let's add styling. Create a file in addons called `styles/my-date-picker.css` and add the following CSS:
+
+```css
+.date-picker .popup-menu {
+  padding: 20px;
+}
+
+.date-picker header {
+  height: 25px;
+  position: relative;
+}
+.date-picker .next-month,
+.date-picker .previous-month {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+}
+
+.date-picker .next-month {
+  right: 0;
+}
+
+.date-picker .previous-month {
+  left: 0;
+}
+
+.date-picker .month {
+  text-align: center;
+}
+
+.calendar-month {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.calendar-month th {
+  font-family: sans-serif;
+  text-transform: uppercase;
+  font-size: 12px;
+  height: 30px;
+  border-bottom: 1px solid #999;
+  border-top: 3px solid #FFF;
+  margin-bottom: 5px;
+}
+
+.calendar-day {
+  cursor: pointer;
+  text-align: center;
+  width: 20px;
+  height: 20px;
+  padding: 1px;
+}
+
+.calendar-day span {
+  display: block;
+  padding: 5px;
+}
+
+.calendar-day.disabled {
+  color: #999;
+  cursor: default;
+}
+
+.calendar-day.is-today span {
+  border: 1px solid #666;
+}
+
+.calendar-day.selected span {
+  border: 1px solid #FFF;
+}
+```
 
 
 ## Installation
