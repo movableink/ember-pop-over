@@ -423,7 +423,7 @@ var CalendarDay = Ember.Component.extend({
   }.property('value', 'selection'),
   
   isDisabled: function () {
-    return moment(get(this, 'value')).isSame(get(this, 'month'), 'month');
+    return !moment(get(this, 'value')).isSame(get(this, 'month'), 'month');
   }.property('value', 'month'),
   
   click: function () {
