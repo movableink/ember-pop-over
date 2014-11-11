@@ -582,6 +582,8 @@ To polish it off, let's add styling. Create a file in addons called `styles/my-d
 }
 ```
 
+If everything went well, you should have a date-picker that behaves like the one here: http://paddle8.github.io/ember-popup-menu/
+
 
 ## Installation
 
