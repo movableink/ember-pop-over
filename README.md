@@ -93,7 +93,7 @@ Using the editor of your choice, add the following bootstrap code to get started
 import Ember from "ember";
 
 var DatePicker = Ember.Component.extend({
-
+  classNames: ['date-picker']
 });
 
 export default DatePicker;
@@ -123,6 +123,8 @@ import nearestChild from "ember-popup-menu/computed/nearest-child";
 var get = Ember.get;
 
 var DatePicker = Ember.Component.extend({
+  classNames: ['date-picker'],
+
   value: null,
   icon: null,
   
@@ -187,6 +189,8 @@ var generateGuid = Ember.generateGuid;
 var get = Ember.get;
 
 var DatePicker = Ember.Component.extend({
+  classNames: ['date-picker'],
+  
   value: null,
   icon: function () {
     return generateGuid();
@@ -243,6 +247,8 @@ var get = Ember.get;
 var reads = Ember.computed.reads;
 
 var DatePicker = Ember.Component.extend({
+  classNames: ['date-picker'],
+  
   value: null,
   icon: function () {
     return generateGuid();
@@ -324,6 +330,7 @@ import moment from "moment";
 var get = Ember.get;
 
 var CalendarMonth = Ember.Component.extend({
+  classNames: ['calendar-month'],
   tagName: "table",
   
   dayNames: function () {
@@ -399,6 +406,8 @@ var get = Ember.get;
 var reads = Ember.computed.reads;
 
 var CalendarDay = Ember.Component.extend({
+  classNames: ['calendar-day'],
+
   tagName: "td",
   classNameBindings: ['isSelected:selected', 'isToday', 'isDisabled:disabled'],
   
@@ -445,6 +454,7 @@ var set = Ember.set;
 var reads = Ember.computed.reads;
 
 var DatePicker = Ember.Component.extend({
+  classNames: ['date-picker'],
   value: null,
   icon: function () {
     return generateGuid();
