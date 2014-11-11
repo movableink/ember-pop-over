@@ -304,27 +304,33 @@ var get = Ember.get;
 var CalendarMonth = Ember.Component.extend({
   tagName: "table",
   
+  firstOfMonth: function () {
+    return moment({ year: get(this, 'year'), month: get(this, 'month') });
+  }.property('year', 'month'),
+  
   dayNames: function () {
-    var firstWeek = get(this, 'weeks.firstObject.days');
+    var firstWeek = get(this, 'weeks.firstObject');
     return firstWeek.map(function (day) {
       return moment(day).format("ddd");
     });
   }.property('weeks'),
   
   weeks: function () {
-    var firstOfMonth = moment({ year: get(this, 'year'), month: get(this, 'month') });
+    var firstOfMonth = get(this, 'firstOfMonth');
     var day = firstOfMonth.clone().startOf('week');
     var weeks = [];
     var week = [];
     for (var iDay = 0; iDay < 7; iDay++) {
-      week.push(day.add(1, 'day').toDate());
+      week.push(day.clone().toDate());
+      day.add(1, 'day')
     }
     weeks.push(week);
 
     while (day.month() == firstOfMonth.month()) {
       week = [];
       for (iDay = 0; iDay < 7; iDay++) {
-        week.push(day.add(1, 'day').toDate());
+        week.push(day.clone().toDate());
+        day.add(1, 'day');
       }
       weeks.push(week);
     }
@@ -348,15 +354,15 @@ And then add the template for it:
 <thead>
   <tr>
     {{#each dayOfWeek in dayNames}}
-      <td><h6>{{dayOfWeek}}</h6></td>
+      <td>{{dayOfWeek}}</td>
     {{/each}}
   </tr>
 </thead>
 <tbody>
-  {{#each weeks}}
+  {{#each week in weeks}}
     <tr>
-      {{#each day in days}}
-        {{calendar-day day=day month=month}}
+      {{#each day in week}}
+        {{calendar-day value=day month=firstOfMonth}}
       {{/each}}
     </tr>
   {{/each}}
@@ -391,19 +397,93 @@ var CalendarDay = Ember.Component.extend({
   
   isDisabled: function () {
     return moment(get(this, 'value')).isSame(get(this, 'month'), 'month');
-  }.property('value', 'month')
+  }.property('value', 'month'),
+  
+  click: function () {
+    if (get(this, 'isDisabled')) { return; }
+    get(this, 'datePicker').send('selectDate', get(this, 'value'));
+  }
 });
 
-export default CalendarMonth;
+export default CalendarDay;
 ```
 
 ```handlebars
-{{#if disabled}}
-  {{moment value "D"}}
-{{else}}
-  <a {{action "selectDate" value}}>{{moment value "D"}}</a>
-{{/if}}
+{{moment value "D"}}
 ```
+
+Now let's pop our stack and finish by writing a handler for `selectDate` in `date-picker.js`:
+
+```javascript
+import Ember from "ember";
+import moment from 'moment';
+import nearestChild from "ember-popup-menu/computed/nearest-child";
+
+var generateGuid = Ember.generateGuid;
+
+var get = Ember.get;
+var set = Ember.set;
+
+var reads = Ember.computed.reads;
+
+var DatePicker = Ember.Component.extend({
+  value: null,
+  icon: function () {
+    return generateGuid();
+  }.property(),
+  
+  popup: nearestChild('popup-menu'),
+  
+  attachTargets: function () {
+    var popup = get(this, 'popup');
+    var icon = get(this, 'icon');
+
+    popup.addTarget(icon, {
+      on: "click"  
+    });
+  }.on('didInsertElement'),
+  
+  actions: {
+    previousMonth: function () {
+      this.decrementProperty('month');
+    },
+    
+    nextMonth: function () {
+      this.incrementProperty('month');
+    },
+    
+    selectDate: function (date) {
+      set(this, 'value', date);
+      get(this, 'popup').deactivate();
+    }
+  },
+  
+  month: reads('currentMonth'),
+  year: reads('currentYear'),
+  
+  currentMonth: function () {
+    return get(this, 'value') ?
+           get(this, 'value').getMonth() :
+           new Date().getMonth();
+  }.property(),
+  
+  currentYear: function () {
+    return get(this, 'value') ?
+           get(this, 'value').getFullYear() :
+           new Date().getFullYear();
+  }.property(),
+  
+  displayValue: function () {
+    var value = get(this, 'value');
+    return value ? moment(value).format("MM/DD/YYYY") : null; 
+  }.property('value')
+});
+
+export default DatePicker;
+```
+
+When we deactivate the popup, we're telling it that all targets are not active anymore. That way, the popup hides.
+
 
 ## Installation
 
