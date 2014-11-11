@@ -379,7 +379,7 @@ And then add the template for it:
 <thead>
   <tr>
     {{#each dayOfWeek in dayNames}}
-      <td>{{dayOfWeek}}</td>
+      <th>{{dayOfWeek}}</th>
     {{/each}}
   </tr>
 </thead>
