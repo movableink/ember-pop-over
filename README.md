@@ -167,10 +167,10 @@ Next, let's add a handlebars template for the date picker, under `templates/comp
 {{#popup-menu flow="dropdown" will-change="month" month=month}}
   <header>
     <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
-    <div class="month">{{moment month "MMMM"}}</div>
+    <div class="month">{{moment firstOfMonth "MMMM"}}</div>
     <a class="next-month" {{action "nextMonth"}}>&gt;</a>
   </header>
-  {{calendar-month month=month year=year}}
+  {{calendar-month month=firstOfMonth}}
 {{/popup-menu}}
 ```
 
@@ -205,15 +205,25 @@ var DatePicker = Ember.Component.extend({
   
   actions: {
     previousMonth: function () {
-      this.decrementProperty('month');
+      var previousMonth = get(this, 'firstOfMonth').clone().subtract(1, 'month');
+      set(this, 'month', previousMonth.month());
+      set(this, 'year', previousMonth.year());
     },
     
     nextMonth: function () {
-      this.incrementProperty('month');
+      var nextMonth = get(this, 'firstOfMonth').clone().add(1, 'month');
+      set(this, 'month', nextMonth.month());
+      set(this, 'year', nextMonth.year());
     }
   },
   
-  month: null
+  month: null,
+  year: null,
+  
+  firstOfMonth: function () {
+    return moment({ year: get(this, 'year'), month: get(this, 'month') });
+  }.property('year', 'month')
+
 });
 
 export default DatePicker;
@@ -251,16 +261,24 @@ var DatePicker = Ember.Component.extend({
   
   actions: {
     previousMonth: function () {
-      this.decrementProperty('month');
+      var previousMonth = get(this, 'firstOfMonth').clone().subtract(1, 'month');
+      set(this, 'month', previousMonth.month());
+      set(this, 'year', previousMonth.year());
     },
     
     nextMonth: function () {
-      this.incrementProperty('month');
+      var nextMonth = get(this, 'firstOfMonth').clone().add(1, 'month');
+      set(this, 'month', nextMonth.month());
+      set(this, 'year', nextMonth.year());
     }
   },
   
   month: reads('currentMonth'),
   year: reads('currentYear'),
+  
+  firstOfMonth: function () {
+    return moment({ year: get(this, 'year'), month: get(this, 'month') });
+  }.property('year', 'month'),
   
   currentMonth: function () {
     return get(this, 'value') ?
@@ -290,10 +308,10 @@ With this much, we should be able to rotate through a list of months in the cale
 {{#popup-menu flow="dropdown" will-change="month" month=month}}
   <header>
     <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
-    <div class="month">{{moment month "MMMM"}}</div>
+    <div class="month">{{moment firstOfMonth "MMMM"}}</div>
     <a class="next-month" {{action "nextMonth"}}>&gt;</a>
   </header>
-  {{!calendar-month month=month year=year}}
+  {{!calendar-month month=firstOfMonth}}
 {{/popup-menu}}
 ```
 
@@ -308,10 +326,6 @@ var get = Ember.get;
 var CalendarMonth = Ember.Component.extend({
   tagName: "table",
   
-  firstOfMonth: function () {
-    return moment({ year: get(this, 'year'), month: get(this, 'month') });
-  }.property('year', 'month'),
-  
   dayNames: function () {
     var firstWeek = get(this, 'weeks.firstObject');
     return firstWeek.map(function (day) {
@@ -320,8 +334,8 @@ var CalendarMonth = Ember.Component.extend({
   }.property('weeks'),
   
   weeks: function () {
-    var firstOfMonth = get(this, 'firstOfMonth');
-    var day = firstOfMonth.clone().startOf('week');
+    var month = get(this, 'month');
+    var day = month.clone().startOf('week');
     var weeks = [];
     var week = [];
     for (var iDay = 0; iDay < 7; iDay++) {
@@ -330,7 +344,7 @@ var CalendarMonth = Ember.Component.extend({
     }
     weeks.push(week);
 
-    while (day.month() == firstOfMonth.month()) {
+    while (day.month() == month.month()) {
       week = [];
       for (iDay = 0; iDay < 7; iDay++) {
         week.push(day.clone().toDate());
@@ -339,7 +353,7 @@ var CalendarMonth = Ember.Component.extend({
       weeks.push(week);
     }
     return weeks;
-  }.property('month', 'year')
+  }.property('month')
 });
 
 export default CalendarMonth;
@@ -366,7 +380,7 @@ And then add the template for it:
   {{#each week in weeks}}
     <tr>
       {{#each day in week}}
-        {{calendar-day value=day month=firstOfMonth}}
+        {{calendar-day value=day month=month}}
       {{/each}}
     </tr>
   {{/each}}
@@ -449,11 +463,15 @@ var DatePicker = Ember.Component.extend({
   
   actions: {
     previousMonth: function () {
-      this.decrementProperty('month');
+      var previousMonth = get(this, 'firstOfMonth').clone().subtract(1, 'month');
+      set(this, 'month', previousMonth.month());
+      set(this, 'year', previousMonth.year());
     },
     
     nextMonth: function () {
-      this.incrementProperty('month');
+      var nextMonth = get(this, 'firstOfMonth').clone().add(1, 'month');
+      set(this, 'month', nextMonth.month());
+      set(this, 'year', nextMonth.year());
     },
     
     selectDate: function (date) {
@@ -465,6 +483,10 @@ var DatePicker = Ember.Component.extend({
   month: reads('currentMonth'),
   year: reads('currentYear'),
   
+  firstOfMonth: function () {
+    return moment({ year: get(this, 'year'), month: get(this, 'month') });
+  }.property('year', 'month'),
+
   currentMonth: function () {
     return get(this, 'value') ?
            get(this, 'value').getMonth() :
