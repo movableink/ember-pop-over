@@ -164,7 +164,7 @@ Next, let's add a handlebars template for the date picker, under `templates/comp
 
 ```handlebars
 {{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}>Open</span>
-{{#popup-menu flow="dropdown"}}
+{{#popup-menu flow="dropdown" will-change="month" month=month}}
   <header>
     <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
     <div class="month">{{moment month "MMMM"}}</div>
@@ -287,7 +287,7 @@ With this much, we should be able to rotate through a list of months in the cale
 
 ```handlebars
 {{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}>Open</span>
-{{#popup-menu flow="dropdown"}}
+{{#popup-menu flow="dropdown" will-change="month" month=month}}
   <header>
     <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
     <div class="month">{{moment month "MMMM"}}</div>
