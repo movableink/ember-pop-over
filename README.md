@@ -340,11 +340,11 @@ var CalendarMonth = Ember.Component.extend({
     var week = [];
     for (var iDay = 0; iDay < 7; iDay++) {
       week.push(day.clone().toDate());
-      day.add(1, 'day')
+      day.add(1, 'day');
     }
     weeks.push(week);
 
-    while (day.month() == month.month()) {
+    while (day.month() === month.month()) {
       week = [];
       for (iDay = 0; iDay < 7; iDay++) {
         week.push(day.clone().toDate());
