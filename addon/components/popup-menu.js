@@ -10,8 +10,8 @@ var get = Ember.get;
 var set = Ember.set;
 var fmt = Ember.String.fmt;
 
-var filterBy = Ember.computed.filterBy;
 var alias = Ember.computed.alias;
+var bool = Ember.computed.bool;
 
 var addObserver = Ember.addObserver;
 var removeObserver = Ember.removeObserver;
@@ -56,10 +56,9 @@ var PopupMenuComponent = Ember.Component.extend({
   on: null,
 
   addTarget: function (target, options) {
-    get(this, 'targets').pushObject(Target.create({
+    get(this, 'targets').pushObject(Target.create(options, {
       component: this,
-      target: target,
-      on: options.on
+      target: target
     }));
   },
 
@@ -159,22 +158,19 @@ var PopupMenuComponent = Ember.Component.extend({
     }
   },
 
-  activeTargets: filterBy('targets', 'isActive', true),
+  isActive: bool('activeTargets.length'),
 
-  isActive: function () {
-    var activeTargets = get(this, 'activeTargets');
+  activeTargets: function () {
+    return [];
+  }.property(),
 
-    // Bug in filterBy causing false negatives
-    if (activeTargets.length === 0) {
-      activeTargets = get(this, 'targets').filterBy('isActive', true);
+  activeTarget: function () {
+    if (get(this, 'isActive')) {
+      return get(this, 'targets').findBy('anchor', true) ||
+             get(this, 'activeTargets.firstObject');
     }
-
-    if (activeTargets.length > 1) {
-      Ember.Logger.warn("More than one target was activated for a {{popup-menu}}.\n" +
-                        "Using the first active target.");
-    }
-    return get(activeTargets, 'length') > 0;
-  }.property('activeTargets.length'),
+    return null;
+  }.property('activeTargets.[]'),
 
   activate: function (target) {
     get(this, 'targets').findBy('target', target).set('isActive', true);
@@ -262,7 +258,7 @@ var PopupMenuComponent = Ember.Component.extend({
   },
 
   tile: function () {
-    var target = get(this, 'activeTargets.firstObject');
+    var target = get(this, 'activeTarget');
     // Don't tile if there's nothing to constrain the popup menu around
     if (!get(this, 'element') || !target && get(this, 'isActive')) {
       return;

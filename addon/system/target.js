@@ -212,6 +212,18 @@ var Target = Ember.Object.extend(Ember.Evented, {
     return !!isActive;
   }.property('focused', 'hovered', 'active', 'component.hovered'),
 
+  didActivateOrDeactivate: function () {
+    var activeTargets = get(this, 'component.activeTargets') || [];
+    var isActive = get(this, 'isActive');
+    var wasActive = activeTargets.contains(this);
+
+    if (isActive && !wasActive) {
+      activeTargets.pushObject(this);
+    } else if (!isActive && wasActive) {
+      activeTargets.removeObject(this);
+    }
+  }.observes('isActive').on('init'),
+
   focus: guard(function () {
     set(this, 'focused', true);
   }),

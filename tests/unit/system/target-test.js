@@ -11,7 +11,8 @@ test('"for" takes an string id', function() {
   expect(1);
 
   var target = Target.create({
-    target: "ember-testing-container"
+    target: "ember-testing-container",
+    on: 'click'
   });
   target.attach();
   equal(target.element, document.getElementById("ember-testing-container"));
@@ -23,7 +24,8 @@ test('"for" takes an element', function() {
 
   var element = document.getElementById("ember-testing-container");
   var target = Target.create({
-    target: element
+    target: element,
+    on: 'click'
   });
   target.attach();
   equal(target.element, element);
@@ -38,7 +40,8 @@ test('"for" takes a view', function() {
     view.appendTo("#qunit-fixture");
   });
   var target = Target.create({
-    target: view
+    target: view,
+    on: 'click'
   });
   target.attach();
 
