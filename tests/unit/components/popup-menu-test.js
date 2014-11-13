@@ -15,12 +15,15 @@ test('"retile" is called when will-change properties change', function() {
 
   var RETILE_CALLED = false;
 
-  // creates the component instance
-  var component = this.subject({
-    on: "click",
-    retile: function () {
-      RETILE_CALLED = true;
-    }
+  var component;
+  run(this, function () {
+    component = this.subject({
+      on: "click",
+      retile: function () {
+        RETILE_CALLED = true;
+      }
+    });
+    this.append();
   });
 
   run(function () {
@@ -50,11 +53,13 @@ test('"retile" is called when will-change properties change', function() {
 test('classNames are applied when pointer and orientation are set', function() {
   expect(5);
 
-  // creates the component instance
-  var component = this.subject({
-    on: "click"
+  var component;
+  run(this, function () {
+    component = this.subject({
+      on: "click"
+    });
+    this.append();
   });
-  this.append();
 
   var $ = component.$();
   equal($.prop('class'), "ember-view popup-menu");

@@ -6,6 +6,8 @@ import w from "../computed/w";
 var bind = Ember.run.bind;
 var scheduleOnce = Ember.run.scheduleOnce;
 var next = Ember.run.next;
+var cancel = Ember.run.cancel;
+
 var get = Ember.get;
 var set = Ember.set;
 var fmt = Ember.String.fmt;
@@ -190,11 +192,21 @@ var PopupMenuComponent = Ember.Component.extend({
     menu.
    */
   visibilityDidChange: function () {
-    if (this.__animating) { return; }
+    var component = this;
 
+    if (this._animation) {
+      this._animation.then(function () {
+        component.visibilityDidChange();
+      });
+    }
+
+    scheduleOnce('afterRender', this, 'animateMenu');
+  }.observes('isActive').on('init'),
+
+  animateMenu: function () {
+    var component = this;
     var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
     var animation = get(this, 'animation');
-    var component = this;
 
     var isActive = get(this, 'isActive');
     var isInactive = !isActive;
@@ -202,27 +214,25 @@ var PopupMenuComponent = Ember.Component.extend({
     var isHidden = !isVisible;
 
     if (isActive && isHidden) {
-      this.__animating = true;
-      this.show(animation).then(function () {
+      this._animation = this.show(animation).then(function () {
         $(document).on('mousedown', proxy);
-        component.__animating = false;
+        component._animation = null;
       });
 
     // Remove click events immediately
     } else if (isInactive && isVisible) {
-      this.__animating = true;
       $(document).off('mousedown', proxy);
-      this.hide(animation).then(function () {
-        component.__animating = false;
+      this._animation = this.hide(animation).then(function () {
+        component._animation = null;
       });
     }
-  }.observes('isActive').on('init'),
+  },
 
   hide: function (animationName) {
     var deferred = RSVP.defer();
     var component = this;
     var animation = this.container.lookup('popup-animation:' + animationName);
-    next(this, function () {
+    this._hider = next(this, function () {
       if (animation) {
         var promise = animation.out.call(this);
         promise.then(function () {
@@ -238,6 +248,8 @@ var PopupMenuComponent = Ember.Component.extend({
   },
 
   show: function (animationName) {
+    cancel(this._hider);
+
     var deferred = RSVP.defer();
     var animation = this.container.lookup('popup-animation:' + animationName);
     set(this, 'isVisible', true);
@@ -248,6 +260,7 @@ var PopupMenuComponent = Ember.Component.extend({
         deferred.resolve();
       }
     });
+
     return deferred.promise;
   },
 
@@ -260,7 +273,7 @@ var PopupMenuComponent = Ember.Component.extend({
   tile: function () {
     var target = get(this, 'activeTarget');
     // Don't tile if there's nothing to constrain the popup menu around
-    if (!get(this, 'element') || !target && get(this, 'isActive')) {
+    if (!get(this, 'element') || !target) {
       return;
     }
 
