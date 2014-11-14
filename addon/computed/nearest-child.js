@@ -28,6 +28,13 @@ var recursivelyFindByType = function (typeClass, children) {
 
 export default function(type) {
   var tracking = Ember.Map.create();
+  var deleteItem;
+  if (tracking.delete) {
+    deleteItem = bind(tracking, 'delete');
+  } else {
+    deleteItem = bind(tracking, 'remove');
+  }
+
   return computed('childViews.[]', function nearestChild(key) {
     var typeClass = this.container.lookupFactory('component:' + type) ||
                     this.container.lookupFactory('view:' + type);
@@ -39,7 +46,7 @@ export default function(type) {
     });
 
     appendedChildren.forEach(function (child) {
-      tracking.delete(child);
+      deleteItem(child);
     });
 
     var notifyChildrenChanged = bind(this, 'notifyPropertyChange', key);
