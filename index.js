@@ -7,5 +7,6 @@ module.exports = {
         'dom-ruler': ['default']
       }
     });
+    app.import("vendor/styles/ember-popup-menu.css");
   }
 };
