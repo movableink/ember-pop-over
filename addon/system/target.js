@@ -196,6 +196,9 @@ var Target = Ember.Object.extend(Ember.Evented, {
 
     if (activators.contains('focus')) {
       isActive = isActive || get(this, 'focused');
+      if (activators.contains('hold')) {
+        isActive = isActive || get(this, 'component.active');
+      }
     }
 
     if (activators.contains('hover')) {
@@ -210,7 +213,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
     }
 
     return !!isActive;
-  }.property('focused', 'hovered', 'active', 'component.hovered'),
+  }.property('focused', 'hovered', 'active', 'component.hovered', 'component.active'),
 
   didActivateOrDeactivate: function () {
     var activeTargets = get(this, 'component.activeTargets') || [];

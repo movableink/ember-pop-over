@@ -144,6 +144,16 @@ var PopupMenuComponent = Ember.Component.extend({
     get(this, 'targets').setEach('hovered', false);
   },
 
+  mouseDown: function () {
+    if (get(this, 'disabled')) { return; }
+    set(this, 'active', true);
+  },
+
+  mouseUp: function () {
+    if (get(this, 'disabled')) { return; }
+    set(this, 'active', false);
+  },
+
   documentClick: function (evt) {
     if (get(this, 'disabled')) { return; }
 
