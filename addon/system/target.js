@@ -5,6 +5,8 @@ var copy = Ember.copy;
 var get = Ember.get;
 var set = Ember.set;
 
+var generateGuid = Ember.geneateGuid;
+
 var fmt = Ember.String.fmt;
 var w = Ember.String.w;
 
@@ -129,10 +131,16 @@ var Target = Ember.Object.extend(Ember.Evented, {
     set(this, 'attached', true);
     set(this, 'element', element);
 
+    var id = $element.attr('id');
+    if (id == null) {
+      id = generateGuid();
+      $element.attr('id', id);
+    }
+
     var eventManager = this.eventManager;
 
     keys(eventManager).forEach(function (event) {
-      $element.on(event, eventManager[event]);
+      $document.on(event, '#' + id, eventManager[event]);
     });
 
     var selector = getLabelSelector($element);
@@ -150,8 +158,9 @@ var Target = Ember.Object.extend(Ember.Evented, {
 
     var eventManager = this.eventManager;
 
+    var id = $element.attr('id');
     keys(eventManager).forEach(function (event) {
-      $element.off(event, eventManager[event]);
+      $document.off(event, '#' + id, eventManager[event]);
     });
 
     var selector = getLabelSelector($element);
