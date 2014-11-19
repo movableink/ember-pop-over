@@ -11,6 +11,11 @@ For use of the popup-menu as a tooltip, the following handlebars will do the tri
 {{/popup-menu}}
 ```
 
+## Installation
+
+* `npm install --save-dev ember-popup-menu`
+* `ember g ember-popup-menu`
+
 ## Recipes
 
 Tooltips:
@@ -135,7 +140,7 @@ var DatePicker = Ember.Component.extend({
     var icon = get(this, 'icon');
 
     popup.addTarget(icon, {
-      on: "click"  
+      on: "click"
     });
   }.on('didInsertElement')
 });
@@ -261,7 +266,7 @@ var DatePicker = Ember.Component.extend({
     var icon = get(this, 'icon');
 
     popup.addTarget(icon, {
-      on: "click"  
+      on: "click"
     });
   }.on('didInsertElement'),
   
@@ -300,7 +305,7 @@ var DatePicker = Ember.Component.extend({
   
   displayValue: function () {
     var value = get(this, 'value');
-    return value ? moment(value).format("MM/DD/YYYY") : null; 
+    return value ? moment(value).format("MM/DD/YYYY") : null;
   }.property('value')
 });
 
@@ -467,7 +472,7 @@ var DatePicker = Ember.Component.extend({
     var icon = get(this, 'icon');
 
     popup.addTarget(icon, {
-      on: "click"  
+      on: "click"
     });
   }.on('didInsertElement'),
   
@@ -511,7 +516,7 @@ var DatePicker = Ember.Component.extend({
   
   displayValue: function () {
     var value = get(this, 'value');
-    return value ? moment(value).format("MM/DD/YYYY") : null; 
+    return value ? moment(value).format("MM/DD/YYYY") : null;
   }.property('value')
 });
 
@@ -594,11 +599,6 @@ To polish it off, let's add styling. Create a file in addons called `styles/my-d
 
 If everything went well, you should have a date-picker that behaves like the one here: http://paddle8.github.io/ember-popup-menu/
 
-
-## Installation
-
-* `npm install --save-dev ember-popup-menu`
-* `ember g ember-popup-menu`
 
 ## Running
 
