@@ -243,6 +243,8 @@ var PopupMenuComponent = Ember.Component.extend({
     var component = this;
     var animation = this.container.lookup('popup-animation:' + animationName);
     this._hider = next(this, function () {
+      if (this.isDestroyed) { return; }
+
       if (animation) {
         var promise = animation.out.call(this);
         promise.then(function () {
