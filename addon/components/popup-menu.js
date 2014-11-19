@@ -157,6 +157,7 @@ var PopupMenuComponent = Ember.Component.extend({
   documentClick: function (evt) {
     if (get(this, 'disabled')) { return; }
 
+    set(this, 'active', false);
     var targets = get(this, 'targets');
     var element = get(this, 'element');
     var clicked = isSimpleClick(evt) &&

@@ -9,6 +9,7 @@ var fmt = Ember.String.fmt;
 var w = Ember.String.w;
 
 var bind = Ember.run.bind;
+var next = Ember.run.next;
 
 var isSimpleClick = Ember.ViewUtils.isSimpleClick;
 var $ = Ember.$;
@@ -83,6 +84,14 @@ var parseActivators = function (value) {
   );
 };
 
+var poll = function (target, scope, fn) {
+  if (getElementForTarget(target)) {
+    scope[fn]();
+  } else {
+    next(null, poll, target, scope, fn);
+  }
+};
+
 
 var Target = Ember.Object.extend(Ember.Evented, {
 
@@ -104,6 +113,8 @@ var Target = Ember.Object.extend(Ember.Evented, {
       } else {
         target.one('didInsertElement', this, 'attach');
       }
+    } else if (typeof target === 'string') {
+      poll(target, this, 'attach');
     }
   },
 
