@@ -14,6 +14,7 @@ var fmt = Ember.String.fmt;
 
 var alias = Ember.computed.alias;
 var bool = Ember.computed.bool;
+var filterBy = Ember.computed.filterBy;
 
 var addObserver = Ember.addObserver;
 var removeObserver = Ember.removeObserver;
@@ -173,9 +174,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
   isActive: bool('activeTargets.length'),
 
-  activeTargets: function () {
-    return [];
-  }.property(),
+  activeTargets: filterBy('targets', 'isActive', true),
 
   activeTarget: function () {
     if (get(this, 'isActive')) {
