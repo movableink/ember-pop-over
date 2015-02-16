@@ -20,7 +20,7 @@ For use of the popup-menu as a tooltip, the following handlebars will do the tri
 
 Tooltips:
 ```javascript
-import PopupMenu from "ember-popup-menu/components/popup";
+import PopupMenu from "ember-popup-menu/components/popup-menu";
 
 var ToolTip = PopupMenu.extend({
   classNames: ['tool-tip'],
@@ -41,7 +41,7 @@ export default ToolTip;
 
 Dropdown menu:
 ```javascript
-import PopupMenu from "ember-popup-menu/components/popup";
+import PopupMenu from "ember-popup-menu/components/popup-menu";
 
 var DropDown = PopupMenu.extend({
   classNames: ['drop-down'],
