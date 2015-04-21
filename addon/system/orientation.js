@@ -12,7 +12,7 @@ var Orientation = Ember.Object.extend({
   init: function () {
     this._super();
 
-    this._constraints = [];
+    this._constraints = Ember.A();
     set(this, 'defaultConstraint', {
       orientation: get(this, 'orientation')
     });
@@ -25,7 +25,7 @@ var Orientation = Ember.Object.extend({
   constraints: reads('defaultConstraint'),
 
   andSnapTo: function (snapGuidelines) {
-    var constraints = [],
+    var constraints = Ember.A(),
         guideline,
         orientation = get(this, 'orientation');
 
@@ -44,7 +44,7 @@ var Orientation = Ember.Object.extend({
     }
 
     if (!isArray(get(this, 'constraints'))) {
-      set(this, 'constraints', []);
+      set(this, 'constraints', Ember.A());
     }
 
     this._constraints.pushObjects(constraints);
@@ -61,7 +61,7 @@ var Orientation = Ember.Object.extend({
     });
 
     if (!isArray(get(this, 'constraints'))) {
-      set(this, 'constraints', []);
+      set(this, 'constraints', Ember.A());
     }
 
     this._constraints.pushObject(constraint);

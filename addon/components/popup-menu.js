@@ -3,28 +3,33 @@ import Target from "../system/target";
 import Rectangle from "../system/rectangle";
 import w from "../computed/w";
 
-var bind = Ember.run.bind;
-var scheduleOnce = Ember.run.scheduleOnce;
-var next = Ember.run.next;
-var cancel = Ember.run.cancel;
+const computed = Ember.computed;
+const on = Ember.on;
+const observer = Ember.observer;
+const beforeObserver = Ember.beforeObserver;
 
-var get = Ember.get;
-var set = Ember.set;
-var fmt = Ember.String.fmt;
+const bind = Ember.run.bind;
+const scheduleOnce = Ember.run.scheduleOnce;
+const next = Ember.run.next;
+const cancel = Ember.run.cancel;
 
-var alias = Ember.computed.alias;
-var bool = Ember.computed.bool;
-var filterBy = Ember.computed.filterBy;
+const get = Ember.get;
+const set = Ember.set;
+const fmt = Ember.String.fmt;
 
-var addObserver = Ember.addObserver;
-var removeObserver = Ember.removeObserver;
+const alias = Ember.computed.alias;
+const bool = Ember.computed.bool;
+const filterBy = Ember.computed.filterBy;
 
-var RSVP = Ember.RSVP;
+const addObserver = Ember.addObserver;
+const removeObserver = Ember.removeObserver;
 
-var isSimpleClick = Ember.ViewUtils.isSimpleClick;
-var $ = Ember.$;
+const RSVP = Ember.RSVP;
 
-var PopupMenuComponent = Ember.Component.extend({
+const isSimpleClick = Ember.ViewUtils.isSimpleClick;
+const $ = Ember.$;
+
+export default Ember.Component.extend({
 
   isVisible: false,
 
@@ -32,15 +37,15 @@ var PopupMenuComponent = Ember.Component.extend({
 
   classNameBindings: ['orientationClassName', 'pointerClassName'],
 
-  orientationClassName: function () {
+  orientationClassName: computed('orientation', function () {
     var orientation = get(this, 'orientation');
     return orientation ? fmt('orient-%@', [orientation]) : null;
-  }.property('orientation'),
+  }),
 
-  pointerClassName: function () {
+  pointerClassName: computed('pointer', function () {
     var pointer = get(this, 'pointer');
     return pointer ? fmt('pointer-%@', [pointer]) : null;
-  }.property('pointer'),
+  }),
 
   disabled: false,
 
@@ -65,9 +70,9 @@ var PopupMenuComponent = Ember.Component.extend({
     }));
   },
 
-  targets: function () {
-    return [];
-  }.property(),
+  targets: computed(function() {
+    return Ember.A();
+  }),
 
   /**
     Property that notifies the popup menu to retile
@@ -75,24 +80,24 @@ var PopupMenuComponent = Ember.Component.extend({
   'will-change': alias('willChange'),
   willChange: w(),
 
-  willChangeWillChange: function () {
+  willChangeWillChange: beforeObserver('willChange', function() {
     get(this, 'willChange').forEach(function (key) {
       removeObserver(this, key, this, 'retile');
     }, this);
-  }.observesBefore('willChange'),
+  }),
 
-  willChangeDidChange: function () {
+  willChangeDidChange: on('init', observer('willChange', function () {
     get(this, 'willChange').forEach(function (key) {
       addObserver(this, key, this, 'retile');
     }, this);
     this.retile();
-  }.observes('willChange').on('init'),
+  })),
 
   // ..............................................
   // Event management
   //
 
-  attachWindowEvents: function () {
+  attachWindowEvents: on('didInsertElement', function () {
     this.retile();
 
     var retile = this.__retile = bind(this, 'retile');
@@ -101,9 +106,9 @@ var PopupMenuComponent = Ember.Component.extend({
     });
 
     addObserver(this, 'isVisible', this, 'retile');
-  }.on('didInsertElement'),
+  }),
 
-  attachTargets: function () {
+  attachTargets: on('didInsertElement', function () {
     // Add implicit target
     if (get(this, 'for') && get(this, 'on')) {
       this.addTarget(get(this, 'for'), {
@@ -114,11 +119,10 @@ var PopupMenuComponent = Ember.Component.extend({
     next(this, function () {
       get(this, 'targets').invoke('attach');
     });
-  }.on('didInsertElement'),
+  }),
 
-  removeEvents: function () {
+  removeEvents: on('willDestroyElement', function () {
     get(this, 'targets').invoke('detach');
-    set(this, 'targets', []);
 
     var retile = this.__retile;
     ['scroll', 'resize'].forEach(function (event) {
@@ -132,7 +136,7 @@ var PopupMenuComponent = Ember.Component.extend({
 
     removeObserver(this, 'isVisible', this, 'retile');
     this.__retile = null;
-  }.on('willDestroyElement'),
+  }),
 
   mouseEnter: function () {
     if (get(this, 'disabled')) { return; }
@@ -176,13 +180,13 @@ var PopupMenuComponent = Ember.Component.extend({
 
   activeTargets: filterBy('targets', 'isActive', true),
 
-  activeTarget: function () {
+  activeTarget: computed('activeTargets.[]', function () {
     if (get(this, 'isActive')) {
       return get(this, 'targets').findBy('anchor', true) ||
              get(this, 'activeTargets.firstObject');
     }
     return null;
-  }.property('activeTargets.[]'),
+  }),
 
   activate: function (target) {
     get(this, 'targets').findBy('target', target).set('isActive', true);
@@ -201,7 +205,7 @@ var PopupMenuComponent = Ember.Component.extend({
     to catch when the user clicks outside the
     menu.
    */
-  visibilityDidChange: function () {
+  visibilityDidChange: on('init', observer('isActive', function () {
     var component = this;
 
     if (this._animation) {
@@ -211,7 +215,7 @@ var PopupMenuComponent = Ember.Component.extend({
     }
 
     scheduleOnce('afterRender', this, 'animateMenu');
-  }.observes('isActive').on('init'),
+  })),
 
   animateMenu: function () {
     var component = this;
@@ -329,5 +333,3 @@ var PopupMenuComponent = Ember.Component.extend({
   }
 
 });
-
-export default PopupMenuComponent;

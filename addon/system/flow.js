@@ -1,14 +1,16 @@
 import Ember from "ember";
 import Orientation from "./orientation";
 
-var Flow = Ember.Object.extend({
+const on = Ember.on;
 
-  setupOrienters: function () {
+export default Ember.Object.extend({
+
+  setupOrienters: on('init', function() {
     this.orientAbove = Orientation.create({ orientation: 'above' });
     this.orientBelow = Orientation.create({ orientation: 'below' });
     this.orientRight = Orientation.create({ orientation: 'right' });
     this.orientLeft = Orientation.create({ orientation: 'left' });
-  }.on('init'),
+  }),
 
   topEdge:    'top-edge',
   bottomEdge: 'bottom-edge',
@@ -16,5 +18,3 @@ var Flow = Ember.Object.extend({
   rightEdge:  'right-edge',
   center:     'center'
 });
-
-export default Flow;
