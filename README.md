@@ -1,5 +1,7 @@
 # ember {{popup-menu}}
 
+**NOTE: This is still pre-1.0 software and is subject to change.**
+
 This popup-menu provides a pluggable interface for dealing with popups around your site. It has an inteface for registering constraint behaviors and animations.
 
 For use of the popup-menu as a tooltip, the following handlebars will do the trick:
