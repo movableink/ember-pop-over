@@ -4,72 +4,72 @@ const keys = Ember.keys;
 const compare = Ember.compare;
 const mixin = Ember.mixin;
 
-function orientAbove(target, popup, pointer) {
-  popup.setY(target.top - pointer.height - popup.height);
-  pointer.setY(popup.height);
+function orientAbove(target, popover, pointer) {
+  popover.setY(target.top - pointer.height - popover.height);
+  pointer.setY(popover.height);
 }
 
-function orientBelow(target, popup, pointer) {
-  popup.setY(target.bottom + pointer.height);
+function orientBelow(target, popover, pointer) {
+  popover.setY(target.bottom + pointer.height);
   pointer.setY(pointer.height * -1);
 }
 
-function orientLeft(target, popup, pointer) {
-  popup.setX(target.left - pointer.width - popup.width);
-  pointer.setX(popup.width);
+function orientLeft(target, popover, pointer) {
+  popover.setX(target.left - pointer.width - popover.width);
+  pointer.setX(popover.width);
 }
 
-function orientRight(target, popup, pointer) {
-  popup.setX(target.right + pointer.width);
+function orientRight(target, popover, pointer) {
+  popover.setX(target.right + pointer.width);
   pointer.setX(pointer.width * -1);
 }
 
-function horizontallyCenter(target, popup, pointer) {
-  popup.setX(target.left + target.width / 2 - popup.width / 2);
-  pointer.setX(popup.width / 2 - pointer.width / 2);
+function horizontallyCenter(target, popover, pointer) {
+  popover.setX(target.left + target.width / 2 - popover.width / 2);
+  pointer.setX(popover.width / 2 - pointer.width / 2);
 }
 
-function verticallyCenter(target, popup, pointer) {
-  popup.setY(target.top + target.height / 2 - popup.height / 2);
-  pointer.setY(popup.height / 2 - pointer.height / 2);
+function verticallyCenter(target, popover, pointer) {
+  popover.setY(target.top + target.height / 2 - popover.height / 2);
+  pointer.setY(popover.height / 2 - pointer.height / 2);
 }
 
-function snapLeft(target, popup, pointer) {
+function snapLeft(target, popover, pointer) {
   const offsetLeft = Math.min(target.width / 2 - (pointer.width * 1.5), 0);
-  popup.setX(target.left + offsetLeft);
+  popover.setX(target.left + offsetLeft);
   pointer.setX(pointer.width);
 }
 
-function snapRight(target, popup, pointer) {
+function snapRight(target, popover, pointer) {
   const offsetRight = Math.min(target.width / 2 - (pointer.width * 1.5), 0);
-  popup.setX(target.right - offsetRight - popup.width);
-  pointer.setX(popup.width - pointer.width * 2);
+  popover.setX(target.right - offsetRight - popover.width);
+  pointer.setX(popover.width - pointer.width * 2);
 }
 
-function snapAbove(target, popup, pointer) {
+function snapAbove(target, popover, pointer) {
   const offsetTop = Math.min(target.height / 2 - (pointer.height * 1.5), 0);
-  popup.setY(target.top + offsetTop);
+  popover.setY(target.top + offsetTop);
   pointer.setY(pointer.height);
 }
 
-function snapBelow(target, popup, pointer) {
+function snapBelow(target, popover, pointer) {
   const offsetBottom = Math.min(target.height / 2 - (pointer.height * 1.5), 0);
-  popup.setY(target.bottom - offsetBottom - popup.height);
-  pointer.setY(popup.height - pointer.height * 2);
+  popover.setY(target.bottom - offsetBottom - popover.height);
+  pointer.setY(popover.height - pointer.height * 2);
 }
 
-function slideHorizontally(guidelines, boundary, target, popup, pointer) {
+function slideHorizontally(guidelines, boundary, target, popover, pointer) {
   var edges = {
     'left-edge':  Math.min(target.width / 2 - (pointer.width * 1.5), 0),
-    'center':    (target.width / 2 - popup.width / 2),
-    'right-edge': target.width - popup.width
+    'center':    (target.width / 2 - popover.width / 2),
+    'right-edge': target.width - popover.width
   };
   var range = Ember.A(guidelines).map(function (guideline) {
     return edges[guideline] || [-1, -1];
   });
 
   var left = target.x + range[0];
-  var right = left + popup.width;
+  var right = left + popover.width;
 
   range = range.sort(function (a, b) {
     return compare(a, b);
@@ -79,17 +79,17 @@ function slideHorizontally(guidelines, boundary, target, popup, pointer) {
 
   var padding = pointer.width;
 
-  // Adjust the popup so it remains in view
+  // Adjust the popover so it remains in view
   if (left < boundary.left + padding) {
     left = boundary.left + padding;
   } else if (right > boundary.right - padding) {
-    left = boundary.right - popup.width - padding;
+    left = boundary.right - popover.width - padding;
   }
 
   var valid = left >= minX && left <= maxX;
   left = Math.max(Math.min(left, maxX), minX);
 
-  popup.setX(left);
+  popover.setX(left);
 
   var dX = target.left - left;
   var oneThird = (edges['left-edge'] - edges['right-edge']) / 3;
@@ -112,18 +112,18 @@ function slideHorizontally(guidelines, boundary, target, popup, pointer) {
   };
 }
 
-function slideVertically(guidelines, boundary, target, popup, pointer) {
+function slideVertically(guidelines, boundary, target, popover, pointer) {
   var edges = {
     'top-edge':    Math.min(target.height / 2 - (pointer.height * 1.5), 0),
-    'center':      (target.height / 2 - popup.height / 2),
-    'bottom-edge': target.height - popup.height
+    'center':      (target.height / 2 - popover.height / 2),
+    'bottom-edge': target.height - popover.height
   };
   var range = Ember.A(guidelines).map(function (guideline) {
     return edges[guideline];
   });
 
   var top = target.y + range[0];
-  var bottom = top + popup.height;
+  var bottom = top + popover.height;
 
   range = range.sort(function (a, b) {
     return compare(a, b);
@@ -133,17 +133,17 @@ function slideVertically(guidelines, boundary, target, popup, pointer) {
 
   var padding = pointer.height;
 
-  // Adjust the popup so it remains in view
+  // Adjust the popover so it remains in view
   if (top < boundary.top + padding) {
     top = boundary.top + padding;
   } else if (bottom > boundary.bottom - padding) {
-    top = boundary.bottom - popup.height - padding;
+    top = boundary.bottom - popover.height - padding;
   }
 
   var valid = top >= minY && top <= maxY;
   top = Math.max(Math.min(top, maxY), minY + padding);
 
-  popup.setY(top);
+  popover.setY(top);
 
   var dY = target.top - top;
   var oneThird = (edges['top-edge'] - edges['bottom-edge']) / 3;
@@ -172,7 +172,7 @@ function Constraint(object) {
   }, this);
 }
 
-Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, pointerRect) {
+Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect, pointerRect) {
   var orientation = this.orientation;
   var result = {
     orientation: orientation,
@@ -181,10 +181,10 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
 
   // Orient the pane
   switch (orientation) {
-  case 'above': orientAbove(targetRect, popupRect, pointerRect); break;
-  case 'below': orientBelow(targetRect, popupRect, pointerRect); break;
-  case 'left':  orientLeft(targetRect, popupRect, pointerRect);  break;
-  case 'right': orientRight(targetRect, popupRect, pointerRect); break;
+  case 'above': orientAbove(targetRect, popoverRect, pointerRect); break;
+  case 'below': orientBelow(targetRect, popoverRect, pointerRect); break;
+  case 'left':  orientLeft(targetRect, popoverRect, pointerRect);  break;
+  case 'right': orientRight(targetRect, popoverRect, pointerRect); break;
   }
 
   // The pane should slide in the direction specified by the flow
@@ -192,11 +192,11 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
     switch (orientation) {
     case 'above':
     case 'below':
-      mixin(result, slideHorizontally(this.guideline, boundingRect, targetRect, popupRect, pointerRect));
+      mixin(result, slideHorizontally(this.guideline, boundingRect, targetRect, popoverRect, pointerRect));
       break;
     case 'left':
     case 'right':
-      mixin(result, slideVertically(this.guideline, boundingRect, targetRect, popupRect, pointerRect));
+      mixin(result, slideVertically(this.guideline, boundingRect, targetRect, popoverRect, pointerRect));
       break;
     }
 
@@ -206,19 +206,19 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, p
     case 'center':
       switch (this.orientation) {
       case 'above':
-      case 'below': horizontallyCenter(targetRect, popupRect, pointerRect); break;
+      case 'below': horizontallyCenter(targetRect, popoverRect, pointerRect); break;
       case 'left':
-      case 'right': verticallyCenter(targetRect, popupRect, pointerRect); break;
+      case 'right': verticallyCenter(targetRect, popoverRect, pointerRect); break;
       }
       break;
-    case 'top-edge':    snapAbove(targetRect, popupRect, pointerRect); break;
-    case 'bottom-edge': snapBelow(targetRect, popupRect, pointerRect); break;
-    case 'right-edge':  snapRight(targetRect, popupRect, pointerRect); break;
-    case 'left-edge':   snapLeft(targetRect, popupRect, pointerRect);  break;
+    case 'top-edge':    snapAbove(targetRect, popoverRect, pointerRect); break;
+    case 'bottom-edge': snapBelow(targetRect, popoverRect, pointerRect); break;
+    case 'right-edge':  snapRight(targetRect, popoverRect, pointerRect); break;
+    case 'left-edge':   snapLeft(targetRect, popoverRect, pointerRect);  break;
     }
   }
 
-  result.valid = result.valid && boundingRect.contains(popupRect);
+  result.valid = result.valid && boundingRect.contains(popoverRect);
   return result;
 };
 

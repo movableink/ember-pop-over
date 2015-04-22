@@ -1,41 +1,41 @@
-# ember {{popup-menu}}
+# ember {{pop-over}}
 
 **NOTE: This is still pre-1.0 software and is subject to change.**
 
-This popup-menu provides a pluggable interface for dealing with popups around your site. It has an inteface for registering constraint behaviors and animations.
+This pop-over provides a pluggable interface for dealing with pop overs around your site. It has an inteface for registering constraint behaviors and animations.
 
-For use of the popup-menu as a tooltip, the following handlebars will do the trick:
+For use of the pop-over as a tooltip, the following handlebars will do the trick:
 
 ```handlebars
 <span id="help-me" class="icon-help"></span>
-{{#popup-menu for="help-me" on="hover"}}
+{{#pop-over for="help-me" on="hover"}}
   Hey there!
-{{/popup-menu}}
+{{/pop-over}}
 ```
 
 ## Installation
 
-* `npm install --save-dev ember-popup-menu`
-* `ember g ember-popup-menu`
+* `npm install --save-dev ember-pop-over`
+* `ember g ember-pop-over`
 
 ## Flows
 
-Flows provide a mechanism to programatically define how popups interact with the page.
+Flows provide a mechanism to programatically define how pop overs interact with the page.
 
-The API for flows is designed to provide a clear interface for understanding how a popup will react when the page is scrolled or resized.
+The API for flows is designed to provide a clear interface for understanding how a pop over will react when the page is scrolled or resized.
 
-For example, a popup that always opens to the right of the target would look like:
+For example, a pop over that always opens to the right of the target would look like:
 
 ```javascript
-export default function () {
+export function popup() {
   return this.orientRight.andSnapTo(this.center);
 }
 ```
 
-If you would like the popup to slide between the top and bottom edge, you can use the `andSlideBetween` method:
+If you would like the pop over to slide between the top and bottom edge, you can use the `andSlideBetween` method:
 
 ```javascript
-export default function () {
+export function right() {
   return this.orientRight.andSlideBetween(this.topEdge, this.bottomEdge);
 }
 ```
@@ -44,10 +44,10 @@ If no flow satisfies the constraints of the page, then the last flow in the casc
 
  Orientation | Description
 -------------|----------------
- orientAbove | Orients the popup menu above the target
- orientLeft  | Orients the popup menu to the left of the target
- orientBelow | Orients the popup menu below the target
- orientRight | Orients the popup menu to the right of the target
+ orientAbove | Orients the pop over above the target
+ orientLeft  | Orients the pop over to the left of the target
+ orientBelow | Orients the pop over below the target
+ orientRight | Orients the pop over to the right of the target
 
  Behavior        | Description
 -----------------|----------------
@@ -73,11 +73,11 @@ For horizontal flows (`orientTop`, `orientBottom`), the possible names are:
 
 Tooltips:
 ```javascript
-import PopupMenu from "ember-popup-menu/components/popup-menu";
+import PopOver from "ember-pop-over/components/pop-over";
 
-var ToolTip = PopupMenu.extend({
+var ToolTip = PopOver.extend({
   classNames: ['tool-tip'],
-  layoutName: 'components/popup-menu',
+  layoutName: 'components/pop-over',
   on: ['hover', 'focus'],
   flow: 'popup'
 });
@@ -94,11 +94,11 @@ export default ToolTip;
 
 Dropdown menu:
 ```javascript
-import PopupMenu from "ember-popup-menu/components/popup-menu";
+import PopOver from "ember-pop-over/components/pop-over";
 
-var DropDown = PopupMenu.extend({
+var DropDown = PopOver.extend({
   classNames: ['drop-down'],
-  layoutName: 'components/popup-menu',
+  layoutName: 'components/pop-over',
   on: ['hover', 'focus', 'hold'],
   flow: 'dropdown'
 });
@@ -116,11 +116,11 @@ export default DropDown;
 {{/drop-down}}
 ```
 
-## Writing your own components using {{popup-menu}}
+## Writing your own components using {{pop-over}}
 
-The {{popup-menu}} component is designed to be used with other components. It provides a programatic API for adding customized targets, and a set of utilities that allow for an easier and more consistent development experience when authoring these addons.
+The {{pop-over}} component is designed to be used with other components. It provides a programatic API for adding customized targets, and a set of utilities that allow for an easier and more consistent development experience when authoring these addons.
 
-Let's go through the steps of authoring a component that uses a {{popup-menu}} by making a {{date-picker}} widget. Some of the implementation details will be ignored to make this tutorial clearer to follow.
+Let's go through the steps of authoring a component that uses a {{pop-over}} by making a {{date-picker}} widget. Some of the implementation details will be ignored to make this tutorial clearer to follow.
 
 First, let's bootstrap the addon:
 
@@ -128,12 +128,12 @@ First, let's bootstrap the addon:
 $ ember addon my-date-picker
 ```
 
-After this we'll add `ember-popup-menu` and `ember-moment` as a dependencies (*not* a development dependency):
+After this we'll add `ember-pop-over` and `ember-moment` as a dependencies (*not* a development dependency):
 
 ```bash
 $ cd my-date-picker
-$ npm install --save ember-popup-menu
-$ ember g ember-popup-menu
+$ npm install --save ember-pop-over
+$ ember g ember-pop-over
 $ npm install --save ember-moment
 $ ember g ember-moment
 ```
@@ -172,11 +172,11 @@ export default DatePicker;
 
 `value` is the date that is picked and `icon` is an icon used to display a calendar icon.
 
-We're going to make the date picker a combination of a text field and a configurable icon, so let's start hooking them up so the popup-menu knows what will trigger events:
+We're going to make the date picker a combination of a text field and a configurable icon, so let's start hooking them up so the pop-over knows what will trigger events:
 
 ```javascript
 import Ember from "ember";
-import nearestChild from "ember-popup-menu/computed/nearest-child";
+import nearestChild from "ember-pop-over/computed/nearest-child";
 
 var get = Ember.get;
 
@@ -186,13 +186,13 @@ var DatePicker = Ember.Component.extend({
   value: null,
   icon: null,
   
-  popup: nearestChild('popup-menu'),
+  popover: nearestChild('pop-over'),
   
   attachTargets: function () {
-    var popup = get(this, 'popup');
+    var popover = get(this, 'popover');
     var icon = get(this, 'icon');
 
-    popup.addTarget(icon, {
+    popover.addTarget(icon, {
       on: "click"
     });
   }.on('didInsertElement')
@@ -203,11 +203,11 @@ export default DatePicker;
 
 Let's walk through the code.
 
-First, we imported `nearestChild`. This is a computed property that returns the nearest child of a given type. We then use this property to get the popup-menu.
+First, we imported `nearestChild`. This is a computed property that returns the nearest child of a given type. We then use this property to get the pop-over.
 
-Then we add the icon as a target for the popup menu that will toggle the menu when clicked.
+Then we add the icon as a target for the pop over that will toggle the menu when clicked.
 
-For the next step, let's start showing the popup live and doing some iterative development. To do this, we'll need to start fiddling with the app directory.
+For the next step, let's start showing the pop over live and doing some iterative development. To do this, we'll need to start fiddling with the app directory.
 
 Create the `components` and `templates/components` directories under `app` at the root of your addon's project.
 
@@ -224,23 +224,23 @@ Next, let's add a handlebars template for the date picker, under `templates/comp
 
 ```handlebars
 {{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}>Open</span>
-{{#popup-menu flow="dropdown" will-change="month" month=month}}
+{{#pop-over flow="dropdown" will-change="month" month=month}}
   <header>
     <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
     <div class="month">{{moment firstOfMonth "MMMM"}}</div>
     <a class="next-month" {{action "nextMonth"}}>&gt;</a>
   </header>
   {{calendar-month month=firstOfMonth}}
-{{/popup-menu}}
+{{/pop-over}}
 ```
 
 With the template we created, we've solidified a few requirements for the component. Let's go back to `date-picker.js` in the addon directory and suss these out.
 
-First, let's automatically generate an ID for the icon. This way, the popup-menu has a unique identifier for triggering on. While we're at it, let's implement the details around `month`.
+First, let's automatically generate an ID for the icon. This way, the pop-over has a unique identifier for triggering on. While we're at it, let's implement the details around `month`.
 
 ```javascript
 import Ember from "ember";
-import nearestChild from "ember-popup-menu/computed/nearest-child";
+import nearestChild from "ember-pop-over/computed/nearest-child";
 
 var generateGuid = Ember.generateGuid;
 
@@ -254,13 +254,13 @@ var DatePicker = Ember.Component.extend({
     return generateGuid();
   }.property(),
   
-  popup: nearestChild('popup-menu'),
+  popover: nearestChild('pop-over'),
   
   attachTargets: function () {
-    var popup = get(this, 'popup');
+    var popover = get(this, 'popover');
     var icon = get(this, 'icon');
 
-    popup.addTarget(icon, {
+    popover.addTarget(icon, {
       on: "click"  
     });
   }.on('didInsertElement'),
@@ -296,7 +296,7 @@ As a default, let's make month be the current month *or* the month of the select
 ```javascript
 import Ember from "ember";
 import moment from 'moment';
-import nearestChild from "ember-popup-menu/computed/nearest-child";
+import nearestChild from "ember-pop-over/computed/nearest-child";
 
 var generateGuid = Ember.generateGuid;
 
@@ -312,13 +312,13 @@ var DatePicker = Ember.Component.extend({
     return generateGuid();
   }.property(),
   
-  popup: nearestChild('popup-menu'),
+  popover: nearestChild('pop-over'),
   
   attachTargets: function () {
-    var popup = get(this, 'popup');
+    var popover = get(this, 'popover');
     var icon = get(this, 'icon');
 
-    popup.addTarget(icon, {
+    popover.addTarget(icon, {
       on: "click"
     });
   }.on('didInsertElement'),
@@ -369,14 +369,14 @@ With this much, we should be able to rotate through a list of months in the cale
 
 ```handlebars
 {{input type=text value=displayValue}}<span class="icon-calendar" {{bind-attr id=icon}}>Open</span>
-{{#popup-menu flow="dropdown" will-change="month" month=month}}
+{{#pop-over flow="dropdown" will-change="month" month=month}}
   <header>
     <a class="previous-month" {{action "previousMonth"}}>&lt;</a>
     <div class="month">{{moment firstOfMonth "MMMM"}}</div>
     <a class="next-month" {{action "nextMonth"}}>&gt;</a>
   </header>
   {{!calendar-month month=firstOfMonth}}
-{{/popup-menu}}
+{{/pop-over}}
 ```
 
 Now on to the next step! Let's implement the calendar-month component. In `calendar-month.js` in your addon, let's add code to come up with the days of the week and weeks in the given month.
@@ -457,7 +457,7 @@ Hmm. Looks like we have yet another component to write! Let's finish off with th
 ```javascript
 import Ember from "ember";
 import moment from "moment";
-import nearestParent from "ember-popup-menu/computed/nearest-parent";
+import nearestParent from "ember-pop-over/computed/nearest-parent";
 
 var get = Ember.get;
 
@@ -502,7 +502,7 @@ Now let's pop our stack and finish by writing a handler for `selectDate` in `dat
 ```javascript
 import Ember from "ember";
 import moment from 'moment';
-import nearestChild from "ember-popup-menu/computed/nearest-child";
+import nearestChild from "ember-pop-over/computed/nearest-child";
 
 var generateGuid = Ember.generateGuid;
 
@@ -518,13 +518,13 @@ var DatePicker = Ember.Component.extend({
     return generateGuid();
   }.property(),
   
-  popup: nearestChild('popup-menu'),
+  popover: nearestChild('pop-over'),
   
   attachTargets: function () {
-    var popup = get(this, 'popup');
+    var popover = get(this, 'popover');
     var icon = get(this, 'icon');
 
-    popup.addTarget(icon, {
+    popover.addTarget(icon, {
       on: "click"
     });
   }.on('didInsertElement'),
@@ -544,7 +544,7 @@ var DatePicker = Ember.Component.extend({
     
     selectDate: function (date) {
       set(this, 'value', date);
-      get(this, 'popup').deactivate();
+      get(this, 'popover').deactivate();
     }
   },
   
@@ -576,12 +576,12 @@ var DatePicker = Ember.Component.extend({
 export default DatePicker;
 ```
 
-When we deactivate the popup, we're telling it that all targets are not active anymore. That way, the popup hides.
+When we deactivate the pop over, we're telling it that all targets are not active anymore. That way, the pop over hides.
 
 To polish it off, let's add styling. Create a file in addons called `styles/my-date-picker.css` and add the following CSS:
 
 ```css
-.date-picker .popup-menu {
+.date-picker .pop-over {
   padding: 20px;
 }
 
@@ -650,7 +650,7 @@ To polish it off, let's add styling. Create a file in addons called `styles/my-d
 }
 ```
 
-If everything went well, you should have a date-picker that behaves like the one here: http://paddle8.github.io/ember-popup-menu/
+If everything went well, you should have a date-picker that behaves like the one here: http://paddle8.github.io/ember-pop-over/
 
 
 ## Running

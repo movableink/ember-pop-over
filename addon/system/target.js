@@ -9,7 +9,6 @@ const computed = Ember.computed;
 
 const generateGuid = Ember.generateGuid;
 
-const fmt = Ember.String.fmt;
 const w = Ember.String.w;
 
 const bind = Ember.run.bind;
@@ -38,7 +37,7 @@ function getElementForTarget(target) {
 function getLabelSelector($element) {
   var id = $element.attr('id');
   if (id) {
-    return fmt("label[for='%@']", [id]);
+    return `label[for="${id}"]`;
   }
 }
 
@@ -74,16 +73,16 @@ function parseActivators(value) {
       activators = Ember.A(w(value));
     }
     Ember.assert(
-      fmt("%@ are not valid activators.\n" +
-          "Valid activators are %@", [value, VALID_ACTIVATORS.join(', ')]),
+      `${value} are not valid activators.
+        Valid events are ${VALID_ACTIVATORS.join(', ')}`,
       Ember.A(copy(activators)).removeObjects(VALID_ACTIVATORS).length === 0
     );
     return activators;
   }
 
   Ember.assert(
-    fmt("You must provide an event name to the {{popup-menu}}.\n" +
-        "Valid events are %@", [VALID_ACTIVATORS.join(', ')]),
+    `You must provide an event name to the {{pop-over}}.
+      Valid events are ${VALID_ACTIVATORS.join(', ')}`,
     false
   );
 }
@@ -101,7 +100,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
 
   init: function () {
     var target = get(this, 'target');
-    Ember.assert("You cannot make the {{popup-menu}} a target of itself.", get(this, 'component') !== target);
+    Ember.assert("You cannot make the {{pop-over}} a target of itself.", get(this, 'component') !== target);
 
     this.eventManager = {
       focusin:    bind(this, 'focus'),

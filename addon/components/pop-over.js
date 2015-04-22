@@ -10,11 +10,9 @@ const observer = Ember.observer;
 const bind = Ember.run.bind;
 const scheduleOnce = Ember.run.scheduleOnce;
 const next = Ember.run.next;
-const cancel = Ember.run.cancel;
 
 const get = Ember.get;
 const set = Ember.set;
-const fmt = Ember.String.fmt;
 
 const alias = Ember.computed.alias;
 const bool = Ember.computed.bool;
@@ -23,8 +21,6 @@ const filterBy = Ember.computed.filterBy;
 const addObserver = Ember.addObserver;
 const removeObserver = Ember.removeObserver;
 
-const RSVP = Ember.RSVP;
-
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
 
@@ -32,18 +28,18 @@ export default Ember.Component.extend({
 
   isVisible: false,
 
-  classNames: ['popup-menu'],
+  classNames: ['pop-over'],
 
   classNameBindings: ['orientationClassName', 'pointerClassName'],
 
   orientationClassName: computed('orientation', function () {
     var orientation = get(this, 'orientation');
-    return orientation ? fmt('orient-%@', [orientation]) : null;
+    return orientation ? `orient-${orientation}` : null;
   }),
 
   pointerClassName: computed('pointer', function () {
     var pointer = get(this, 'pointer');
-    return pointer ? fmt('pointer-%@', [pointer]) : null;
+    return pointer ? `pointer-${pointer}` : null;
   }),
 
   disabled: false,
@@ -55,7 +51,7 @@ export default Ember.Component.extend({
   flow: 'around',
 
   /**
-    The target element of the popup menu.
+    The target element of the pop over.
     Can be a view, id, or element.
    */
   for: null,
@@ -74,7 +70,7 @@ export default Ember.Component.extend({
   }),
 
   /**
-    Property that notifies the popup menu to retile
+    Property that notifies the pop over to retile
    */
   'will-change': alias('willChange'),
   willChange: w(),
@@ -205,21 +201,7 @@ export default Ember.Component.extend({
     menu.
    */
   visibilityDidChange: on('init', observer('isActive', function () {
-    var component = this;
-
-    if (this._animation) {
-      this._animation.then(function () {
-        component.visibilityDidChange();
-      });
-    }
-
-    scheduleOnce('afterRender', this, 'animateMenu');
-  })),
-
-  animateMenu: function () {
-    var component = this;
     var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
-    var animation = get(this, 'animation');
 
     var isActive = get(this, 'isActive');
     var isInactive = !isActive;
@@ -227,56 +209,24 @@ export default Ember.Component.extend({
     var isHidden = !isVisible;
 
     if (isActive && isHidden) {
-      this._animation = this.show(animation).then(function () {
-        $(document).on('mousedown', proxy);
-        component._animation = null;
-      });
+      $(document).on('mousedown', proxy);
+      this.show();
 
     // Remove click events immediately
     } else if (isInactive && isVisible) {
       $(document).off('mousedown', proxy);
-      this._animation = this.hide(animation).then(function () {
-        component._animation = null;
-      });
+      this.hide();
     }
+  })),
+
+  hide: function () {
+    if (this.isDestroyed) { return; }
+    set(this, 'isVisible', false);
   },
 
-  hide: function (animationName) {
-    var deferred = RSVP.defer();
-    var component = this;
-    var animation = this.container.lookup('popup-animation:' + animationName);
-    this._hider = next(this, function () {
-      if (this.isDestroyed) { return; }
-
-      if (animation) {
-        var promise = animation.out.call(this);
-        promise.then(function () {
-          set(component, 'isVisible', false);
-        });
-        deferred.resolve(promise);
-      } else {
-        set(component, 'isVisible', false);
-        deferred.resolve();
-      }
-    });
-    return deferred.promise;
-  },
-
-  show: function (animationName) {
-    cancel(this._hider);
-
-    var deferred = RSVP.defer();
-    var animation = this.container.lookup('popup-animation:' + animationName);
+  show: function () {
+    if (this.isDestroyed) { return; }
     set(this, 'isVisible', true);
-    scheduleOnce('afterRender', this, function () {
-      if (animation) {
-        deferred.resolve(animation['in'].call(this));
-      } else {
-        deferred.resolve();
-      }
-    });
-
-    return deferred.promise;
   },
 
   retile: function () {
@@ -287,28 +237,33 @@ export default Ember.Component.extend({
 
   tile: function () {
     var target = get(this, 'activeTarget');
-    // Don't tile if there's nothing to constrain the popup menu around
+    // Don't tile if there's nothing to constrain the pop over around
     if (!get(this, 'element') || !target) {
       return;
     }
 
-    var $popup = this.$();
-    var $pointer = $popup.children('.popup-menu_pointer');
+    var $popover = this.$();
+    var $pointer = $popover.children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);
-    var popupRect = Rectangle.ofView(this, 'padding');
+    var popoverRect = Rectangle.ofView(this, 'padding');
     var targetRect = Rectangle.ofElement(target.element, 'padding');
     var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
     if (boundingRect.intersects(targetRect)) {
       var flowName = get(this, 'flow');
-      var constraints = this.container.lookup('popup-constraint:' + flowName);
-      Ember.assert(fmt(
-        ("The flow named '%@1' was not registered with the {{popup-menu}}.\n" +
-         "Register your flow by creating a file at 'app/popup-menu/flows/%@1.js' with the following function body:\n\nexport default function %@1 () {\n  return this.orientBelow().andSnapTo(this.center);\n});"), [flowName]), constraints);
+      var constraints = this.container.lookup('pop-over-constraint:' + flowName);
+      Ember.assert(
+        `The flow named '${flowName}' was not registered with the {{pop-over}}.
+         Register your flow by adding an additional export to 'app/flows.js':
+
+         export function ${flowName} () {
+           return this.orientBelow().andSnapTo(this.center);
+         });`, constraints);
+
       var solution;
       for (var i = 0, len = constraints.length; i < len; i++) {
-        solution = constraints[i].solveFor(boundingRect, targetRect, popupRect, pointerRect);
+        solution = constraints[i].solveFor(boundingRect, targetRect, popoverRect, pointerRect);
         if (solution.valid) { break; }
       }
 
@@ -317,10 +272,10 @@ export default Ember.Component.extend({
         pointer:     solution.pointer
       });
 
-      var offset = $popup.offsetParent().offset();
-      var top = popupRect.top - offset.top;
-      var left = popupRect.left - offset.left;
-      $popup.css({
+      var offset = $popover.offsetParent().offset();
+      var top = popoverRect.top - offset.top;
+      var left = popoverRect.left - offset.left;
+      $popover.css({
         top: top + 'px',
         left: left + 'px'
       });

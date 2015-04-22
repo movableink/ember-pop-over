@@ -1,4 +1,4 @@
-import Rectangle from "ember-popup-menu/system/rectangle";
+import Rectangle from "ember-pop-over/system/rectangle";
 import { test } from "ember-qunit";
 
 module("Rectangle");

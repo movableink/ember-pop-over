@@ -52,7 +52,7 @@ function mouseWheel(evt) {
   When the user has stopped scrolling and they are at an edge of the
   box, then it will relinquish control to the parent scroll container.
 
-  This is useful when designing custom popup components that scroll
+  This is useful when designing custom pop overs that scroll
   that should behave like native controls.
 
   @class ScrollSandbox

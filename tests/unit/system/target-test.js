@@ -1,5 +1,5 @@
 import Ember from "ember";
-import Target from "ember-popup-menu/system/target";
+import Target from "ember-pop-over/system/target";
 import { test } from "ember-qunit";
 
 var get = Ember.get;

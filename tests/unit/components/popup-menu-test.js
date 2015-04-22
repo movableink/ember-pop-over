@@ -8,7 +8,7 @@ var get = Ember.get;
 var set = Ember.set;
 var run = Ember.run;
 
-moduleForComponent('popup-menu', 'PopupMenuComponent');
+moduleForComponent('pop-over', 'PopOverComponent');
 
 test('"retile" is called when will-change properties change', function() {
   expect(4);
@@ -62,27 +62,27 @@ test('classNames are applied when pointer and orientation are set', function() {
   });
 
   var $ = component.$();
-  equal($.prop('class'), "ember-view popup-menu");
+  equal($.prop('class'), "ember-view pop-over");
 
   run(function () {
     set(component, 'orientation', 'above');
   });
-  equal($.prop('class'), "ember-view popup-menu orient-above");
+  equal($.prop('class'), "ember-view pop-over orient-above");
 
   run(function () {
     set(component, 'orientation', 'below');
     set(component, 'pointer', 'center');
   });
-  equal($.prop('class'), "ember-view popup-menu orient-below pointer-center");
+  equal($.prop('class'), "ember-view pop-over orient-below pointer-center");
 
   run(function () {
     set(component, 'orientation', null);
     set(component, 'pointer', 'left');
   });
-  equal($.prop('class'), "ember-view popup-menu pointer-left");
+  equal($.prop('class'), "ember-view pop-over pointer-left");
 
   run(function () {
     set(component, 'pointer', null);
   });
-  equal($.prop('class'), "ember-view popup-menu");
+  equal($.prop('class'), "ember-view pop-over");
 });
