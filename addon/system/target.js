@@ -1,29 +1,31 @@
 import Ember from "ember";
 
-var keys = Ember.keys;
-var copy = Ember.copy;
-var get = Ember.get;
-var set = Ember.set;
+const keys = Ember.keys;
+const copy = Ember.copy;
+const get = Ember.get;
+const set = Ember.set;
 
-var generateGuid = Ember.geneateGuid;
+const computed = Ember.computed;
 
-var fmt = Ember.String.fmt;
-var w = Ember.String.w;
+const generateGuid = Ember.generateGuid;
 
-var bind = Ember.run.bind;
-var next = Ember.run.next;
+const fmt = Ember.String.fmt;
+const w = Ember.String.w;
 
-var isSimpleClick = Ember.ViewUtils.isSimpleClick;
-var $ = Ember.$;
+const bind = Ember.run.bind;
+const next = Ember.run.next;
 
-var guard = function (fn) {
+const isSimpleClick = Ember.ViewUtils.isSimpleClick;
+const $ = Ember.$;
+
+function guard (fn) {
   return function (evt) {
     if (get(this, 'component.disabled')) { return; }
     fn.call(this, evt);
   };
-};
+}
 
-var getElementForTarget = function (target) {
+function getElementForTarget(target) {
   if (Ember.View.detectInstance(target)) {
     return get(target, 'element');
   } else if (typeof target === "string") {
@@ -31,50 +33,50 @@ var getElementForTarget = function (target) {
   } else {
     return target;
   }
-};
+}
 
-var getLabelSelector = function ($element) {
+function getLabelSelector($element) {
   var id = $element.attr('id');
   if (id) {
     return fmt("label[for='%@']", [id]);
   }
-};
+}
 
-var getNearestViewForElement = function (element) {
+function getNearestViewForElement(element) {
   var $target = $(element);
   if (!$target.hasClass('ember-view')) {
     $target = $target.parents('ember-view');
   }
   return Ember.View.views[$target.attr('id')];
-};
+}
 
-var labelForEvent = function (evt) {
+function labelForEvent(evt) {
   var $target = $(evt.target);
   if ($target[0].tagName.toLowerCase() === 'label') {
     return $target;
   } else {
     return $target.parents('label');
   }
-};
+}
 
-var isLabelClicked = function (target, label) {
+function isLabelClicked(target, label) {
   if (label == null) {
     return false;
   }
   return $(label).attr('for') === $(target).attr('id');
-};
+}
 
-var VALID_ACTIVATORS = ["focus", "hover", "click", "hold"];
-var parseActivators = function (value) {
+const VALID_ACTIVATORS = ["focus", "hover", "click", "hold"];
+function parseActivators(value) {
   if (value) {
     var activators = value;
     if (typeof value === "string") {
-      activators = w(value);
+      activators = Ember.A(w(value));
     }
     Ember.assert(
       fmt("%@ are not valid activators.\n" +
           "Valid activators are %@", [value, VALID_ACTIVATORS.join(', ')]),
-      copy(activators).removeObjects(VALID_ACTIVATORS).length === 0
+      Ember.A(copy(activators)).removeObjects(VALID_ACTIVATORS).length === 0
     );
     return activators;
   }
@@ -84,15 +86,15 @@ var parseActivators = function (value) {
         "Valid events are %@", [VALID_ACTIVATORS.join(', ')]),
     false
   );
-};
+}
 
-var poll = function (target, scope, fn) {
+function poll(target, scope, fn) {
   if (getElementForTarget(target)) {
     scope[fn]();
   } else {
     next(null, poll, target, scope, fn);
   }
-};
+}
 
 
 var Target = Ember.Object.extend(Ember.Evented, {
@@ -177,9 +179,9 @@ var Target = Ember.Object.extend(Ember.Evented, {
     set(this, 'component', null);
   },
 
-  on: function (key, value) {
+  on: computed(function (key, value) {
     return parseActivators(value);
-  }.property(),
+  }),
 
   isClicked: function (evt) {
     if (isSimpleClick(evt)) {
@@ -191,7 +193,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
     return false;
   },
 
-  isActive: function (key, value) {
+  isActive: computed('focused', 'hovered', 'active', 'component.hovered', 'component.active', function (key, value) {
     var activators = get(this, 'on');
     // Set
     if (arguments.length > 1) {
@@ -233,7 +235,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
     }
 
     return !!isActive;
-  }.property('focused', 'hovered', 'active', 'component.hovered', 'component.active'),
+  }),
 
   focus: guard(function () {
     set(this, 'focused', true);
