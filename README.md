@@ -18,6 +18,57 @@ For use of the popup-menu as a tooltip, the following handlebars will do the tri
 * `npm install --save-dev ember-popup-menu`
 * `ember g ember-popup-menu`
 
+## Flows
+
+Flows provide a mechanism to programatically define how popups interact with the page.
+
+The API for flows is designed to provide a clear interface for understanding how a popup will react when the page is scrolled or resized.
+
+For example, a popup that always opens to the right of the target would look like:
+
+```javascript
+export default function () {
+  return this.orientRight.andSnapTo(this.center);
+}
+```
+
+If you would like the popup to slide between the top and bottom edge, you can use the `andSlideBetween` method:
+
+```javascript
+export default function () {
+  return this.orientRight.andSlideBetween(this.topEdge, this.bottomEdge);
+}
+```
+
+If no flow satisfies the constraints of the page, then the last flow in the cascade will be picked.
+
+ Orientation | Description
+-------------|----------------
+ orientAbove | Orients the popup menu above the target
+ orientLeft  | Orients the popup menu to the left of the target
+ orientBelow | Orients the popup menu below the target
+ orientRight | Orients the popup menu to the right of the target
+
+ Behavior        | Description
+-----------------|----------------
+ andSnapTo       | Attempts to snap to the locations given (in order)
+ andSlideBetween | Positions the menu in between the locations given (the gravity of the menu is dictated by the positions of the parameters. For example, if the function is called `andSlideBetween(this.top, this.bottom)`, gravity will be reversed.
+ where           | A generic constraint that can pass / fail a constraint depending on the results of the function. This is hot code, and should be very straightforward.
+
+The list of possible locations for a flow depend on whether the flow is vertical or horizontal.
+
+For vertical flows (`orientLeft`, `orientRight`), the possible names are:
+
+* topEdge
+* center
+* bottomEdge
+
+For horizontal flows (`orientTop`, `orientBottom`), the possible names are:
+
+* leftEdge
+* center
+* rightEdge
+
 ## Recipes
 
 Tooltips:
