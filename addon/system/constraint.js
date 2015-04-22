@@ -1,70 +1,70 @@
 import Ember from "ember";
 
-var keys = Ember.keys;
-var compare = Ember.compare;
-var mixin = Ember.mixin;
+const keys = Ember.keys;
+const compare = Ember.compare;
+const mixin = Ember.mixin;
 
-var orientAbove = function (target, popup, pointer) {
+function orientAbove(target, popup, pointer) {
   popup.setY(target.top - pointer.height - popup.height);
-  pointer.setY(popup.height); 
-};
+  pointer.setY(popup.height);
+}
 
-var orientBelow = function (target, popup, pointer) {
+function orientBelow(target, popup, pointer) {
   popup.setY(target.bottom + pointer.height);
   pointer.setY(pointer.height * -1);
-};
+}
 
-var orientLeft = function (target, popup, pointer) {
+function orientLeft(target, popup, pointer) {
   popup.setX(target.left - pointer.width - popup.width);
   pointer.setX(popup.width);
-};
+}
 
-var orientRight = function (target, popup, pointer) {
+function orientRight(target, popup, pointer) {
   popup.setX(target.right + pointer.width);
   pointer.setX(pointer.width * -1);
-};
+}
 
-var horizontallyCenter = function (target, popup, pointer) {
+function horizontallyCenter(target, popup, pointer) {
   popup.setX(target.left + target.width / 2 - popup.width / 2);
   pointer.setX(popup.width / 2 - pointer.width / 2);
-};
+}
 
-var verticallyCenter = function (target, popup, pointer) {
+function verticallyCenter(target, popup, pointer) {
   popup.setY(target.top + target.height / 2 - popup.height / 2);
   pointer.setY(popup.height / 2 - pointer.height / 2);
-};
+}
 
-var snapLeft = function (target, popup, pointer) {
-  var offsetLeft = Math.min(target.width / 2 - (pointer.width * 1.5), 0);
+function snapLeft(target, popup, pointer) {
+  const offsetLeft = Math.min(target.width / 2 - (pointer.width * 1.5), 0);
   popup.setX(target.left + offsetLeft);
   pointer.setX(pointer.width);
-};
+}
 
-var snapRight = function (target, popup, pointer) {
-  var offsetRight = Math.min(target.width / 2 - (pointer.width * 1.5), 0);
+function snapRight(target, popup, pointer) {
+  const offsetRight = Math.min(target.width / 2 - (pointer.width * 1.5), 0);
   popup.setX(target.right - offsetRight - popup.width);
-  pointer.setX(popup.width - pointer.width * 2);  
-};
+  pointer.setX(popup.width - pointer.width * 2);
+}
 
-var snapAbove = function (target, popup, pointer) {
-  var offsetTop = Math.min(target.height / 2 - (pointer.height * 1.5), 0);
+function snapAbove(target, popup, pointer) {
+  const offsetTop = Math.min(target.height / 2 - (pointer.height * 1.5), 0);
   popup.setY(target.top + offsetTop);
-  pointer.setY(pointer.height);  
-};
+  pointer.setY(pointer.height);
+}
 
-var snapBelow = function (target, popup, pointer) {
-  var offsetBottom = Math.min(target.height / 2 - (pointer.height * 1.5), 0);
+function snapBelow(target, popup, pointer) {
+  const offsetBottom = Math.min(target.height / 2 - (pointer.height * 1.5), 0);
   popup.setY(target.bottom - offsetBottom - popup.height);
-  pointer.setY(popup.height - pointer.height * 2);  
-};
+  pointer.setY(popup.height - pointer.height * 2);
+}
 
-var slideHorizontally = function (guidelines, boundary, target, popup, pointer) {
+function slideHorizontally(guidelines, boundary, target, popup, pointer) {
   var edges = {
     'left-edge':  Math.min(target.width / 2 - (pointer.width * 1.5), 0),
     'center':    (target.width / 2 - popup.width / 2),
     'right-edge': target.width - popup.width
   };
-  var range = guidelines.map(function (guideline) {
+  var range = Ember.A(guidelines).map(function (guideline) {
     return edges[guideline] || [-1, -1];
   });
 
@@ -110,15 +110,15 @@ var slideHorizontally = function (guidelines, boundary, target, popup, pointer) 
     valid: valid,
     pointer: pointerClassName
   };
-};
+}
 
-var slideVertically = function (guidelines, boundary, target, popup, pointer) {
+function slideVertically(guidelines, boundary, target, popup, pointer) {
   var edges = {
     'top-edge':    Math.min(target.height / 2 - (pointer.height * 1.5), 0),
     'center':      (target.height / 2 - popup.height / 2),
     'bottom-edge': target.height - popup.height
   };
-  var range = guidelines.map(function (guideline) {
+  var range = Ember.A(guidelines).map(function (guideline) {
     return edges[guideline];
   });
 
@@ -164,13 +164,13 @@ var slideVertically = function (guidelines, boundary, target, popup, pointer) {
     valid: valid,
     pointer: pointerClassName
   };
-};
+}
 
-var Constraint = function (object) {
+function Constraint(object) {
   keys(object).forEach(function (key) {
     this[key] = object[key];
   }, this);
-};
+}
 
 Constraint.prototype.solveFor = function (boundingRect, targetRect, popupRect, pointerRect) {
   var orientation = this.orientation;

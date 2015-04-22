@@ -1,15 +1,18 @@
 import Ember from "ember";
 
-var debounce = Ember.run.debounce;
-var set = Ember.set;
-var get = Ember.get;
-var bind = Ember.run.bind;
+const debounce = Ember.run.debounce;
+const set = Ember.set;
+const get = Ember.get;
+const bind = Ember.run.bind;
+
+const on = Ember.on;
 
 // Normalize mouseWheel events
-var mouseWheel = function (evt) {
-  var oevt = evt.originalEvent,
-      delta = 0,
-      deltaY = 0, deltaX = 0;
+function mouseWheel(evt) {
+  let oevt = evt.originalEvent;
+  let delta = 0;
+  let deltaY = 0;
+  let deltaX = 0;
 
   if (oevt.wheelDelta) {
     delta = oevt.wheelDelta / 120;
@@ -40,7 +43,7 @@ var mouseWheel = function (evt) {
   evt.wheelDeltaY = deltaY;
 
   return this.mouseWheel(evt);
-};
+}
 
 /**
   Adding this mixin to a view will add scroll behavior that bounds
@@ -55,12 +58,12 @@ var mouseWheel = function (evt) {
   @class ScrollSandbox
   @extends Ember.Mixin
  */
-var ScrollSandbox = Ember.Mixin.create({
+export default Ember.Mixin.create({
 
-  setupScrollHandlers: function () {
+  setupScrollHandlers: on('didInsertElement', function () {
     this._mouseWheelHandler = bind(this, mouseWheel);
     this.$().on('mousewheel DOMMouseScroll', this._mouseWheelHandler);
-  }.on('didInsertElement'),
+  }),
 
   scrollingHasStopped: function () {
     set(this, 'isScrolling', false);
@@ -71,10 +74,10 @@ var ScrollSandbox = Ember.Mixin.create({
     the window.
    */
   mouseWheel: function (evt) {
-    var $element = this.$();
-    var scrollTop = $element.scrollTop();
-    var maximumScrollTop = $element.prop('scrollHeight') -
-                           $element.outerHeight();
+    const $element = this.$();
+    const scrollTop = $element.scrollTop();
+    const maximumScrollTop = $element.prop('scrollHeight') -
+                             $element.outerHeight();
     var isAtScrollEdge;
 
     if (evt.wheelDeltaY > 0) {
@@ -92,10 +95,7 @@ var ScrollSandbox = Ember.Mixin.create({
     debounce(this, this.scrollingHasStopped, 75);
   },
 
-  teardownScrollHandlers: function () {
+  teardownScrollHandlers: on('willDestroyElement', function () {
     this.$().off('mousewheel DOMMouseScroll', this._mouseWheelHandler);
-  }.on('willDestroyElement')
-
+  })
 });
-
-export default ScrollSandbox;

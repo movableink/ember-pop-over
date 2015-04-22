@@ -4,7 +4,6 @@ import Orientation from "./orientation";
 const on = Ember.on;
 
 export default Ember.Object.extend({
-
   setupOrienters: on('init', function() {
     this.orientAbove = Orientation.create({ orientation: 'above' });
     this.orientBelow = Orientation.create({ orientation: 'below' });

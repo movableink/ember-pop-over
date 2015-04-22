@@ -1,13 +1,13 @@
 import Ember from "ember";
 import Constraint from "./constraint";
 
-var reads = Ember.computed.reads;
-var slice = Array.prototype.slice;
-var get = Ember.get;
-var set = Ember.set;
-var isArray = Ember.isArray;
+const reads = Ember.computed.reads;
+const slice = Array.prototype.slice;
+const get = Ember.get;
+const set = Ember.set;
+const isArray = Ember.isArray;
 
-var Orientation = Ember.Object.extend({
+export default Ember.Object.extend({
 
   init: function () {
     this._super();
@@ -25,9 +25,9 @@ var Orientation = Ember.Object.extend({
   constraints: reads('defaultConstraint'),
 
   andSnapTo: function (snapGuidelines) {
-    var constraints = Ember.A(),
-        guideline,
-        orientation = get(this, 'orientation');
+    var constraints = Ember.A();
+    var guideline;
+    var orientation = get(this, 'orientation');
 
     snapGuidelines = slice.call(arguments);
 
@@ -54,7 +54,7 @@ var Orientation = Ember.Object.extend({
   },
 
   andSlideBetween: function () {
-    var constraint = new Constraint({
+    let constraint = new Constraint({
       orientation: get(this, 'orientation'),
       behavior:    'slide',
       guideline:   slice.call(arguments)
@@ -90,5 +90,3 @@ var Orientation = Ember.Object.extend({
   }
 
 });
-
-export default Orientation;

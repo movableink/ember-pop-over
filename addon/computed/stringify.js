@@ -1,7 +1,7 @@
 import Ember from "ember";
 
-var computed = Ember.computed;
-var get = Ember.get;
+const computed = Ember.computed;
+const get = Ember.get;
 
 export default function(property) {
   return computed(property, function stringify() {

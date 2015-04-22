@@ -1,6 +1,6 @@
 import Ember from "ember";
 
-var computed = Ember.computed;
+const computed = Ember.computed;
 
 export default function(type) {
   return computed(function nearestParent() {

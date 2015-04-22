@@ -6,7 +6,6 @@ import w from "../computed/w";
 const computed = Ember.computed;
 const on = Ember.on;
 const observer = Ember.observer;
-const beforeObserver = Ember.beforeObserver;
 
 const bind = Ember.run.bind;
 const scheduleOnce = Ember.run.scheduleOnce;
@@ -80,16 +79,16 @@ export default Ember.Component.extend({
   'will-change': alias('willChange'),
   willChange: w(),
 
-  willChangeWillChange: beforeObserver('willChange', function() {
-    get(this, 'willChange').forEach(function (key) {
+  willChangeDidChange: on('init', observer('willChange', function () {
+    (get(this, '_oldWillChange') || Ember.A()).forEach(function (key) {
       removeObserver(this, key, this, 'retile');
     }, this);
-  }),
 
-  willChangeDidChange: on('init', observer('willChange', function () {
     get(this, 'willChange').forEach(function (key) {
       addObserver(this, key, this, 'retile');
     }, this);
+
+    set(this, '_oldWillChange', get(this, 'willChange'));
     this.retile();
   })),
 

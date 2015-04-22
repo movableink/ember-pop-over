@@ -1,17 +1,17 @@
 import Ember from "ember";
 
-var computed = Ember.computed;
-var bind = Ember.run.bind;
-var get = Ember.get;
+const computed = Ember.computed;
+const bind = Ember.run.bind;
+const get = Ember.get;
 
-var flatten = function (array) {
-  return array.reduce(function (a, b) {
+function flatten(array) {
+  return Ember.A(array).reduce(function (a, b) {
     return a.concat(b);
-  }, []);
-};
+  }, Ember.A());
+}
 
-var recursivelyFindByType = function (typeClass, children) {
-  var view = children.find(function (view) {
+function recursivelyFindByType(typeClass, children) {
+  let view = children.find(function (view) {
     return typeClass.detectInstance(view);
   });
 
@@ -19,12 +19,12 @@ var recursivelyFindByType = function (typeClass, children) {
     return view;
   }
 
-  var childrenOfChildren = flatten(children.getEach('childViews'));
+  let childrenOfChildren = flatten(children.getEach('childViews'));
   if (childrenOfChildren.length === 0) {
     return null;
   }
   return recursivelyFindByType(typeClass, childrenOfChildren);
-};
+}
 
 export default function(type) {
   var tracking = Ember.Map.create();
@@ -39,7 +39,7 @@ export default function(type) {
     var typeClass = this.container.lookupFactory('component:' + type) ||
                     this.container.lookupFactory('view:' + type);
 
-    var children = get(this, 'childViews') || [];
+    var children = Ember.A(get(this, 'childViews'));
     var appendedChildren = children.filterBy('_state', 'inDOM');
     var detachedChildren = children.filter(function (child) {
       return ['inBuffer', 'hasElement', 'preRender'].indexOf(child._state) !== -1;

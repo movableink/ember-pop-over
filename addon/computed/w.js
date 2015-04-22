@@ -1,9 +1,9 @@
 import Ember from "ember";
 
-var computed = Ember.computed;
-var w = Ember.String.w;
+const computed = Ember.computed;
+const w = Ember.String.w;
 
-var toArray = function (value) {
+const toArray = function (value) {
   if (typeof value === "string") {
     value = w(value);
   }
@@ -16,6 +16,6 @@ export default function(defaultValue) {
     if (arguments.length > 1) {
       value = toArray(value);
     }
-    return value || toArray(defaultValue);
+    return Ember.A(value || toArray(defaultValue));
   });
 }

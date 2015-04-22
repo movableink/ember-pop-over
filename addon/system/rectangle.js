@@ -1,8 +1,8 @@
 import Ember from "ember";
 import { getLayout } from "dom-ruler";
 
-var get = Ember.get;
-var $ = Ember.$;
+const get = Ember.get;
+const $ = Ember.$;
 
 var Rectangle = function (x, y, width, height) {
   this.x = this.left = x;
