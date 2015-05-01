@@ -5,7 +5,6 @@ import * as flows from "../flows";
 
 const get = Ember.get;
 const keys = Ember.keys;
-const classify = Ember.String.classify;
 
 export var initialize = function (_, app) {
   Ember.A(keys(flows)).forEach(function (flowName) {
@@ -19,7 +18,6 @@ export var initialize = function (_, app) {
   Ember.A(['liquid-fire']).forEach(function (moduleName) {
     let includesIntegration = includedModules.contains(moduleName);
     app.register(`pop-over-integrations:${moduleName}`, includesIntegration, { instantiate: false });
-    app.inject('component:pop-over', `includes${classify(moduleName)}`, `pop-over-integrations:${moduleName}`);
   });
 };
 

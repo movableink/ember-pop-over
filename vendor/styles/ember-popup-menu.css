@@ -1,4 +1,8 @@
 .pop-over {
+  position: relative;
+}
+
+.pop-over-container {
   position: absolute;
   z-index: 100;
   background-color: #333;
@@ -16,22 +20,22 @@
   pointer-events: none;
 }
 
-.orient-above > .pop-over-pointer {
+.pop-over-pointer.orient-above {
   border-color: #333 transparent transparent transparent;
   bottom: -20px;
 }
 
-.orient-below > .pop-over-pointer {
+.pop-over-pointer.orient-below {
   border-color: transparent transparent #333 transparent;
   top: -20px;
 }
 
-.orient-left > .pop-over-pointer {
+.pop-over-pointer.orient-left {
   border-color: transparent transparent transparent #333;
   right: -20px;
 }
 
-.orient-right > .pop-over-pointer {
+.pop-over-pointer.orient-right {
   border-color: transparent #333 transparent transparent;
   left: -20px;
 }

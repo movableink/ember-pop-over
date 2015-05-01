@@ -23,24 +23,33 @@ const removeObserver = Ember.removeObserver;
 
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
+const integrates = function (key) {
+  return computed(function () {
+    return this.container.lookup(`pop-over-integrations:${key}`);
+  });
+};
+
+const classify = function (template) {
+  var dependentKey = template.match(/{{(.*)}}/)[1];
+  return computed(dependentKey, function () {
+    let value = get(this, dependentKey);
+    return value ? template.replace(`{{${dependentKey}}}`, value) : null;
+  });
+};
 
 export default Ember.Component.extend({
 
   active: false,
 
-  popupClassNames: computed('orientation', 'pointer', function () {
-    let orientation = get(this, 'orientation');
-    let pointer = get(this, 'pointer');
-    let classNames = Ember.A(get(this, 'classNames')).without('ember-view');
-    classNames.push('pop-over');
-    if (orientation) {
-      classNames.pushObject(`orient-${orientation}`);
-    }
-    if (pointer) {
-      classNames.pushObject(`pointer-${pointer}`);
-    }
-    return classNames.join(' ');
-  }),
+  supportsLiquidFire: integrates('liquid-fire'),
+
+  classNames: ['pop-over'],
+
+  classNameBindings: ['orientationClassName', 'pointerClassName'],
+
+  orientationClassName: classify('orient-{{orientation}}'),
+
+  pointerClassName: classify('pointer-{{pointer}}'),
 
   disabled: false,
 
@@ -242,11 +251,15 @@ export default Ember.Component.extend({
       return;
     }
 
-    var $popover = this.$('.pop-over');
+    this.$('.pop-over-hidden').css('display', 'block');
+    var $popover = this.$('.pop-over-hidden');
+    if ($popover.length === 0) {
+      $popover = this.$('.pop-over-container');
+    }
     var $pointer = $popover.children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);
-    var popoverRect = Rectangle.ofView(this, 'padding');
+    var popOverRect = Rectangle.ofView(this, 'padding');
     var targetRect = Rectangle.ofElement(target.element, 'padding');
     var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
@@ -263,7 +276,7 @@ export default Ember.Component.extend({
 
       var solution;
       for (var i = 0, len = constraints.length; i < len; i++) {
-        solution = constraints[i].solveFor(boundingRect, targetRect, popoverRect, pointerRect);
+        solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect);
         if (solution.valid) { break; }
       }
 
@@ -273,17 +286,28 @@ export default Ember.Component.extend({
       });
 
       var offset = $popover.offsetParent().offset();
-      var top = popoverRect.top - offset.top;
-      var left = popoverRect.left - offset.left;
-      $popover.css({
-        top: top + 'px',
-        left: left + 'px'
-      });
-      $pointer.css({
-        top: pointerRect.top + 'px',
-        left: pointerRect.left + 'px'
-      });
+      popOverRect.top = popOverRect.top - offset.top;
+      popOverRect.left = popOverRect.left - offset.left;
+      scheduleOnce('afterRender', this, 'positionPopOver', popOverRect, pointerRect);
+      this.$('.pop-over-hidden').css('display', 'none');
     }
+  },
+
+  positionPopOver: function (popOverRect, pointerRect) {
+    let $popover = this.$('.pop-over-container:not(.pop-over-hidden)');
+    let $pointerParent = get(this, 'supportsLiquidFire') ?
+        $popover.children('.liquid-container').children('.liquid-child') :
+        $popover;
+    let $pointer = $pointerParent.children('.pop-over-pointer');
+
+    $popover.css({
+      top: popOverRect.top + 'px',
+      left: popOverRect.left + 'px'
+    });
+    $pointer.css({
+      top: pointerRect.top + 'px',
+      left: pointerRect.left + 'px'
+    });
   }
 
 });

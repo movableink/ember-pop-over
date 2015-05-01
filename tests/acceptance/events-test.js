@@ -26,27 +26,27 @@ test('on="click"', function() {
 
   simpleClick("#click");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   simpleClick("#click");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 
   simpleClick("#click span");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   simpleClick(".other", null, { which: 1 });
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 
   mouseDown("#click");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   andThen(function () {
@@ -57,7 +57,7 @@ test('on="click"', function() {
 
   mouseUp("#click");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 });
 
@@ -67,7 +67,7 @@ test('on="click hold"', function() {
 
   mouseDown("#click-hold");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   andThen(function () {
@@ -78,17 +78,17 @@ test('on="click hold"', function() {
 
   mouseUp("#click-hold");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 
   simpleClick("#click-hold");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   simpleClick("#click-hold");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 });
 
@@ -98,12 +98,12 @@ test('on="hover"', function() {
 
   mouseEnter("#hover");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   mouseLeave("#hover");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 });
 
@@ -113,23 +113,23 @@ test('on="hover hold"', function() {
 
   mouseEnter("#hover-hold");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   mouseLeave("#hover-hold");
   mouseEnter("#hover-hold-menu");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   mouseEnter("#hover-hold-menu .inner");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   mouseLeave("#hover-hold-menu");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 });
 
@@ -139,12 +139,12 @@ test('on="focus"', function() {
 
   focus("#focus");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   blur("#focus");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 });
 
@@ -154,17 +154,17 @@ test('on="hover focus"', function() {
 
   focus("#hover-focus");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   blur("#hover-focus");
   mouseEnter("#hover-focus");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 1);
+    ok(find(".pop-over-container:visible").length === 1);
   });
 
   mouseLeave("#hover-focus");
   andThen(function () {
-    ok(find(".pop-over:visible").length === 0);
+    ok(find(".pop-over-container:visible").length === 0);
   });
 });
