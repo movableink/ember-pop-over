@@ -28,14 +28,18 @@ export default Ember.Component.extend({
 
   active: false,
 
-  orientationClassName: computed('orientation', function () {
-    var orientation = get(this, 'orientation');
-    return orientation ? `orient-${orientation}` : null;
-  }),
-
-  pointerClassName: computed('pointer', function () {
-    var pointer = get(this, 'pointer');
-    return pointer ? `pointer-${pointer}` : null;
+  popupClassNames: computed('orientation', 'pointer', function () {
+    let orientation = get(this, 'orientation');
+    let pointer = get(this, 'pointer');
+    let classNames = Ember.A(get(this, 'classNames')).without('ember-view');
+    classNames.push('pop-over');
+    if (orientation) {
+      classNames.pushObject(`orient-${orientation}`);
+    }
+    if (pointer) {
+      classNames.pushObject(`pointer-${pointer}`);
+    }
+    return classNames.join(' ');
   }),
 
   disabled: false,
