@@ -141,7 +141,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
     var eventManager = this.eventManager;
 
     keys(eventManager).forEach(function (event) {
-      $document.on(event, '#' + id, eventManager[event]);
+      $document.on(event, `#${id}`, eventManager[event]);
     });
 
     var selector = getLabelSelector($element);
