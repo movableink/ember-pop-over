@@ -146,18 +146,18 @@ export default Ember.Component.extend({
 
   mouseDown: function () {
     if (get(this, 'disabled')) { return; }
-    set(this, 'active', true);
+    set(this, 'pressed', true);
   },
 
   mouseUp: function () {
     if (get(this, 'disabled')) { return; }
-    set(this, 'active', false);
+    set(this, 'pressed', false);
   },
 
   documentClick: function (evt) {
     if (get(this, 'disabled')) { return; }
 
-    set(this, 'active', false);
+    set(this, 'pressed', false);
     var targets = get(this, 'targets');
     var element = get(this, 'element');
     var clicked = isSimpleClick(evt) &&
@@ -167,16 +167,16 @@ export default Ember.Component.extend({
     });
 
     if (!clicked && !clickedAnyTarget) {
-      targets.setEach('active', false);
+      targets.setEach('pressed', false);
     }
   },
 
-  isActive: bool('activeTargets.length'),
+  areAnyTargetsActive: bool('activeTargets.length'),
 
-  activeTargets: filterBy('targets', 'isActive', true),
+  activeTargets: filterBy('targets', 'active', true),
 
   activeTarget: computed('activeTargets.[]', function () {
-    if (get(this, 'isActive')) {
+    if (get(this, 'areAnyTargetsActive')) {
       return get(this, 'targets').findBy('anchor', true) ||
              get(this, 'activeTargets.firstObject');
     }
@@ -184,14 +184,14 @@ export default Ember.Component.extend({
   }),
 
   activate: function (target) {
-    get(this, 'targets').findBy('target', target).set('isActive', true);
+    get(this, 'targets').findBy('target', target).set('active', true);
   },
 
   deactivate: function (target) {
     if (target == null) {
-      get(this, 'targets').setEach('isActive', false);
+      get(this, 'targets').setEach('active', false);
     } else {
-      get(this, 'targets').findBy('target', target).set('isActive', false);
+      get(this, 'targets').findBy('target', target).set('active', false);
     }
   },
 
@@ -200,20 +200,20 @@ export default Ember.Component.extend({
     to catch when the user clicks outside the
     menu.
    */
-  visibilityDidChange: on('init', observer('isActive', function () {
+  visibilityDidChange: on('init', observer('areAnyTargetsActive', function () {
     var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
 
-    var isActive = get(this, 'isActive');
-    var isInactive = !isActive;
-    var isVisible = get(this, 'isVisible');
-    var isHidden = !isVisible;
+    var active = get(this, 'areAnyTargetsActive');
+    var inactive = !active;
+    var visible = get(this, 'isVisible');
+    var hidden = !visible;
 
-    if (isActive && isHidden) {
+    if (active && hidden) {
       $(document).on('mousedown', proxy);
       this.show();
 
     // Remove click events immediately
-    } else if (isInactive && isVisible) {
+    } else if (inactive && visible) {
       $(document).off('mousedown', proxy);
       this.hide();
     }

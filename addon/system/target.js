@@ -192,7 +192,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
     return false;
   },
 
-  isActive: computed('focused', 'hovered', 'active', 'component.hovered', 'component.active', function (key, value) {
+  active: computed('focused', 'hovered', 'pressed', 'component.hovered', 'component.pressed', function (key, value) {
     var activators = get(this, 'on');
     // Set
     if (arguments.length > 1) {
@@ -202,38 +202,38 @@ var Target = Ember.Object.extend(Ember.Evented, {
         } else if (activators.contains('hover')) {
           set(this, 'hovered', true);
         } else if (activators.contains('click')) {
-          set(this, 'active', true);
+          set(this, 'pressed', true);
         }
       } else {
         set(this, 'focused', false);
         set(this, 'hovered', false);
-        set(this, 'active', false);
+        set(this, 'pressed', false);
       }
       return value;
     }
 
     // Get
-    var isActive = false;
+    var active = false;
 
     if (activators.contains('focus')) {
-      isActive = isActive || get(this, 'focused');
+      active = active || get(this, 'focused');
       if (activators.contains('hold')) {
-        isActive = isActive || get(this, 'component.active');
+        active = active || get(this, 'component.pressed');
       }
     }
 
     if (activators.contains('hover')) {
-      isActive = isActive || get(this, 'hovered');
+      active = active || get(this, 'hovered');
       if (activators.contains('hold')) {
-        isActive = isActive || get(this, 'component.hovered');
+        active = active || get(this, 'component.hovered');
       }
     }
 
     if (activators.contains('click') || activators.contains('hold')) {
-      isActive = isActive || get(this, 'active');
+      active = active || get(this, 'pressed');
     }
 
-    return !!isActive;
+    return !!active;
   }),
 
   focus: guard(function () {
@@ -258,10 +258,10 @@ var Target = Ember.Object.extend(Ember.Evented, {
     }
 
     var element = this.element;
-    var isActive = !get(this, 'isActive');
-    set(this, 'active', isActive);
+    var active = !get(this, 'active');
+    set(this, 'pressed', active);
 
-    if (isActive) {
+    if (active) {
       this.holdStart = new Date().getTime();
 
       var eventManager = this.eventManager;
@@ -302,7 +302,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
       // and we should close the menu if they mouseup anywhere not inside
       // the menu.
       if (new Date().getTime() - this.holdStart > 400) {
-        set(this, 'active', false);
+        set(this, 'pressed', false);
       }
     }
     return true;
