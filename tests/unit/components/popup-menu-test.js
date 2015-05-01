@@ -4,9 +4,16 @@ import {
 } from 'ember-qunit';
 import Ember from "ember";
 
-var get = Ember.get;
-var set = Ember.set;
-var run = Ember.run;
+const get = Ember.get;
+const set = Ember.set;
+const run = Ember.run;
+const hasClass = function (element, classNames) {
+  let $el = $(element);
+  let classList = Ember.A($.trim($el.prop('class')).split(/\s+/)).map(function (className) {
+    return $.trim(className);
+  }).join(' ');
+  equal(classList, classNames);
+};
 
 moduleForComponent('pop-over', 'PopOverComponent');
 
@@ -59,30 +66,31 @@ test('classNames are applied when pointer and orientation are set', function() {
       on: "click"
     });
     this.append();
+    component.show();
   });
 
-  var $ = component.$();
-  equal($.prop('class'), "ember-view pop-over");
+  let $ = component.$('.pop-over');
+  hasClass($, 'pop-over');
 
   run(function () {
     set(component, 'orientation', 'above');
   });
-  equal($.prop('class'), "ember-view pop-over orient-above");
+  hasClass($, 'pop-over orient-above');
 
   run(function () {
     set(component, 'orientation', 'below');
     set(component, 'pointer', 'center');
   });
-  equal($.prop('class'), "ember-view pop-over orient-below pointer-center");
+  hasClass($, "pop-over orient-below pointer-center");
 
   run(function () {
     set(component, 'orientation', null);
     set(component, 'pointer', 'left');
   });
-  equal($.prop('class'), "ember-view pop-over pointer-left");
+  hasClass($, "pop-over pointer-left");
 
   run(function () {
     set(component, 'pointer', null);
   });
-  equal($.prop('class'), "ember-view pop-over");
+  hasClass($, "pop-over");
 });

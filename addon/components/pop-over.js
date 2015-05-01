@@ -26,11 +26,7 @@ const $ = Ember.$;
 
 export default Ember.Component.extend({
 
-  isVisible: false,
-
-  classNames: ['pop-over'],
-
-  classNameBindings: ['orientationClassName', 'pointerClassName'],
+  active: false,
 
   orientationClassName: computed('orientation', function () {
     var orientation = get(this, 'orientation');
@@ -100,7 +96,7 @@ export default Ember.Component.extend({
       $(window).on(event, retile);
     });
 
-    addObserver(this, 'isVisible', this, 'retile');
+    addObserver(this, 'active', this, 'retile');
   }),
 
   attachTargets: on('didInsertElement', function () {
@@ -129,7 +125,7 @@ export default Ember.Component.extend({
       this.__documentClick = null;
     }
 
-    removeObserver(this, 'isVisible', this, 'retile');
+    removeObserver(this, 'active', this, 'retile');
     this.__retile = null;
   }),
 
@@ -205,7 +201,7 @@ export default Ember.Component.extend({
 
     var active = get(this, 'areAnyTargetsActive');
     var inactive = !active;
-    var visible = get(this, 'isVisible');
+    var visible = get(this, 'active');
     var hidden = !visible;
 
     if (active && hidden) {
@@ -221,16 +217,16 @@ export default Ember.Component.extend({
 
   hide: function () {
     if (this.isDestroyed) { return; }
-    set(this, 'isVisible', false);
+    set(this, 'active', false);
   },
 
   show: function () {
     if (this.isDestroyed) { return; }
-    set(this, 'isVisible', true);
+    set(this, 'active', true);
   },
 
   retile: function () {
-    if (get(this, 'isVisible')) {
+    if (get(this, 'active')) {
       scheduleOnce('afterRender', this, 'tile');
     }
   },
@@ -242,7 +238,7 @@ export default Ember.Component.extend({
       return;
     }
 
-    var $popover = this.$();
+    var $popover = this.$('.pop-over');
     var $pointer = $popover.children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);

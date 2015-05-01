@@ -5,12 +5,21 @@ import * as flows from "../flows";
 
 const get = Ember.get;
 const keys = Ember.keys;
+const classify = Ember.String.classify;
 
-export var initialize = function (container) {
-  keys(flows).forEach(function (flowName) {
+export var initialize = function (_, app) {
+  Ember.A(keys(flows)).forEach(function (flowName) {
     if (flowName == 'default') { return; }
     let constraints = get(flows[flowName].call(Flow.create()), 'constraints');
-    container.register(`pop-over-constraint:${flowName}`, constraints, { instantiate: false });
+    app.register(`pop-over-constraint:${flowName}`, constraints, { instantiate: false });
+  });
+
+  // Set flags for integrations with other addons
+  let includedModules = Ember.A(keys(require.entries));
+  Ember.A(['liquid-fire']).forEach(function (moduleName) {
+    let includesIntegration = includedModules.contains(moduleName);
+    app.register(`pop-over-integrations:${moduleName}`, includesIntegration, { instantiate: false });
+    app.inject('component:pop-over', `includes${classify(moduleName)}`, `pop-over-integrations:${moduleName}`);
   });
 };
 

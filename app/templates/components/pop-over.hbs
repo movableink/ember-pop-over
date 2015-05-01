@@ -1,2 +1,13 @@
-<span class="pop-over-pointer"></span>
-{{yield}}
+{{#if includesLiquidFire}}
+  {{#liquid-if active class="pop-over" classNameBindings="orientationClassName pointerClassName"}}
+    <span class="pop-over-pointer"></span>
+    {{yield}}
+  {{/liquid-if}}
+{{else}}
+  {{#if active}}
+    <div {{bind-attr class=":pop-over orientationClassName pointerClassName"}}>
+      <span class="pop-over-pointer"></span>
+      {{yield}}
+    </div>
+  {{/if}}
+{{/if}}
