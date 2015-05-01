@@ -157,8 +157,8 @@ test('on="hover focus"', function() {
     ok(find(".pop-over:visible").length === 1);
   });
 
-  mouseEnter("#hover-focus");
   blur("#hover-focus");
+  mouseEnter("#hover-focus");
   andThen(function () {
     ok(find(".pop-over:visible").length === 1);
   });
