@@ -3,6 +3,7 @@ tests/
 public/
 tmp/
 dist/
+config/ember-try.js
 
 .bowerrc
 .editorconfig
