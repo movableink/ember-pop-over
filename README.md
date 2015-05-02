@@ -15,8 +15,7 @@ For use of the pop-over as a tooltip, the following handlebars will do the trick
 
 ## Installation
 
-* `npm install --save-dev ember-pop-over`
-* `ember g ember-pop-over`
+* `ember install ember-pop-over`
 
 ## Flows
 
@@ -132,10 +131,8 @@ After this we'll add `ember-pop-over` and `ember-moment` as a dependencies (*not
 
 ```bash
 $ cd my-date-picker
-$ npm install --save ember-pop-over
-$ ember g ember-pop-over
-$ npm install --save ember-moment
-$ ember g ember-moment
+$ ember install ember-pop-over
+$ ember install ember-moment
 ```
 
 Now, we're ready to start authoring the addon. Let's first start by creating the component javascript file.
@@ -178,7 +175,7 @@ We're going to make the date picker a combination of a text field and a configur
 import Ember from "ember";
 import nearestChild from "ember-pop-over/computed/nearest-child";
 
-var get = Ember.get;
+const get = Ember.get;
 
 var DatePicker = Ember.Component.extend({
   classNames: ['date-picker'],
@@ -242,9 +239,8 @@ First, let's automatically generate an ID for the icon. This way, the pop-over h
 import Ember from "ember";
 import nearestChild from "ember-pop-over/computed/nearest-child";
 
-var generateGuid = Ember.generateGuid;
-
-var get = Ember.get;
+const generateGuid = Ember.generateGuid;
+const get = Ember.get;
 
 var DatePicker = Ember.Component.extend({
   classNames: ['date-picker'],
@@ -298,11 +294,10 @@ import Ember from "ember";
 import moment from 'moment';
 import nearestChild from "ember-pop-over/computed/nearest-child";
 
-var generateGuid = Ember.generateGuid;
+const generateGuid = Ember.generateGuid;
+const get = Ember.get;
 
-var get = Ember.get;
-
-var reads = Ember.computed.reads;
+const reads = Ember.computed.reads;
 
 var DatePicker = Ember.Component.extend({
   classNames: ['date-picker'],
@@ -385,7 +380,7 @@ Now on to the next step! Let's implement the calendar-month component. In `calen
 import Ember from "ember";
 import moment from "moment";
 
-var get = Ember.get;
+const get = Ember.get;
 
 var CalendarMonth = Ember.Component.extend({
   classNames: ['calendar-month'],
@@ -459,9 +454,9 @@ import Ember from "ember";
 import moment from "moment";
 import nearestParent from "ember-pop-over/computed/nearest-parent";
 
-var get = Ember.get;
+const get = Ember.get;
 
-var reads = Ember.computed.reads;
+const reads = Ember.computed.reads;
 
 var CalendarDay = Ember.Component.extend({
   classNames: ['calendar-day'],
@@ -504,12 +499,12 @@ import Ember from "ember";
 import moment from 'moment';
 import nearestChild from "ember-pop-over/computed/nearest-child";
 
-var generateGuid = Ember.generateGuid;
+const generateGuid = Ember.generateGuid;
 
-var get = Ember.get;
-var set = Ember.set;
+const get = Ember.get;
+const set = Ember.set;
 
-var reads = Ember.computed.reads;
+const reads = Ember.computed.reads;
 
 var DatePicker = Ember.Component.extend({
   classNames: ['date-picker'],
