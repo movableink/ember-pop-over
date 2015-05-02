@@ -240,18 +240,6 @@ export default Ember.Component.extend({
 
   retile() {
     if (get(this, 'active')) {
-      var $popover = this.$('.pop-over-hidden');
-      if ($popover.length === 0) {
-        $popover = this.$('.pop-over-compass');
-      }
-      this.$('.pop-over-hidden').css('display', 'block');
-      var rect = Rectangle.ofElement($popover[0]);
-      this.$('.pop-over-hidden').css('display', 'none');
-      $popover = this.$('.pop-over-compass:not(.pop-over-hidden)');
-      $popover.css({
-        width: rect.width + 'px',
-        height: rect.height + 'px'
-      });
       scheduleOnce('afterRender', this, 'tile');
     }
   },
@@ -306,7 +294,9 @@ export default Ember.Component.extend({
       $popover = this.$('.pop-over-compass:not(.pop-over-hidden)');
       $popover.css({
         top: popOverRect.top + 'px',
-        left: popOverRect.left + 'px'
+        left: popOverRect.left + 'px',
+        width: popOverRect.width + 'px',
+        height: popOverRect.height + 'px'
       });
       scheduleOnce('afterRender', this, 'positionPointer', $popover, pointerRect);
     }
