@@ -256,11 +256,8 @@ export default Ember.Component.extend({
     if ($popover.length === 0) {
       $popover = this.$('.pop-over-compass');
     }
-    let $containerParent = get(this, 'supportsLiquidFire') ?
-        $popover.children('.liquid-container').children('.liquid-child') :
-        $popover;
-    let $container = $containerParent.children('.pop-over-container');
-    var $pointer = $container.children('.pop-over-pointer');
+    let $pointer = $popover.children('.pop-over-container')
+                           .children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);
     var popOverRect = Rectangle.ofView(this, 'padding');
