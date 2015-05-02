@@ -254,9 +254,13 @@ export default Ember.Component.extend({
     this.$('.pop-over-hidden').css('display', 'block');
     var $popover = this.$('.pop-over-hidden');
     if ($popover.length === 0) {
-      $popover = this.$('.pop-over-container');
+      $popover = this.$('.pop-over-compass');
     }
-    var $pointer = $popover.children('.pop-over-pointer');
+    let $containerParent = get(this, 'supportsLiquidFire') ?
+        $popover.children('.liquid-container').children('.liquid-child') :
+        $popover;
+    let $container = $containerParent.children('.pop-over-container');
+    var $pointer = $container.children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);
     var popOverRect = Rectangle.ofView(this, 'padding');
@@ -294,15 +298,20 @@ export default Ember.Component.extend({
   },
 
   positionPopOver: function (popOverRect, pointerRect) {
-    let $popover = this.$('.pop-over-container:not(.pop-over-hidden)');
-    let $pointerParent = get(this, 'supportsLiquidFire') ?
-        $popover.children('.liquid-container').children('.liquid-child') :
-        $popover;
-    let $pointer = $pointerParent.children('.pop-over-pointer');
+    let $compass = this.$('.pop-over-compass:not(.pop-over-hidden)');
+    let $containerParent = get(this, 'supportsLiquidFire') ?
+        $compass.children('.liquid-container').children('.liquid-child') :
+        $compass;
+    let $container = $containerParent.children('.pop-over-container');
+    let $pointer = $container.children('.pop-over-pointer');
 
-    $popover.css({
+    $compass.css({
       top: popOverRect.top + 'px',
       left: popOverRect.left + 'px'
+    });
+    $container.css({
+      width: popOverRect.width + 'px',
+      height: popOverRect.height + 'px'
     });
     $pointer.css({
       top: pointerRect.top + 'px',

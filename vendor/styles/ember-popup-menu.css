@@ -2,9 +2,12 @@
   position: relative;
 }
 
-.pop-over-container {
+.pop-over-compass {
   position: absolute;
   z-index: 100;
+}
+
+.pop-over-container {
   background-color: #333;
   color: white;
 }
