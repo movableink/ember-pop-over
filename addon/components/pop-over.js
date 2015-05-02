@@ -67,7 +67,7 @@ export default Ember.Component.extend({
 
   on: null,
 
-  addTarget: function (target, options) {
+  addTarget(target, options) {
     get(this, 'targets').pushObject(Target.create(options, {
       component: this,
       target: target
@@ -142,28 +142,28 @@ export default Ember.Component.extend({
     this.__retile = null;
   }),
 
-  mouseEnter: function () {
+  mouseEnter() {
     if (get(this, 'disabled')) { return; }
     set(this, 'hovered', true);
   },
 
-  mouseLeave: function () {
+  mouseLeave() {
     if (get(this, 'disabled')) { return; }
     set(this, 'hovered', false);
     get(this, 'targets').setEach('hovered', false);
   },
 
-  mouseDown: function () {
+  mouseDown() {
     if (get(this, 'disabled')) { return; }
     set(this, 'pressed', true);
   },
 
-  mouseUp: function () {
+  mouseUp() {
     if (get(this, 'disabled')) { return; }
     set(this, 'pressed', false);
   },
 
-  documentClick: function (evt) {
+  documentClick(evt) {
     if (get(this, 'disabled')) { return; }
 
     set(this, 'pressed', false);
@@ -192,11 +192,11 @@ export default Ember.Component.extend({
     return null;
   }),
 
-  activate: function (target) {
+  activate(target) {
     get(this, 'targets').findBy('target', target).set('active', true);
   },
 
-  deactivate: function (target) {
+  deactivate(target) {
     if (target == null) {
       get(this, 'targets').setEach('active', false);
     } else {
@@ -228,23 +228,35 @@ export default Ember.Component.extend({
     }
   })),
 
-  hide: function () {
+  hide() {
     if (this.isDestroyed) { return; }
     set(this, 'active', false);
   },
 
-  show: function () {
+  show() {
     if (this.isDestroyed) { return; }
     set(this, 'active', true);
   },
 
-  retile: function () {
+  retile() {
     if (get(this, 'active')) {
+      var $popover = this.$('.pop-over-hidden');
+      if ($popover.length === 0) {
+        $popover = this.$('.pop-over-compass');
+      }
+      this.$('.pop-over-hidden').css('display', 'block');
+      var rect = Rectangle.ofElement($popover[0]);
+      this.$('.pop-over-hidden').css('display', 'none');
+      $popover = this.$('.pop-over-compass:not(.pop-over-hidden)');
+      $popover.css({
+        width: rect.width + 'px',
+        height: rect.height + 'px'
+      });
       scheduleOnce('afterRender', this, 'tile');
     }
   },
 
-  tile: function () {
+  tile() {
     var target = get(this, 'activeTarget');
     // Don't tile if there's nothing to constrain the pop over around
     if (!get(this, 'element') || !target) {
@@ -260,7 +272,7 @@ export default Ember.Component.extend({
                            .children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);
-    var popOverRect = Rectangle.ofView(this, 'padding');
+    var popOverRect = Rectangle.ofElement($popover[0], 'padding');
     var targetRect = Rectangle.ofElement(target.element, 'padding');
     var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
@@ -289,27 +301,23 @@ export default Ember.Component.extend({
       var offset = $popover.offsetParent().offset();
       popOverRect.top = popOverRect.top - offset.top;
       popOverRect.left = popOverRect.left - offset.left;
-      scheduleOnce('afterRender', this, 'positionPopOver', popOverRect, pointerRect);
       this.$('.pop-over-hidden').css('display', 'none');
+
+      $popover = this.$('.pop-over-compass:not(.pop-over-hidden)');
+      $popover.css({
+        top: popOverRect.top + 'px',
+        left: popOverRect.left + 'px'
+      });
+      scheduleOnce('afterRender', this, 'positionPointer', $popover, pointerRect);
     }
   },
 
-  positionPopOver: function (popOverRect, pointerRect) {
-    let $compass = this.$('.pop-over-compass:not(.pop-over-hidden)');
-    let $containerParent = get(this, 'supportsLiquidFire') ?
-        $compass.children('.liquid-container').children('.liquid-child') :
-        $compass;
-    let $container = $containerParent.children('.pop-over-container');
-    let $pointer = $container.children('.pop-over-pointer');
+  positionPointer($compass, pointerRect) {
+    let selector = '.pop-over-container > .pop-over-pointer';
+    let $pointer = get(this, 'supportsLiquidFire') ?
+        $(`> .liquid-container > .liquid-child > ${selector}`, $compass) :
+        $(selector, $compass);
 
-    $compass.css({
-      top: popOverRect.top + 'px',
-      left: popOverRect.left + 'px'
-    });
-    $container.css({
-      width: popOverRect.width + 'px',
-      height: popOverRect.height + 'px'
-    });
     $pointer.css({
       top: pointerRect.top + 'px',
       left: pointerRect.left + 'px'
