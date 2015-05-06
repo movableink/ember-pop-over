@@ -15,7 +15,7 @@ For use of the pop-over as a tooltip, the following handlebars will do the trick
 
 ## Installation
 
-* `ember install ember-pop-over`
+* `ember install:npm ember-pop-over`
 
 ## Flows
 
