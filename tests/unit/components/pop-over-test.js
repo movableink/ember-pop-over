@@ -8,7 +8,9 @@ const get = Ember.get;
 const set = Ember.set;
 const run = Ember.run;
 
-moduleForComponent('pop-over', 'PopOverComponent');
+moduleForComponent('pop-over', 'PopOverComponent', {
+  
+});
 
 test('"retile" is called when will-change properties change', function() {
   expect(4);
