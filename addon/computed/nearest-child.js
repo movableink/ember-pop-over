@@ -11,7 +11,7 @@ function flatten(array) {
 }
 
 function recursivelyFindByType(typeClass, children) {
-  let view = children.find(function (view) {
+  let view = Ember.A(children).find(function (view) {
     return typeClass.detectInstance(view);
   });
 
@@ -19,7 +19,7 @@ function recursivelyFindByType(typeClass, children) {
     return view;
   }
 
-  let childrenOfChildren = flatten(children.getEach('childViews'));
+  let childrenOfChildren = flatten(Ember.A(children).getEach('childViews'));
   if (childrenOfChildren.length === 0) {
     return null;
   }
