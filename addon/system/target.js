@@ -11,8 +11,9 @@ const generateGuid = Ember.generateGuid;
 
 const w = Ember.String.w;
 
-const bind = Ember.run.bind;
-const next = Ember.run.next;
+const run = Ember.run;
+const bind = run.bind;
+const next = run.next;
 
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
@@ -237,18 +238,24 @@ var Target = Ember.Object.extend(Ember.Evented, {
   }),
 
   focus: guard(function () {
-    set(this, 'focused', true);
+    set(this, 'setFocusedTimeout', run.later(() => {
+      set(this, 'focused', true);
+    }, get(this, 'delay')));
   }),
 
   blur: guard(function () {
+    run.cancel(get(this, 'setFocusedTimeout'));
     set(this, 'focused', false);
   }),
 
   mouseEnter: guard(function () {
-    set(this, 'hovered', true);
+    set(this, 'setHoveredTimeout', run.later(() => {
+      set(this, 'hovered', true);
+    }, get(this, 'delay')));
   }),
 
   mouseLeave: guard(function () {
+    run.cancel(get(this, 'setHoveredTimeout'));
     set(this, 'hovered', false);
   }),
 

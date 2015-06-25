@@ -67,6 +67,8 @@ export default Ember.Component.extend({
 
   on: null,
 
+  delay: 0,
+
   addTarget(target, options) {
     get(this, 'targets').pushObject(Target.create(options, {
       component: this,
@@ -116,7 +118,8 @@ export default Ember.Component.extend({
     // Add implicit target
     if (get(this, 'for') && get(this, 'on')) {
       this.addTarget(get(this, 'for'), {
-        on: get(this, 'on')
+        on: get(this, 'on'),
+        delay: get(this, 'delay')
       });
     }
 
