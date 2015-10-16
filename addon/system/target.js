@@ -110,12 +110,12 @@ var Target = Ember.Object.extend(Ember.Evented, {
       mousedown:  bind(this, 'mouseDown')
     };
 
-    if (typeof target === 'string') {
-      poll(target, this, 'attach');
-    } else if (get(target, 'element')) {
+    if (get(target, 'element')) {
       this.attach();
-    } else {
+    } else if (target.one) {
       target.one('didInsertElement', this, 'attach');
+    } else if (typeof target === 'string') {
+      poll(target, this, 'attach');
     }
   },
 
