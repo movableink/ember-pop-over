@@ -1,6 +1,6 @@
 import Ember from "ember";
 
-const keys = Ember.keys;
+const keys = Object.keys;
 const copy = Ember.copy;
 const get = Ember.get;
 const set = Ember.set;
@@ -25,10 +25,10 @@ function guard (fn) {
 }
 
 function getElementForTarget(target) {
-  if (Ember.View.detectInstance(target)) {
-    return get(target, 'element');
-  } else if (typeof target === "string") {
+  if (typeof target === 'string') {
     return document.getElementById(target);
+  } else if (get(target, 'element')) {
+    return get(target, 'element');
   } else {
     return target;
   }
@@ -41,12 +41,12 @@ function getLabelSelector($element) {
   }
 }
 
-function getNearestViewForElement(element) {
+function getNearestComponentForElement(registry, element) {
   var $target = $(element);
   if (!$target.hasClass('ember-view')) {
     $target = $target.parents('ember-view');
   }
-  return Ember.View.views[$target.attr('id')];
+  return registry[$target.attr('id')];
 }
 
 function labelForEvent(evt) {
@@ -110,14 +110,12 @@ var Target = Ember.Object.extend(Ember.Evented, {
       mousedown:  bind(this, 'mouseDown')
     };
 
-    if (Ember.View.detectInstance(target)) {
-      if (get(target, 'element')) {
-        this.attach();
-      } else {
-        target.one('didInsertElement', this, 'attach');
-      }
-    } else if (typeof target === 'string') {
+    if (typeof target === 'string') {
       poll(target, this, 'attach');
+    } else if (get(target, 'element')) {
+      this.attach();
+    } else {
+      target.one('didInsertElement', this, 'attach');
     }
   },
 
@@ -178,8 +176,10 @@ var Target = Ember.Object.extend(Ember.Evented, {
     set(this, 'component', null);
   },
 
-  on: computed(function (key, value) {
-    return parseActivators(value);
+  on: computed({
+    set(key, value) {
+      return parseActivators(value);
+    }
   }),
 
   isClicked: function (evt) {
@@ -192,10 +192,9 @@ var Target = Ember.Object.extend(Ember.Evented, {
     return false;
   },
 
-  active: computed('focused', 'hovered', 'pressed', 'component.hovered', 'component.pressed', function (key, value) {
-    var activators = get(this, 'on');
-    // Set
-    if (arguments.length > 1) {
+  active: computed('focused', 'hovered', 'pressed', 'component.hovered', 'component.pressed', {
+    set(key, value) {
+      var activators = get(this, 'on');
       if (value) {
         if (activators.contains('focus')) {
           set(this, 'focused', true);
@@ -210,30 +209,32 @@ var Target = Ember.Object.extend(Ember.Evented, {
         set(this, 'pressed', false);
       }
       return value;
-    }
+    },
 
-    // Get
-    var active = false;
+    get() {
+      var activators = get(this, 'on');
+      var active = false;
 
-    if (activators.contains('focus')) {
-      active = active || get(this, 'focused');
-      if (activators.contains('hold')) {
-        active = active || get(this, 'component.pressed');
+      if (activators.contains('focus')) {
+        active = active || get(this, 'focused');
+        if (activators.contains('hold')) {
+          active = active || get(this, 'component.pressed');
+        }
       }
-    }
 
-    if (activators.contains('hover')) {
-      active = active || get(this, 'hovered');
-      if (activators.contains('hold')) {
-        active = active || get(this, 'component.hovered');
+      if (activators.contains('hover')) {
+        active = active || get(this, 'hovered');
+        if (activators.contains('hold')) {
+          active = active || get(this, 'component.hovered');
+        }
       }
-    }
 
-    if (activators.contains('click') || activators.contains('hold')) {
-      active = active || get(this, 'pressed');
-    }
+      if (activators.contains('click') || activators.contains('hold')) {
+        active = active || get(this, 'pressed');
+      }
 
-    return !!active;
+      return !!active;
+    }
   }),
 
   focus: guard(function () {
@@ -289,7 +290,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
       return true;
     }
 
-    var view = getNearestViewForElement(evt.target);
+    var view = getNearestComponentForElement(this._viewRegistry, evt.target);
     var activators = get(this, 'on');
 
     // Manually trigger a click on internal elements

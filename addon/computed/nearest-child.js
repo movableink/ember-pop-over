@@ -35,28 +35,30 @@ export default function(type) {
     deleteItem = bind(tracking, 'remove');
   }
 
-  return computed('childViews.[]', function nearestChild(key) {
-    var typeClass = this.container.lookupFactory('component:' + type) ||
-                    this.container.lookupFactory('view:' + type);
+  return computed('childViews.[]', {
+    get(key) {
+      var typeClass = this.container.lookupFactory('component:' + type) ||
+                      this.container.lookupFactory('view:' + type);
 
-    var children = Ember.A(get(this, 'childViews'));
-    var appendedChildren = children.filterBy('_state', 'inDOM');
-    var detachedChildren = children.filter(function (child) {
-      return ['inBuffer', 'hasElement', 'preRender'].indexOf(child._state) !== -1;
-    });
+      var children = Ember.A(get(this, 'childViews'));
+      var appendedChildren = children.filterBy('_state', 'inDOM');
+      var detachedChildren = children.filter(function (child) {
+        return ['inBuffer', 'hasElement', 'preRender'].indexOf(child._state) !== -1;
+      });
 
-    appendedChildren.forEach(function (child) {
-      deleteItem(child);
-    });
+      appendedChildren.forEach(function (child) {
+        deleteItem(child);
+      });
 
-    var notifyChildrenChanged = bind(this, 'notifyPropertyChange', key);
-    detachedChildren.forEach(function (child) {
-      if (!tracking.has(child)) {
-        child.one('didInsertElement', this, notifyChildrenChanged);
-        tracking.set(child, true);
-      }
-    });
+      var notifyChildrenChanged = bind(this, 'notifyPropertyChange', key);
+      detachedChildren.forEach(function (child) {
+        if (!tracking.has(child)) {
+          child.one('didInsertElement', this, notifyChildrenChanged);
+          tracking.set(child, true);
+        }
+      });
 
-    return recursivelyFindByType(typeClass, appendedChildren);
+      return recursivelyFindByType(typeClass, appendedChildren);
+    }
   });
 }

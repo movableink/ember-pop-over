@@ -32,23 +32,23 @@ test('"for" takes an element', function() {
   target.detach();
 });
 
-test('"for" takes a view', function() {
+test('"for" takes a component', function() {
   expect(1);
 
-  var view = Ember.View.create();
+  var component = Ember.Component.create();
   run(function () {
-    view.appendTo("#qunit-fixture");
+    component.appendTo("#qunit-fixture");
   });
   var target = Target.create({
-    target: view,
+    target: component,
     on: 'click'
   });
   target.attach();
 
-  equal(target.element, get(view, 'element'));
+  equal(target.element, get(component, 'element'));
 
   run(function () {
-    view.destroy();
+    component.destroy();
   });
   target.detach();
 });

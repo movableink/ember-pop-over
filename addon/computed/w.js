@@ -12,10 +12,13 @@ const toArray = function (value) {
 
 export default function(defaultValue) {
   defaultValue = defaultValue || [];
-  return computed(function w(key, value) {
-    if (arguments.length > 1) {
+  return computed({
+    get() {
+      return Ember.A(toArray(defaultValue));
+    },
+    set(key, value) {
       value = toArray(value);
+      return Ember.A(value || toArray(defaultValue));
     }
-    return Ember.A(value || toArray(defaultValue));
   });
 }

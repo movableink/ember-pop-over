@@ -24,16 +24,20 @@ const removeObserver = Ember.removeObserver;
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
 const integrates = function (key) {
-  return computed(function () {
-    return this.container.lookup(`pop-over-integrations:${key}`);
+  return computed({
+    get() {
+      return this.container.lookup(`pop-over-integrations:${key}`);
+    }
   });
 };
 
 const classify = function (template) {
   var dependentKey = template.match(/{{(.*)}}/)[1];
-  return computed(dependentKey, function () {
-    let value = get(this, dependentKey);
-    return value ? template.replace(`{{${dependentKey}}}`, value) : null;
+  return computed(dependentKey, {
+    get() {
+      let value = get(this, dependentKey);
+      return value ? template.replace(`{{${dependentKey}}}`, value) : null;
+    }
   });
 };
 
@@ -70,12 +74,15 @@ export default Ember.Component.extend({
   addTarget(target, options) {
     get(this, 'targets').pushObject(Target.create(options, {
       component: this,
-      target: target
+      target: target,
+      _viewRegistry: this.container.lookup('-view-registry:main')
     }));
   },
 
-  targets: computed(function() {
-    return Ember.A();
+  targets: computed({
+    get() {
+      return Ember.A();
+    }
   }),
 
   /**
@@ -184,12 +191,14 @@ export default Ember.Component.extend({
 
   activeTargets: filterBy('targets', 'active', true),
 
-  activeTarget: computed('activeTargets.[]', function () {
-    if (get(this, 'areAnyTargetsActive')) {
-      return get(this, 'targets').findBy('anchor', true) ||
-             get(this, 'activeTargets.firstObject');
+  activeTarget: computed('activeTargets.[]', {
+    get() {
+      if (get(this, 'areAnyTargetsActive')) {
+        return get(this, 'targets').findBy('anchor', true) ||
+               get(this, 'activeTargets.firstObject');
+      }
+      return null;
     }
-    return null;
   }),
 
   activate(target) {

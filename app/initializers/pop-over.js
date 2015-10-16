@@ -4,7 +4,7 @@ import config from "../config/environment";
 import * as flows from "../flows";
 
 const get = Ember.get;
-const keys = Ember.keys;
+const keys = Object.keys;
 
 export var initialize = function (_, app) {
   Ember.A(keys(flows)).forEach(function (flowName) {
