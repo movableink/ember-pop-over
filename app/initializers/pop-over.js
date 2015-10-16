@@ -6,7 +6,7 @@ import * as flows from "../flows";
 const get = Ember.get;
 const keys = Object.keys;
 
-export var initialize = function (_, app) {
+export var initialize = function (app) {
   Ember.A(keys(flows)).forEach(function (flowName) {
     if (flowName == 'default') { return; }
     let constraints = get(flows[flowName].call(Flow.create()), 'constraints');
