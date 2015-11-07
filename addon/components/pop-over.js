@@ -10,6 +10,7 @@ const observer = Ember.observer;
 const bind = Ember.run.bind;
 const scheduleOnce = Ember.run.scheduleOnce;
 const next = Ember.run.next;
+const once = Ember.run.once;
 
 const get = Ember.get;
 const set = Ember.set;
@@ -219,22 +220,23 @@ export default Ember.Component.extend({
     menu.
    */
   visibilityDidChange: on('init', observer('areAnyTargetsActive', function () {
-    var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
+    once(() => {
+      var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
+      var active = get(this, 'areAnyTargetsActive');
+      var inactive = !active;
+      var visible = get(this, 'active');
+      var hidden = !visible;
 
-    var active = get(this, 'areAnyTargetsActive');
-    var inactive = !active;
-    var visible = get(this, 'active');
-    var hidden = !visible;
+      if (active && hidden) {
+        $(document).on('mousedown', proxy);
+        this.show();
 
-    if (active && hidden) {
-      $(document).on('mousedown', proxy);
-      this.show();
-
-    // Remove click events immediately
-    } else if (inactive && visible) {
-      $(document).off('mousedown', proxy);
-      this.hide();
-    }
+      // Remove click events immediately
+      } else if (inactive && visible) {
+        $(document).off('mousedown', proxy);
+        this.hide();
+      }
+    });
   })),
 
   hide() {
