@@ -208,6 +208,7 @@ var Target = Ember.Object.extend(Ember.Evented, {
         set(this, 'hovered', false);
         set(this, 'pressed', false);
       }
+
       return value;
     },
 

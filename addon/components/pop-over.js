@@ -10,12 +10,13 @@ const observer = Ember.observer;
 const bind = Ember.run.bind;
 const scheduleOnce = Ember.run.scheduleOnce;
 const next = Ember.run.next;
+const once = Ember.run.once;
 
 const get = Ember.get;
 const set = Ember.set;
 
 const alias = Ember.computed.alias;
-const bool = Ember.computed.bool;
+const notEmpty = Ember.computed.notEmpty;
 const filterBy = Ember.computed.filterBy;
 
 const addObserver = Ember.addObserver;
@@ -23,6 +24,7 @@ const removeObserver = Ember.removeObserver;
 
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
+
 const integrates = function (key) {
   return computed({
     get() {
@@ -187,7 +189,7 @@ export default Ember.Component.extend({
     }
   },
 
-  areAnyTargetsActive: bool('activeTargets.length'),
+  areAnyTargetsActive: notEmpty('activeTargets'),
 
   activeTargets: filterBy('targets', 'active', true),
 
@@ -219,22 +221,23 @@ export default Ember.Component.extend({
     menu.
    */
   visibilityDidChange: on('init', observer('areAnyTargetsActive', function () {
-    var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
+    once(() => {
+      var proxy = this.__documentClick = this.__documentClick || bind(this, 'documentClick');
+      var active = get(this, 'areAnyTargetsActive');
+      var inactive = !active;
+      var visible = get(this, 'active');
+      var hidden = !visible;
 
-    var active = get(this, 'areAnyTargetsActive');
-    var inactive = !active;
-    var visible = get(this, 'active');
-    var hidden = !visible;
+      if (active && hidden) {
+        $(document).on('mousedown', proxy);
+        this.show();
 
-    if (active && hidden) {
-      $(document).on('mousedown', proxy);
-      this.show();
-
-    // Remove click events immediately
-    } else if (inactive && visible) {
-      $(document).off('mousedown', proxy);
-      this.hide();
-    }
+      // Remove click events immediately
+      } else if (inactive && visible) {
+        $(document).off('mousedown', proxy);
+        this.hide();
+      }
+    });
   })),
 
   hide() {
@@ -265,7 +268,7 @@ export default Ember.Component.extend({
     if ($popover.length === 0) {
       $popover = this.$('.pop-over-compass');
     }
-    let $pointer = $popover.children('.pop-over-container')
+    let $pointer = $popover.find('.pop-over-container')
                            .children('.pop-over-pointer');
 
     var boundingRect = Rectangle.ofElement(window);
@@ -303,9 +306,7 @@ export default Ember.Component.extend({
       $popover = this.$('.pop-over-compass:not(.pop-over-hidden)');
       $popover.css({
         top: popOverRect.top + 'px',
-        left: popOverRect.left + 'px',
-        width: popOverRect.width + 'px',
-        height: popOverRect.height + 'px'
+        left: popOverRect.left + 'px'
       });
       scheduleOnce('afterRender', this, 'positionPointer', $popover, pointerRect);
     }

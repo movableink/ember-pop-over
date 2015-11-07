@@ -21,10 +21,15 @@ module('Acceptance: Events', {
 });
 
 test('on="click"', function() {
-  expect(6);
+  expect(7);
   visit('/');
 
   simpleClick("#click");
+  andThen(function () {
+    ok(find(".pop-over-container:visible").length === 1);
+  });
+
+  mouseLeave("#click");
   andThen(function () {
     ok(find(".pop-over-container:visible").length === 1);
   });
