@@ -1,5 +1,5 @@
 {{#if supportsLiquidFire}}
-  <div class="pop-over-compass">
+  <div class="pop-over-compass {{unless active "pop-over-compass-invisible"}}">
     {{#liquid-if active class="liquid-pop-over"}}
       <div class="pop-over-container">
         <span class="pop-over-pointer orient-{{orientation}}"></span>
