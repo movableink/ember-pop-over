@@ -202,6 +202,18 @@ export default Ember.Component.extend({
     }
   }),
 
+  addActiveClass() {
+    var $target = $(get(this,'activeTarget.element'));
+    $target.addClass(get(this,'activeClassName'));
+  },
+
+  removeActiveClass() {
+    var $targets = $(get(this,'targets'));
+    $targets.each( (i, el) => {
+      $(el.element).removeClass(get(this,'activeClassName'));
+    });
+  },
+
   activate(target) {
     get(this, 'targets').findBy('target', target).set('active', true);
   },
@@ -241,11 +253,13 @@ export default Ember.Component.extend({
 
   hide() {
     if (this.isDestroyed) { return; }
+    this.removeActiveClass();
     set(this, 'active', false);
   },
 
   show() {
     if (this.isDestroyed) { return; }
+    this.addActiveClass();
     set(this, 'active', true);
   },
 
