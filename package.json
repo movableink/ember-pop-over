@@ -39,7 +39,8 @@
   },
   "keywords": [
     "ember-addon",
-    "pop-over"
+    "pop-over",
+    "popover"
   ],
   "dependencies": {
     "ember-cli-babel": "^5.1.3"
