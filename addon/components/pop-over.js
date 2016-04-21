@@ -144,7 +144,7 @@ export default Ember.Component.extend({
     });
 
     if (this.__documentClick) {
-      $(document).off('mousedown', this.__documentClick);
+      $(document).off('mousedown touchstart', this.__documentClick);
       this.__documentClick = null;
     }
 
@@ -188,6 +188,12 @@ export default Ember.Component.extend({
     if (!clicked && !clickedAnyTarget) {
       targets.setEach('pressed', false);
     }
+
+    if (clickedAnyTarget && evt.type === 'touchstart') {
+      // don't allow touch devices to trigger mouseDown
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
   },
 
   areAnyTargetsActive: bool('activeTargets.length'),
@@ -230,12 +236,12 @@ export default Ember.Component.extend({
       var hidden = !visible;
 
       if (active && hidden) {
-        $(document).on('mousedown', proxy);
+        $(document).on('mousedown touchstart', proxy);
         this.show();
 
       // Remove click events immediately
       } else if (inactive && visible) {
-        $(document).off('mousedown', proxy);
+        $(document).off('mousedown touchstart', proxy);
         this.hide();
       }
     });
