@@ -1,6 +1,6 @@
 {
   "name": "ember-pop-over",
-  "version": "0.1.40",
+  "version": "0.1.31",
   "description": "A constraint-based pop-over component for ember apps",
   "directories": {
     "doc": "doc",
@@ -39,7 +39,8 @@
   },
   "keywords": [
     "ember-addon",
-    "pop-over"
+    "pop-over",
+    "popover"
   ],
   "dependencies": {
     "ember-cli-babel": "^5.1.3"
