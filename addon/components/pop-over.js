@@ -27,7 +27,7 @@ const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
 
 const getOwner = Ember.getOwner || function (object) {
-  return object.__container__;
+  return object.container;
 }
 
 const integrates = function (key) {
