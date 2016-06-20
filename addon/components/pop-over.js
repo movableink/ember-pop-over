@@ -25,7 +25,10 @@ const removeObserver = Ember.removeObserver;
 
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 const $ = Ember.$;
-const { getOwner } = Ember;
+
+const getOwner = Ember.getOwner || function (object) {
+  return object.__container__;
+}
 
 const integrates = function (key) {
   return computed({
