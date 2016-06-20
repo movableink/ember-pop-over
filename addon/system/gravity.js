@@ -1,4 +1,4 @@
-import Flow from "./flow";
+import Flow from './flow';
 
 export default {
   nw: Flow.create().orientAbove.andSnapTo('left-edge'),

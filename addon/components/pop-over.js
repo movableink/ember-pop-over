@@ -288,7 +288,7 @@ export default Ember.Component.extend({
       let gravityName = get(this, 'gravity');
       var constraints;
       if (gravityName) {
-        constraints = gravity[gravityName];
+        constraints = get(gravity[gravityName] || {}, 'constraints');
         Ember.assert(
           `There is no gravity "${gravityName}".
 
