@@ -2,6 +2,7 @@ import Ember from "ember";
 import Target from "../system/target";
 import Rectangle from "../system/rectangle";
 import w from "../computed/w";
+import gravity from "../system/gravity";
 
 const computed = Ember.computed;
 const on = Ember.on;
@@ -65,6 +66,8 @@ export default Ember.Component.extend({
   pointer: null,
 
   flow: 'around',
+
+  gravity: null,
 
   /**
     The target element of the pop over.
@@ -282,15 +285,25 @@ export default Ember.Component.extend({
     var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
 
     if (boundingRect.intersects(targetRect)) {
-      var flowName = get(this, 'flow');
-      var constraints = getOwner(this).lookup('pop-over-constraint:' + flowName);
-      Ember.assert(
-        `The flow named '${flowName}' was not registered with the {{pop-over}}.
-         Register your flow by adding an additional export to 'app/flows.js':
+      let gravityName = get(this, 'gravity');
+      var constraints;
+      if (gravityName) {
+        constraints = gravity[gravityName];
+        Ember.assert(
+          `There is no gravity "${gravityName}".
 
-         export function ${flowName} () {
-           return this.orientBelow().andSnapTo(this.center);
-         });`, constraints);
+           Please choose one of ${Object.keys(gravity).map((dir) => `"${dir}"`)}.`, constraints);
+      } else {
+        var flowName = get(this, 'flow');
+        constraints = getOwner(this).lookup('pop-over-constraint:' + flowName);
+        Ember.assert(
+          `The flow named '${flowName}' was not registered with the {{pop-over}}.
+           Register your flow by adding an additional export to 'app/flows.js':
+
+           export function ${flowName} () {
+             return this.orientBelow().andSnapTo(this.center);
+           });`, constraints);
+      }
 
       var solution;
       for (var i = 0, len = constraints.length; i < len; i++) {
