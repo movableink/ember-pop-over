@@ -41,14 +41,6 @@ function getLabelSelector($element) {
   }
 }
 
-function getNearestComponentForElement(registry, element) {
-  var $target = $(element);
-  if (!$target.hasClass('ember-view')) {
-    $target = $target.parents('ember-view');
-  }
-  return registry[$target.attr('id')];
-}
-
 function labelForEvent(evt) {
   var $target = $(evt.target);
   if ($target[0].tagName.toLowerCase() === 'label') {
@@ -246,11 +238,17 @@ var Target = Ember.Object.extend(Ember.Evented, {
   }),
 
   mouseEnter: guard(function () {
+    this._willLeave = false;
     set(this, 'hovered', true);
   }),
 
   mouseLeave: guard(function () {
-    set(this, 'hovered', false);
+    this._willLeave = true;
+    Ember.run.later(() => {
+      if (get(this, 'component.disabled')) { return; }
+      this._willLeave = false;
+      set(this, 'hovered', false);
+    }, 100);
   }),
 
   mouseDown: guard(function (evt) {
@@ -290,14 +288,9 @@ var Target = Ember.Object.extend(Ember.Evented, {
       return true;
     }
 
-    var view = getNearestComponentForElement(this._viewRegistry, evt.target);
     var activators = get(this, 'on');
 
-    // Manually trigger a click on internal elements
-    if (view && view.nearestOfType(get(this, 'component').constructor)) {
-      view.trigger('click');
-
-    } else if (activators.contains('click') && activators.contains('hold')) {
+    if (activators.contains('click') && activators.contains('hold')) {
       // If the user waits more than 400ms between mouseDown and mouseUp,
       // we can assume that they are clicking and dragging to the menu item,
       // and we should close the menu if they mouseup anywhere not inside
