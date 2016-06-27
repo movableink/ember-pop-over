@@ -1,15 +1,14 @@
-import Ember from "ember";
-import Orientation from "./orientation";
+import Object from 'ember-object';
+import Orientation from './orientation';
 
-const on = Ember.on;
-
-export default Ember.Object.extend({
-  setupOrienters: on('init', function() {
+export default Object.extend({
+  init() {
     this.orientAbove = Orientation.create({ orientation: 'above' });
     this.orientBelow = Orientation.create({ orientation: 'below' });
     this.orientRight = Orientation.create({ orientation: 'right' });
     this.orientLeft = Orientation.create({ orientation: 'left' });
-  }),
+    this._super();
+  },
 
   topEdge:    'top-edge',
   bottomEdge: 'bottom-edge',

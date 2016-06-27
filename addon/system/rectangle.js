@@ -1,10 +1,8 @@
-import Ember from "ember";
+import $ from 'jquery';
+import get from 'ember-metal/get';
 import { getLayout } from "dom-ruler";
 
-const get = Ember.get;
-const $ = Ember.$;
-
-var Rectangle = function (x, y, width, height) {
+let Rectangle = function (x, y, width, height) {
   this.x = this.left = x;
   this.y = this.top = y;
   this.right = x + width;
@@ -49,11 +47,11 @@ Rectangle.prototype = {
 
 Rectangle.intersection = function (rectA, rectB) {
   // Find the edges
-  var x = Math.max(rectA.x, rectB.x);
-  var y = Math.max(rectA.y, rectB.y);
-  var right  = Math.min(rectA.right, rectB.right);
-  var bottom = Math.min(rectA.bottom, rectB.bottom);
-  var width, height;
+  let x = Math.max(rectA.x, rectB.x);
+  let y = Math.max(rectA.y, rectB.y);
+  let right  = Math.min(rectA.right, rectB.right);
+  let bottom = Math.min(rectA.bottom, rectB.bottom);
+  let width, height;
 
   if (rectA.right <= rectB.left ||
       rectB.right <= rectA.left ||
@@ -73,11 +71,11 @@ Rectangle.ofView = function (view, boxModel) {
 };
 
 Rectangle.ofElement = function (element, boxModel) {
-  var size = getLayout(element);
+  let size = getLayout(element);
   if (boxModel) {
     size = size[boxModel];
   }
-  var offset = $(element).offset() || { top: $(element).scrollTop(), left: $(element).scrollLeft() };
+  let offset = $(element).offset() || { top: $(element).scrollTop(), left: $(element).scrollLeft() };
 
   return new Rectangle(offset.left, offset.top, size.width, size.height);
 };

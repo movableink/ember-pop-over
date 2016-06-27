@@ -1,8 +1,7 @@
 import Ember from "ember";
+import { A } from 'ember-array/utils';
 
-const keys = Object.keys;
-const compare = Ember.compare;
-const mixin = Ember.mixin;
+const { mixin, compare } = Ember;
 
 function orientAbove(target, popover, pointer) {
   popover.setY(target.top - pointer.height - popover.height);
@@ -59,25 +58,25 @@ function snapBelow(target, popover, pointer) {
 }
 
 function slideHorizontally(guidelines, boundary, target, popover, pointer) {
-  var edges = {
+  let edges = {
     'left-edge':  Math.min(target.width / 2 - (pointer.width * 1.5), 0),
     'center':    (target.width / 2 - popover.width / 2),
     'right-edge': target.width - popover.width
   };
-  var range = Ember.A(guidelines).map(function (guideline) {
+  let range = A(guidelines).map(function (guideline) {
     return edges[guideline] || [-1, -1];
   });
 
-  var left = target.x + range[0];
-  var right = left + popover.width;
+  let left = target.x + range[0];
+  let right = left + popover.width;
 
   range = range.sort(function (a, b) {
     return compare(a, b);
   });
-  var minX = target.x + range[0];
-  var maxX = target.x + range[1];
+  let minX = target.x + range[0];
+  let maxX = target.x + range[1];
 
-  var padding = pointer.width;
+  let padding = pointer.width;
 
   // Adjust the popover so it remains in view
   if (left < boundary.left + padding) {
@@ -86,14 +85,14 @@ function slideHorizontally(guidelines, boundary, target, popover, pointer) {
     left = boundary.right - popover.width - padding;
   }
 
-  var valid = left >= minX && left <= maxX;
+  let valid = left >= minX && left <= maxX;
   left = Math.max(Math.min(left, maxX), minX);
 
   popover.setX(left);
 
-  var dX = target.left - left;
-  var oneThird = (edges['left-edge'] - edges['right-edge']) / 3;
-  var pointerClassName;
+  let dX = target.left - left;
+  let oneThird = (edges['left-edge'] - edges['right-edge']) / 3;
+  let pointerClassName;
 
   if (dX < oneThird) {
     pointer.setX(dX + Math.min(pointer.width, target.width / 2 - pointer.width * 1.5));
@@ -113,25 +112,25 @@ function slideHorizontally(guidelines, boundary, target, popover, pointer) {
 }
 
 function slideVertically(guidelines, boundary, target, popover, pointer) {
-  var edges = {
+  let edges = {
     'top-edge':    Math.min(target.height / 2 - (pointer.height * 1.5), 0),
     'center':      (target.height / 2 - popover.height / 2),
     'bottom-edge': target.height - popover.height
   };
-  var range = Ember.A(guidelines).map(function (guideline) {
+  let range = A(guidelines).map(function (guideline) {
     return edges[guideline];
   });
 
-  var top = target.y + range[0];
-  var bottom = top + popover.height;
+  let top = target.y + range[0];
+  let bottom = top + popover.height;
 
   range = range.sort(function (a, b) {
     return compare(a, b);
   });
-  var minY = target.y + range[0];
-  var maxY = target.y + range[1];
+  let minY = target.y + range[0];
+  let maxY = target.y + range[1];
 
-  var padding = pointer.height;
+  let padding = pointer.height;
 
   // Adjust the popover so it remains in view
   if (top < boundary.top + padding) {
@@ -140,14 +139,14 @@ function slideVertically(guidelines, boundary, target, popover, pointer) {
     top = boundary.bottom - popover.height - padding;
   }
 
-  var valid = top >= minY && top <= maxY;
+  let valid = top >= minY && top <= maxY;
   top = Math.max(Math.min(top, maxY), minY + padding);
 
   popover.setY(top);
 
-  var dY = target.top - top;
-  var oneThird = (edges['top-edge'] - edges['bottom-edge']) / 3;
-  var pointerClassName;
+  let dY = target.top - top;
+  let oneThird = (edges['top-edge'] - edges['bottom-edge']) / 3;
+  let pointerClassName;
 
   if (dY < oneThird) {
     pointer.setY(dY + pointer.height + Math.min(target.height / 2 - (pointer.height * 1.5), 0));
@@ -167,14 +166,14 @@ function slideVertically(guidelines, boundary, target, popover, pointer) {
 }
 
 function Constraint(object) {
-  keys(object).forEach(function (key) {
+  Object.keys(object).forEach(function (key) {
     this[key] = object[key];
   }, this);
 }
 
 Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect, pointerRect) {
-  var orientation = this.orientation;
-  var result = {
+  let orientation = this.orientation;
+  let result = {
     orientation: orientation,
     valid: true
   };

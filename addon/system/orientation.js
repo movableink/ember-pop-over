@@ -25,13 +25,13 @@ export default Ember.Object.extend({
   constraints: reads('defaultConstraint'),
 
   andSnapTo: function (snapGuidelines) {
-    var constraints = Ember.A();
-    var guideline;
-    var orientation = get(this, 'orientation');
+    let constraints = Ember.A();
+    let guideline;
+    let orientation = get(this, 'orientation');
 
     snapGuidelines = slice.call(arguments);
 
-    for (var i = 0, len = snapGuidelines.length; i < len; i++) {
+    for (let i = 0, len = snapGuidelines.length; i < len; i++) {
       guideline = snapGuidelines[i];
 
       constraints.push(
