@@ -1,5 +1,11 @@
 .pop-over {
-  position: relative;
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #333;
+  border-color: #333;
+  color: white;
+  pointer-events: none;
 }
 
 .pop-over-compass {
@@ -7,29 +13,31 @@
   z-index: 100;
 }
 
+.pop-over-compass,
+.pop-over-container,
+.liquid-pop-over,
+.liquid-child {
+  background-color: inherit;
+  border-color: inherit;
+  color: inherit;
+}
+
 .pop-over-compass-invisible {
   visibility: hidden;
 }
 
-.liquid-pop-over {
-  width: 100%;
-  height: 100%;
-}
-
+.liquid-pop-over.liquid-container,
 .liquid-pop-over .liquid-child {
   width: 100%;
   height: 100%;
-}
-
-.pop-over-container {
-  background-color: #333;
-  color: white;
+  overflow: visible;
 }
 
 .pop-over-pointer {
   position: absolute;
   display:  block;
   border-style: solid;
+  border-color: transparent;
   border-width: 10px;
   height: 0;
   width: 0;
@@ -38,21 +46,21 @@
 }
 
 .pop-over-pointer.orient-above {
-  border-color: #333 transparent transparent transparent;
+  border-top-color: inherit;
   bottom: -20px;
 }
 
 .pop-over-pointer.orient-below {
-  border-color: transparent transparent #333 transparent;
+  border-bottom-color: inherit;
   top: -20px;
 }
 
 .pop-over-pointer.orient-left {
-  border-color: transparent transparent transparent #333;
+  border-left-color: inherit;
   right: -20px;
 }
 
 .pop-over-pointer.orient-right {
-  border-color: transparent #333 transparent transparent;
+  border-right-color: inherit;
   left: -20px;
 }
