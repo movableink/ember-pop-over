@@ -1,54 +1,30 @@
 import Ember from "ember";
-import Target from "../system/target";
-import Rectangle from "../system/rectangle";
-import w from "../computed/w";
-import gravity from "../system/gravity";
+import layout from './template';
 
-const computed = Ember.computed;
-const on = Ember.on;
-const observer = Ember.observer;
+import { assert } from 'ember-metal/utils';
+import Component from 'ember-component';
+import Target from "../../system/target";
+import Rectangle from "../../system/rectangle";
+import gravity from "../../system/gravity";
 
-const bind = Ember.run.bind;
-const scheduleOnce = Ember.run.scheduleOnce;
-const next = Ember.run.next;
-const once = Ember.run.once;
-
-const get = Ember.get;
-const set = Ember.set;
-
-const alias = Ember.computed.alias;
-const bool = Ember.computed.bool;
-const filterBy = Ember.computed.filterBy;
-
-const addObserver = Ember.addObserver;
-const removeObserver = Ember.removeObserver;
-
-const isSimpleClick = Ember.ViewUtils.isSimpleClick;
-const $ = Ember.$;
+import { bind, scheduleOnce, next, once } from 'ember-runloop';
+import get from 'ember-metal/get';
+import set from 'ember-metal/set';
+import computed, { bool, filterBy } from 'ember-computed';
+import observer, { addObserver, removeObserver } from 'ember-metal/observer';
+import { A } from 'ember-array/utils';
+import on from 'ember-evented/on';
+import $ from 'jquery';
+import integrates from '../../computed/integrates';
+import classify from '../../computed/classify';
 
 const getOwner = Ember.getOwner || function (object) {
   return object.container;
-}
-
-const integrates = function (key) {
-  return computed({
-    get() {
-      return getOwner(this).lookup(`pop-over-integrations:${key}`);
-    }
-  });
 };
 
-const classify = function (template) {
-  var dependentKey = template.match(/{{(.*)}}/)[1];
-  return computed(dependentKey, {
-    get() {
-      let value = get(this, dependentKey);
-      return value ? template.replace(`{{${dependentKey}}}`, value) : null;
-    }
-  });
-};
+export default Component.extend({
 
-export default Ember.Component.extend({
+  layout,
 
   active: false,
 
@@ -83,35 +59,16 @@ export default Ember.Component.extend({
   addTarget(target, options) {
     get(this, 'targets').pushObject(Target.create(options, {
       component: this,
-      target: target,
-      _viewRegistry: getOwner(this).lookup('-view-registry:main')
+      target: target
     }));
   },
 
   targets: computed({
     get() {
-      return Ember.A();
+      return A();
     }
   }),
 
-  /**
-    Property that notifies the pop over to retile
-   */
-  'will-change': alias('willChange'),
-  willChange: w(),
-
-  willChangeDidChange: on('init', observer('willChange', function () {
-    (get(this, '_oldWillChange') || Ember.A()).forEach(function (key) {
-      removeObserver(this, key, this, 'retile');
-    }, this);
-
-    get(this, 'willChange').forEach(function (key) {
-      addObserver(this, key, this, 'retile');
-    }, this);
-
-    set(this, '_oldWillChange', get(this, 'willChange'));
-    this.retile();
-  })),
 
   // ..............................................
   // Event management
@@ -189,8 +146,7 @@ export default Ember.Component.extend({
     set(this, 'pressed', false);
     var targets = get(this, 'targets');
     var element = get(this, 'element');
-    var clicked = isSimpleClick(evt) &&
-      (evt.target === element || $.contains(element, evt.target));
+    var clicked = evt.target === element || $.contains(element, evt.target);
     var clickedAnyTarget = targets.any(function (target) {
       return target.isClicked(evt);
     });
@@ -241,6 +197,14 @@ export default Ember.Component.extend({
 
       if (active && hidden) {
         $(document).on('mousedown', proxy);
+        var target = get(this, 'activeTarget');
+        if (target) {
+          var targetRect = Rectangle.ofElement(target.element, 'padding');
+          this.$().css({
+            top: (targetRect.top + targetRect.height / 2) + 'px',
+            left: (targetRect.left + targetRect.width / 2) + 'px'
+          });
+        }
         this.show();
 
       // Remove click events immediately
@@ -268,38 +232,36 @@ export default Ember.Component.extend({
   },
 
   tile() {
-    var target = get(this, 'activeTarget');
+    let target = get(this, 'activeTarget');
     // Don't tile if there's nothing to constrain the pop over around
     if (!get(this, 'element') || !target) {
       return;
     }
 
-    this.$('.pop-over-hidden').css('display', 'block');
-    var $popover = this.$('.pop-over-hidden');
-    if ($popover.length === 0) {
-      $popover = this.$('.pop-over-compass');
+    let $popover = this.$('> .pop-over-compass');
+    if (get(this, 'supportsLiquidFire')) {
+      $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
     }
-    let $pointer = $popover.children('.pop-over-container')
-                           .children('.pop-over-pointer');
+    let $pointer = $popover.find('> .pop-over-container > .pop-over-pointer');
 
-    var boundingRect = Rectangle.ofElement(window);
-    var popOverRect = Rectangle.ofElement($popover[0], 'padding');
-    var targetRect = Rectangle.ofElement(target.element, 'padding');
-    var pointerRect = Rectangle.ofElement($pointer[0], 'borders');
+    let boundingRect = Rectangle.ofElement(window);
+    let popOverRect = Rectangle.ofElement($popover[0], 'borders');
+    let targetRect = Rectangle.ofElement(target.element, 'padding');
+    let pointerRect = Rectangle.ofElement($pointer[0], 'borders');
+    let constraints = [];
 
     if (boundingRect.intersects(targetRect)) {
       let gravityName = get(this, 'gravity');
-      var constraints;
       if (gravityName) {
         constraints = get(gravity[gravityName] || {}, 'constraints');
-        Ember.assert(
+        assert(
           `There is no gravity "${gravityName}".
 
            Please choose one of ${Object.keys(gravity).map((dir) => `"${dir}"`)}.`, constraints);
       } else {
         var flowName = get(this, 'flow');
         constraints = getOwner(this).lookup('pop-over-constraint:' + flowName);
-        Ember.assert(
+        assert(
           `The flow named '${flowName}' was not registered with the {{pop-over}}.
            Register your flow by adding an additional export to 'app/flows.js':
 
@@ -308,8 +270,8 @@ export default Ember.Component.extend({
            });`, constraints);
       }
 
-      var solution;
-      for (var i = 0, len = constraints.length; i < len; i++) {
+      let solution;
+      for (let i = 0, len = constraints.length; i < len; i++) {
         solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect);
         if (solution.valid) { break; }
       }
@@ -319,28 +281,21 @@ export default Ember.Component.extend({
         pointer:     solution.pointer
       });
 
-      var offset = $popover.offsetParent().offset();
+      let offset = $popover.offsetParent().offset();
       popOverRect.top = popOverRect.top - offset.top;
       popOverRect.left = popOverRect.left - offset.left;
-      this.$('.pop-over-hidden').css('display', 'none');
 
-      $popover = this.$('.pop-over-compass:not(.pop-over-hidden)');
       $popover.css({
         top: popOverRect.top + 'px',
         left: popOverRect.left + 'px',
         width: popOverRect.width + 'px',
         height: popOverRect.height + 'px'
       });
-      scheduleOnce('afterRender', this, 'positionPointer', $popover, pointerRect);
+      scheduleOnce('afterRender', this, 'positionPointer', $pointer, pointerRect);
     }
   },
 
-  positionPointer($compass, pointerRect) {
-    let selector = '.pop-over-container > .pop-over-pointer';
-    let $pointer = get(this, 'supportsLiquidFire') ?
-        $(`> .liquid-container > .liquid-child > ${selector}`, $compass) :
-        $(selector, $compass);
-
+  positionPointer($pointer, pointerRect) {
     $pointer.css({
       top: pointerRect.top + 'px',
       left: pointerRect.left + 'px'
