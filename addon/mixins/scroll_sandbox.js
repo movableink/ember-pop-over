@@ -46,7 +46,7 @@ function mouseWheel(evt) {
 }
 
 /**
-  Adding this mixin to a view will add scroll behavior that bounds
+  Adding this mixin to a component will add scroll behavior that bounds
   the scrolling to the contents of the box.
 
   When the user has stopped scrolling and they are at an edge of the
