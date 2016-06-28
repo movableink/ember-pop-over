@@ -7,7 +7,7 @@ import Target from "../../system/target";
 import Rectangle from "../../system/rectangle";
 import gravity from "../../system/gravity";
 
-import { bind, scheduleOnce, next, once } from 'ember-runloop';
+import { bind, scheduleOnce, next, once, later } from 'ember-runloop';
 import get from 'ember-metal/get';
 import set from 'ember-metal/set';
 import computed, { bool, filterBy } from 'ember-computed';
@@ -121,13 +121,26 @@ export default Component.extend({
 
   mouseEnter() {
     if (get(this, 'disabled')) { return; }
+    this._willLeave = false;
     set(this, 'hovered', true);
+    this._willLeave = false;
   },
 
   mouseLeave() {
-    if (get(this, 'disabled')) { return; }
-    set(this, 'hovered', false);
-    get(this, 'targets').setEach('hovered', false);
+    this._willLeave = true;
+    later(() => {
+      if (get(this, 'disabled')) { return; }
+      if (A(A(get(this, 'targets')).filterBy('_willLeave', false)).isAny('hovered')) {
+        this._willLeave = false;
+        set(this, 'hovered', false);
+      }
+
+      if (this._willLeave) {
+        this._willLeave = false;
+        set(this, 'hovered', false);
+        get(this, 'targets').setEach('hovered', false);
+      }
+    }, 150);
   },
 
   mouseDown() {

@@ -247,7 +247,7 @@ export default EmberObject.extend(Evented, {
         this._willLeave = false;
         set(this, 'hovered', false);
       }
-    }, 100);
+    }, 150);
   }),
 
   mouseDown: guard(function (evt) {
