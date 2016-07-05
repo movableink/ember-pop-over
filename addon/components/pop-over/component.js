@@ -231,11 +231,17 @@ export default Component.extend({
   hide() {
     if (this.isDestroyed) { return; }
     set(this, 'active', false);
+    if (get(this, 'onhide')) {
+      get(this, 'onhide')();
+    }
   },
 
   show() {
     if (this.isDestroyed) { return; }
     set(this, 'active', true);
+    if (get(this, 'onshow')) {
+      get(this, 'onshow')();
+    }
   },
 
   retile() {
