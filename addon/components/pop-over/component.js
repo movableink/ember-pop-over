@@ -79,7 +79,7 @@ export default Component.extend({
 
     var retile = this.__retile = bind(this, 'retile');
     ['scroll', 'resize'].forEach(function (event) {
-      $(window).on(event, retile);
+      window.addEventListener(event, retile, true);
     });
 
     addObserver(this, 'active', this, 'retile');
@@ -107,11 +107,11 @@ export default Component.extend({
 
     var retile = this.__retile;
     ['scroll', 'resize'].forEach(function (event) {
-      $(window).off(event, retile);
+      window.removeEventListener(event, retile, true);
     });
 
     if (this.__documentClick) {
-      $(document).off('mousedown', this.__documentClick);
+      document.removeEventListener('mousedown', this.__documentClick);
       this.__documentClick = null;
     }
 
@@ -209,7 +209,7 @@ export default Component.extend({
       var hidden = !visible;
 
       if (active && hidden) {
-        $(document).on('mousedown', proxy);
+        document.addEventListener('mousedown', proxy);
         var target = get(this, 'activeTarget');
         if (target) {
           var targetRect = Rectangle.ofElement(target.element, 'padding');
@@ -222,7 +222,7 @@ export default Component.extend({
 
       // Remove click events immediately
       } else if (inactive && visible) {
-        $(document).off('mousedown', proxy);
+        document.removeEventListener('mousedown', proxy);
         this.hide();
       }
     });
