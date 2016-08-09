@@ -263,7 +263,8 @@ export default Component.extend({
     }
     let $pointer = $popover.find('> .pop-over-container > .pop-over-pointer');
 
-    let boundingRect = Rectangle.ofElement(window);
+    let boundingEl = this.$().scrollParent()[0] || window; 
+    let boundingRect = Rectangle.ofElement(boundingEl);
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'padding');
     let pointerRect = Rectangle.ofElement($pointer[0], 'borders');

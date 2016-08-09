@@ -33,3 +33,7 @@ export function flip() {
 export function popup() {
   return this.orientAbove.andSnapTo(this.center, this.rightEdge, this.leftEdge, this.center);
 }
+
+export function cover() {
+  return this.orientOver.andSnapTo(this.center, this.leftEdge, this.rightEdge, this.center)
+}

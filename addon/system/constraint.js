@@ -23,6 +23,11 @@ function orientRight(target, popover, pointer) {
   pointer.setX(pointer.width * -1);
 }
 
+function orientOver(target, popover, pointer) {
+  horizontallyCenter(target, popover, pointer);
+  verticallyCenter(target, popover, pointer);
+}
+
 function horizontallyCenter(target, popover, pointer) {
   popover.setX(target.left + target.width / 2 - popover.width / 2);
   pointer.setX(popover.width / 2 - pointer.width / 2);
@@ -184,6 +189,7 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect,
   case 'below': orientBelow(targetRect, popoverRect, pointerRect); break;
   case 'left':  orientLeft(targetRect, popoverRect, pointerRect);  break;
   case 'right': orientRight(targetRect, popoverRect, pointerRect); break;
+  case 'over': orientOver(targetRect, popoverRect, pointerRect); break;
   }
 
   // The pane should slide in the direction specified by the flow
@@ -208,6 +214,9 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect,
       case 'below': horizontallyCenter(targetRect, popoverRect, pointerRect); break;
       case 'left':
       case 'right': verticallyCenter(targetRect, popoverRect, pointerRect); break;
+      case 'over':
+        horizontallyCenter(targetRect, popoverRect, pointerRect);
+        verticallyCenter(targetRect,popoverRect, pointerRect);
       }
       break;
     case 'top-edge':    snapAbove(targetRect, popoverRect, pointerRect); break;

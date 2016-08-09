@@ -7,6 +7,7 @@ export default Object.extend({
     this.orientBelow = Orientation.create({ orientation: 'below' });
     this.orientRight = Orientation.create({ orientation: 'right' });
     this.orientLeft = Orientation.create({ orientation: 'left' });
+    this.orientOver = Orientation.create({ orientation: 'over' });
     this._super();
   },
 
