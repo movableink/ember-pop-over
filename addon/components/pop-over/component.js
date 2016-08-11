@@ -32,7 +32,7 @@ export default Component.extend({
 
   classNames: ['pop-over'],
 
-  classNameBindings: ['orientationClassName', 'pointerClassName'],
+  classNameBindings: ['orientationClassName', 'pointerClassName', 'over:position-over'],
 
   orientationClassName: classify('orient-{{orientation}}'),
 
@@ -47,6 +47,8 @@ export default Component.extend({
   flow: 'around',
 
   gravity: null,
+
+  over: false,
 
   /**
     The target element of the pop over.
@@ -268,6 +270,7 @@ export default Component.extend({
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'padding');
     let pointerRect = Rectangle.ofElement($pointer[0], 'borders');
+    let shouldPositionOver = this.over;
     let constraints = [];
 
     if (boundingRect.intersects(targetRect)) {
@@ -292,7 +295,7 @@ export default Component.extend({
 
       let solution;
       for (let i = 0, len = constraints.length; i < len; i++) {
-        solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect);
+        solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect, shouldPositionOver);
         if (solution.valid) { break; }
       }
 

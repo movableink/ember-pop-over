@@ -34,6 +34,6 @@ export function popup() {
   return this.orientAbove.andSnapTo(this.center, this.rightEdge, this.leftEdge, this.center);
 }
 
-export function cover() {
-  return this.orientOver.andSnapTo(this.center, this.leftEdge, this.rightEdge, this.center)
+export function center() {
+  return this.orientCenter.andSnapTo(this.center, this.leftEdge, this.rightEdge, this.center);
 }
