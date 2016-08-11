@@ -8,5 +8,6 @@ export default {
   se: Flow.create().orientBelow.andSnapTo('right-edge'),
   s:  Flow.create().orientBelow.andSnapTo('center'),
   sw: Flow.create().orientBelow.andSnapTo('left-edge'),
-  w:  Flow.create().orientLeft.andSnapTo('center')
+  w:  Flow.create().orientLeft.andSnapTo('center'),
+  none: Flow.create().orientCenter.andSnapTo('right-edge')
 };

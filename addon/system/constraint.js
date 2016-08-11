@@ -1,5 +1,6 @@
 import Ember from "ember";
 import { A } from 'ember-array/utils';
+import { assert } from 'ember-metal/utils';
 
 const { mixin, compare } = Ember;
 
@@ -27,7 +28,7 @@ function orientRight(target, popover, pointer, over) {
   pointer.setX(pointer.width * -1);
 }
 
-function orientCenter(target, popover, pointer, over) {
+function orientCenter(target, popover, pointer) {
   horizontallyCenter(target, popover, pointer);
   verticallyCenter(target, popover, pointer);
 }
@@ -186,6 +187,14 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect,
     orientation: orientation,
     valid: true
   };
+
+  if (orientation === 'center') {
+    assert('You can not use the "center" orientation without setting the ' +
+      '{{pop-over}} component to "cover=false"',
+      positionOver
+    );
+  }
+
 
   // Orient the pane
   switch (orientation) {
