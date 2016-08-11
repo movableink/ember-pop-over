@@ -2,7 +2,9 @@
   {{#liquid-if active class="liquid-pop-over"}}
     <div class="pop-over-compass">
       <div class="pop-over-container">
-        <span class="pop-over-pointer orient-{{orientation}}"></span>
+        {{#if (not over)}}
+          <span class="pop-over-pointer orient-{{orientation}}"></span>
+        {{/if}}
         {{yield}}
       </div>
     </div>
@@ -10,7 +12,9 @@
 {{else if active}}
   <div class="pop-over-compass">
     <div class="pop-over-container">
-      <span class="pop-over-pointer orient-{{orientation}}"></span>
+      {{#if (not over)}}
+        <span class="pop-over-pointer orient-{{orientation}}"></span>
+      {{/if}}
       {{yield}}
     </div>
   </div>

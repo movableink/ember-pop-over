@@ -263,13 +263,19 @@ export default Component.extend({
     if (get(this, 'supportsLiquidFire')) {
       $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
     }
-    let $pointer = $popover.find('> .pop-over-container > .pop-over-pointer');
 
     let boundingEl = this.$().scrollParent()[0] || window; 
     let boundingRect = Rectangle.ofElement(boundingEl);
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'padding');
-    let pointerRect = Rectangle.ofElement($pointer[0], 'borders');
+
+    let $pointer = $popover.find('> .pop-over-container > .pop-over-pointer');
+    let pointerRect;
+    if ($pointer.length) {
+      pointerRect = Rectangle.ofElement($pointer[0], 'borders');
+    } else {
+      pointerRect = new Rectangle(0,0,0,0);
+    }
     let shouldPositionOver = this.over;
     let constraints = [];
 
@@ -314,7 +320,9 @@ export default Component.extend({
         width: popOverRect.width + 'px',
         height: popOverRect.height + 'px'
       });
-      scheduleOnce('afterRender', this, 'positionPointer', $pointer, pointerRect);
+      if ($pointer.length) {
+        scheduleOnce('afterRender', this, 'positionPointer', $pointer, pointerRect);
+      }
     }
   },
 
