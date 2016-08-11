@@ -11,13 +11,16 @@ test("above and below solutions (with no pointer)", function (assert) {
   // Solves for above and below; not left nor right
   let popover  = new Rectangle(0, 0, 50, 20);
   let pointer = new Rectangle(0, 0, 0, 0);
+  let shouldCover = false;
 
   let constraint = new Constraint({
     orientation: 'above',
     behavior: 'snap',
     guideline: 'center'
   });
-  let solution = constraint.solveFor(bounds, target, popover, pointer);
+
+  // Snap to above, outside target.
+  let solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
   assert.equal(solution.orientation, 'above');
   assert.equal(solution.pointer, 'center');
   assert.ok(solution.valid);
@@ -25,19 +28,33 @@ test("above and below solutions (with no pointer)", function (assert) {
   assert.equal(popover.x, 25);
   assert.equal(popover.y, 25);
 
+  // Snap to top edge, outside target.
+  shouldCover = true;
+  solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
+  assert.equal(popover.x, 25);
+  assert.equal(popover.y, 45);
 
+  shouldCover = false;
   constraint = new Constraint({
     orientation: 'below',
     behavior: 'snap',
     guideline: 'center'
   });
-  solution = constraint.solveFor(bounds, target, popover, pointer);
+  
+  // Snap to bottom edge, outside target.
+  solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
   assert.equal(solution.orientation, 'below');
   assert.equal(solution.pointer, 'center');
   assert.ok(solution.valid);
 
   assert.equal(popover.x, 25);
   assert.equal(popover.y, 55);
+
+  // Snap to bottom edge, covering target.
+  shouldCover = true;
+  solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
+  assert.equal(popover.x, 25);
+  assert.equal(popover.y, 35);
 });
 
 test("vertical slide", function (assert) {

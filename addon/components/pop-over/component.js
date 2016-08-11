@@ -32,7 +32,7 @@ export default Component.extend({
 
   classNames: ['pop-over'],
 
-  classNameBindings: ['orientationClassName', 'pointerClassName', 'over:position-over'],
+  classNameBindings: ['orientationClassName', 'pointerClassName', 'cover:position-over'],
 
   orientationClassName: classify('orient-{{orientation}}'),
 
@@ -48,7 +48,7 @@ export default Component.extend({
 
   gravity: null,
 
-  over: false,
+  cover: false,
 
   /**
     The target element of the pop over.
@@ -276,7 +276,7 @@ export default Component.extend({
     } else {
       pointerRect = new Rectangle(0,0,0,0);
     }
-    let shouldPositionOver = this.over;
+    let shouldPositionOver = this.cover;
     let constraints = [];
 
     if (boundingRect.intersects(targetRect)) {
