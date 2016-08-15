@@ -1,3 +1,5 @@
 export default function (selector) {
-  triggerEvent(selector, "mouseenter");
+  andThen(function () {
+    findWithAssert(selector).trigger('mouseenter');
+  });
 }

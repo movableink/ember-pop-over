@@ -1,3 +1,5 @@
 export default function (selector) {
-  triggerEvent(selector, "focusout");
+  andThen(function () {
+    findWithAssert(selector).trigger('focusout');
+  });
 }

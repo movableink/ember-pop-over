@@ -10,6 +10,13 @@ import blur from '../helpers/blur';
 import { test } from 'ember-qunit';
 
 var later = Ember.run.later;
+var wait = function (ms) {
+  return andThen(function () {
+    var defer = Ember.RSVP.defer();
+    later(defer, 'resolve', ms);
+    return defer.promise;
+  });
+}
 
 moduleForAcceptance('Acceptance: Events');
 
@@ -32,7 +39,7 @@ test('on="click"', function (assert) {
     assert.ok(find(".pop-over-container:visible").length === 1);
   });
 
-  simpleClick(".other", null, { which: 1 });
+  click(".other", null, { which: 1 });
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 0);
   });
@@ -40,12 +47,6 @@ test('on="click"', function (assert) {
   mouseDown("#click");
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  andThen(function () {
-    var defer = Ember.RSVP.defer();
-    later(defer, 'resolve', 400);
-    return defer.promise;
   });
 
   mouseUp("#click");
@@ -63,11 +64,7 @@ test('on="click hold"', function (assert) {
     assert.ok(find(".pop-over-container:visible").length === 1);
   });
 
-  andThen(function () {
-    var defer = Ember.RSVP.defer();
-    later(defer, 'resolve', 400);
-    return defer.promise;
-  });
+  wait(400);
 
   mouseUp("#click-hold");
   andThen(function () {
@@ -85,6 +82,7 @@ test('on="click hold"', function (assert) {
   });
 });
 
+
 test('on="hover"', function (assert) {
   assert.expect(2);
   visit('/');
@@ -95,6 +93,7 @@ test('on="hover"', function (assert) {
   });
 
   mouseLeave("#hover");
+  wait(200);
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 0);
   });
@@ -121,6 +120,7 @@ test('on="hover hold"', function (assert) {
   });
 
   mouseLeave("#hover-hold-menu");
+  wait(200);
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 0);
   });
