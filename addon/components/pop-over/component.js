@@ -190,11 +190,7 @@ export default Component.extend({
   },
 
   deactivate(target) {
-    if (target == null) {
-      get(this, 'targets').setEach('active', false);
-    } else {
-      get(this, 'targets').findBy('target', target).set('active', false);
-    }
+    get(this, 'targets').findBy('target', target).set('active', false);
   },
 
   /**
@@ -234,6 +230,7 @@ export default Component.extend({
 
   hide() {
     if (this.isDestroyed) { return; }
+    get(this, 'targets').setEach('active', false);
     set(this, 'active', false);
     if (get(this, 'onhide')) {
       get(this, 'onhide')();
