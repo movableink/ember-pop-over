@@ -1,4 +1,4 @@
-# ember {{pop-over}} []
+# ember {{pop-over}} [![Build Status](https://travis-ci.org/tim-evans/ember-pop-over.svg?branch=master)](https://travis-ci.org/tim-evans/ember-pop-over) [![Code Climate](https://codeclimate.com/github/tim-evans/ember-pop-over/badges/gpa.svg)](https://codeclimate.com/github/tim-evans/ember-pop-over)
 
 **NOTE: This is still pre-1.0 software and is subject to change.**
 
