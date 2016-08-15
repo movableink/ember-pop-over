@@ -1,26 +1,36 @@
 import Ember from "ember";
 import { A } from 'ember-array/utils';
+import { assert } from 'ember-metal/utils';
 
 const { mixin, compare } = Ember;
 
-function orientAbove(target, popover, pointer) {
-  popover.setY(target.top - pointer.height - popover.height);
+function orientAbove(target, popover, pointer, over) {
+  const shiftY = over ? 0 : popover.height + pointer.height;
+  popover.setY(target.top - shiftY);
   pointer.setY(popover.height);
 }
 
-function orientBelow(target, popover, pointer) {
-  popover.setY(target.bottom + pointer.height);
+function orientBelow(target, popover, pointer, over) {
+  const shiftY = over ? -1 * popover.height :  pointer.height;
+  popover.setY(target.bottom + shiftY);
   pointer.setY(pointer.height * -1);
 }
 
-function orientLeft(target, popover, pointer) {
-  popover.setX(target.left - pointer.width - popover.width);
+function orientLeft(target, popover, pointer, over) {
+  const shiftX = over ? 0 : popover.width + pointer.width;
+  popover.setX(target.left - shiftX);
   pointer.setX(popover.width);
 }
 
-function orientRight(target, popover, pointer) {
-  popover.setX(target.right + pointer.width);
+function orientRight(target, popover, pointer, over) {
+  const shiftX = over ? (-1 * popover.width) : pointer.width;
+  popover.setX(target.right + shiftX);
   pointer.setX(pointer.width * -1);
+}
+
+function orientCenter(target, popover, pointer) {
+  horizontallyCenter(target, popover, pointer);
+  verticallyCenter(target, popover, pointer);
 }
 
 function horizontallyCenter(target, popover, pointer) {
@@ -171,19 +181,28 @@ function Constraint(object) {
   }, this);
 }
 
-Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect, pointerRect) {
+Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect, pointerRect, positionOver) {
   let orientation = this.orientation;
   let result = {
     orientation: orientation,
     valid: true
   };
 
+  if (orientation === 'center') {
+    assert('You can not use the "center" orientation without setting the ' +
+      '{{pop-over}} component to "cover=false"',
+      positionOver
+    );
+  }
+
+
   // Orient the pane
   switch (orientation) {
-  case 'above': orientAbove(targetRect, popoverRect, pointerRect); break;
-  case 'below': orientBelow(targetRect, popoverRect, pointerRect); break;
-  case 'left':  orientLeft(targetRect, popoverRect, pointerRect);  break;
-  case 'right': orientRight(targetRect, popoverRect, pointerRect); break;
+  case 'above': orientAbove(targetRect, popoverRect, pointerRect, positionOver); break;
+  case 'below': orientBelow(targetRect, popoverRect, pointerRect, positionOver); break;
+  case 'left':  orientLeft(targetRect, popoverRect, pointerRect, positionOver);  break;
+  case 'right': orientRight(targetRect, popoverRect, pointerRect, positionOver); break;
+  case 'center': orientCenter(targetRect, popoverRect, pointerRect); break;
   }
 
   // The pane should slide in the direction specified by the flow
@@ -191,11 +210,11 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect,
     switch (orientation) {
     case 'above':
     case 'below':
-      mixin(result, slideHorizontally(this.guideline, boundingRect, targetRect, popoverRect, pointerRect));
+      mixin(result, slideHorizontally(this.guideline, boundingRect, targetRect, popoverRect, pointerRect, positionOver));
       break;
     case 'left':
     case 'right':
-      mixin(result, slideVertically(this.guideline, boundingRect, targetRect, popoverRect, pointerRect));
+      mixin(result, slideVertically(this.guideline, boundingRect, targetRect, popoverRect, pointerRect, positionOver));
       break;
     }
 
@@ -208,6 +227,9 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect,
       case 'below': horizontallyCenter(targetRect, popoverRect, pointerRect); break;
       case 'left':
       case 'right': verticallyCenter(targetRect, popoverRect, pointerRect); break;
+      case 'center':
+        horizontallyCenter(targetRect, popoverRect, pointerRect);
+        verticallyCenter(targetRect,popoverRect, pointerRect);
       }
       break;
     case 'top-edge':    snapAbove(targetRect, popoverRect, pointerRect); break;
