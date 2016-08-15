@@ -32,7 +32,7 @@
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-load-initializers": "0.5.1",
     "ember-resolver": "^2.0.3",
-    "liquid-fire": "0.23.1",
+    "liquid-fire": "ember-animation/liquid-fire#56b245ed3d8ee288777396d3dfc0014e9e4c9b3e",
     "loader.js": "^4.0.1"
   },
   "keywords": [
