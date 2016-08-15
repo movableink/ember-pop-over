@@ -276,7 +276,7 @@ export default Component.extend({
     } else {
       pointerRect = new Rectangle(0,0,0,0);
     }
-    let shouldPositionOver = this.cover;
+    let shouldCover = this.cover;
     let constraints = [];
 
     if (boundingRect.intersects(targetRect)) {
@@ -301,7 +301,7 @@ export default Component.extend({
 
       let solution;
       for (let i = 0, len = constraints.length; i < len; i++) {
-        solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect, shouldPositionOver);
+        solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect, shouldCover);
         if (solution.valid) { break; }
       }
 
