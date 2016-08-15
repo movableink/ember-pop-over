@@ -212,12 +212,14 @@ export default Component.extend({
 
       if (active && hidden) {
         document.addEventListener('mousedown', proxy);
-        var target = get(this, 'activeTarget');
+        let target = get(this, 'activeTarget');
         if (target) {
-          var targetRect = Rectangle.ofElement(target.element, 'padding');
+          let targetRect = Rectangle.ofElement(target.element, 'padding');
+          let $offsetParent = this.$().offsetParent();
+          let offset = $offsetParent.offset();
           this.$().css({
-            top: (targetRect.top + targetRect.height / 2) + 'px',
-            left: (targetRect.left + targetRect.width / 2) + 'px'
+            top: (targetRect.top + targetRect.height / 2 - offset.top + $offsetParent.scrollTop()) + 'px',
+            left: (targetRect.left + targetRect.width / 2 - offset.left + $offsetParent.scrollLeft()) + 'px'
           });
         }
         this.show();
@@ -264,8 +266,8 @@ export default Component.extend({
       $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
     }
 
-    let boundingEl = this.$().scrollParent()[0] || window;
-    let boundingRect = Rectangle.ofElement(boundingEl);
+    let boundingElement = this.$().offsetParent()[0] || window;
+    let boundingRect = Rectangle.ofElement(boundingElement);
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'padding');
 
