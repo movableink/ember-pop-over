@@ -264,7 +264,7 @@ export default Component.extend({
       $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
     }
 
-    let boundingEl = this.$().scrollParent()[0] || window; 
+    let boundingEl = this.$().scrollParent()[0] || window;
     let boundingRect = Rectangle.ofElement(boundingEl);
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'padding');
