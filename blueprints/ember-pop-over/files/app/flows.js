@@ -13,19 +13,23 @@ export function dropdown() {
    .then(this.orientBelow.andSnapTo(this.center));
 }
 
+function isLessThanHalfway(boundingRect, _, targetRect) {
+  let centerY = targetRect.height / 2 + targetRect.y;
+  let halfway = boundingRect.height / 2;
+  return centerY > halfway;
+}
+
+function isMoreThanHalfway(boundingRect, _, targetRect) {
+  let centerY = targetRect.height / 2 + targetRect.y;
+  let halfway = boundingRect.height / 2;
+  return centerY < halfway;
+}
+
 export function flip() {
   return this.orientAbove.andSnapTo(this.center, this.leftEdge, this.rightEdge)
-                         .where(function (boundingRect, _, targetRect) {
-                            var centerY = targetRect.height / 2 + targetRect.y,
-                                halfway = boundingRect.height / 2;
-                            return centerY > halfway;
-                         })
+                         .where(isLessThanHalfway)
    .then(this.orientBelow.andSnapTo(this.center, this.rightEdge, this.leftEdge)
-                         .where(function (boundingRect, _, targetRect) {
-                            var centerY = targetRect.height / 2 + targetRect.y,
-                                halfway = boundingRect.height / 2;
-                            return centerY < halfway;
-                         })
+                         .where(isMoreThanHalfway)
    )
    .then(this.orientAbove.andSnapTo(this.center));
 }
