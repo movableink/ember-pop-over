@@ -1,6 +1,6 @@
 {
   "name": "ember-pop-over",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A constraint-based pop-over component for ember apps",
   "directories": {
     "doc": "doc",
