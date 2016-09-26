@@ -13,6 +13,14 @@ import { A } from 'ember-array/utils';
 import Evented from 'ember-evented';
 import EmberObject from 'ember-object';
 
+function includes(haystack, needle) {
+  if (haystack.includes) {
+    return haystack.includes(needle);
+  } else {
+    return haystack.contains(needle);
+  }
+}
+
 function guard (fn) {
   return function (evt) {
     if (get(this, 'component.disabled')) { return; }
@@ -184,11 +192,11 @@ export default EmberObject.extend(Evented, {
     set(key, value) {
       let activators = get(this, 'on');
       if (value) {
-        if (activators.contains('focus')) {
+        if (includes(activators, 'focus')) {
           set(this, 'focused', true);
-        } else if (activators.contains('hover')) {
+        } else if (includes(activators, 'hover')) {
           set(this, 'hovered', true);
-        } else if (activators.contains('click')) {
+        } else if (includes(activators, 'click')) {
           set(this, 'pressed', true);
         }
       } else {
@@ -203,21 +211,21 @@ export default EmberObject.extend(Evented, {
       let activators = get(this, 'on');
       let active = false;
 
-      if (activators.contains('focus')) {
+      if (includes(activators, 'focus')) {
         active = active || get(this, 'focused');
-        if (activators.contains('hold')) {
+        if (includes(activators, 'hold')) {
           active = active || get(this, 'component.pressed');
         }
       }
 
-      if (activators.contains('hover')) {
+      if (includes(activators, 'hover')) {
         active = active || get(this, 'hovered');
-        if (activators.contains('hold')) {
+        if (includes(activators, 'hold')) {
           active = active || get(this, 'component.hovered');
         }
       }
 
-      if (activators.contains('click') || activators.contains('hold')) {
+      if (includes(activators, 'click') || includes(activators, 'hold')) {
         active = active || get(this, 'pressed');
       }
 
@@ -289,7 +297,7 @@ export default EmberObject.extend(Evented, {
 
     let activators = get(this, 'on');
 
-    if (activators.contains('click') && activators.contains('hold')) {
+    if (includes(activators, 'click') && includes(activators, 'hold')) {
       // If the user waits more than 400ms between mouseDown and mouseUp,
       // we can assume that they are clicking and dragging to the menu item,
       // and we should close the menu if they mouseup anywhere not inside
