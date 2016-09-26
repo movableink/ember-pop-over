@@ -1,24 +1,27 @@
 import Ember from "ember";
 import Target from "ember-pop-over/system/target";
-import { module } from "qunit";
-import { test } from "ember-qunit";
-import run from 'ember-runloop';
-import get from 'ember-metal/get';
+import { moduleForComponent, test } from "ember-qunit";
+import hbs from 'htmlbars-inline-precompile';
 
-module("Event Target");
+moduleForComponent("Event Target", "system:target", {
+  integration: true
+});
 
 test('"for" takes an string id', function (assert) {
+  this.render(hbs`<div id="string-id"></div>`);
   let target = Target.create({
-    target: "ember-testing-container",
+    target: "string-id",
     on: 'click'
   });
+
   target.attach();
-  assert.equal(target.element, document.getElementById("ember-testing-container"));
+  assert.equal(target.element, document.getElementById('string-id'));
   target.detach();
 });
 
 test('"for" takes an element', function (assert) {
-  let element = document.getElementById("ember-testing-container");
+  this.render(hbs`<div id="test"></div>`)
+  let element = document.getElementById("test");
   let target = Target.create({
     target: element,
     on: 'click'
@@ -29,20 +32,24 @@ test('"for" takes an element', function (assert) {
 });
 
 test('"for" takes a component', function (assert) {
-  let component = Ember.Component.create();
-  run(function () {
-    component.appendTo("#qunit-fixture");
+  this.register('component:place-holder', Ember.Component.extend({
+    didInsertElement() {
+      this.get('oninsert')(this);
+    }
+  }));
+
+  this.on('setComponent', (component) => {
+    this.set('component', component);
   });
+  this.render(hbs`{{place-holder oninsert=(action 'setComponent')}}`);
+
   let target = Target.create({
-    target: component,
+    target: this.get('component'),
     on: 'click'
   });
   target.attach();
 
-  assert.equal(target.element, get(component, 'element'));
+  assert.equal(target.element, this.get('component.element'));
 
-  run(function () {
-    component.destroy();
-  });
   target.detach();
 });
