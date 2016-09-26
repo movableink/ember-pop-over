@@ -115,6 +115,7 @@ export default Component.extend({
 
     if (this.__documentClick) {
       document.removeEventListener('mousedown', this.__documentClick);
+      document.removeEventListener('touchstart', this.__documentClick);
       this.__documentClick = null;
     }
 
@@ -170,6 +171,12 @@ export default Component.extend({
     if (!clicked && !clickedAnyTarget) {
       targets.setEach('pressed', false);
     }
+
+    if (clickedAnyTarget && evt.type === 'touchstart') {
+      // don't allow touch devices to trigger mouseDown
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
   },
 
   areAnyTargetsActive: bool('activeTargets.length'),
@@ -209,6 +216,7 @@ export default Component.extend({
 
       if (active && hidden) {
         document.addEventListener('mousedown', proxy);
+        document.addEventListener('touchstart', proxy);
         let target = get(this, 'activeTarget');
         if (target) {
           let targetRect = Rectangle.ofElement(target.element, 'padding');
@@ -224,6 +232,7 @@ export default Component.extend({
       // Remove click events immediately
       } else if (inactive && visible) {
         document.removeEventListener('mousedown', proxy);
+        document.removeEventListener('touchstart', proxy);
         this.hide();
       }
     });

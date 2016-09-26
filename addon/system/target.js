@@ -103,7 +103,8 @@ export default EmberObject.extend(Evented, {
       focusout:   bind(this, 'blur'),
       mouseenter: bind(this, 'mouseEnter'),
       mouseleave: bind(this, 'mouseLeave'),
-      mousedown:  bind(this, 'mouseDown')
+      mousedown:  bind(this, 'mouseDown'),
+      touchstart:  bind(this, 'mouseDown')
     };
 
     if (get(target, 'element')) {
@@ -272,7 +273,7 @@ export default EmberObject.extend(Evented, {
 
       let eventManager = this.eventManager;
       eventManager.mouseup = bind(this, 'mouseUp');
-      $(document).on('mouseup', eventManager.mouseup);
+      $(document).on('mouseup touchend', eventManager.mouseup);
 
       evt.preventDefault();
     }
@@ -284,7 +285,7 @@ export default EmberObject.extend(Evented, {
   mouseUp: function (evt) {
     // Remove mouseup event
     let eventManager = this.eventManager;
-    $(document).off('mouseup', eventManager.mouseup);
+    $(document).off('mouseup touchend', eventManager.mouseup);
     eventManager.mouseup = null;
 
     let label = labelForEvent(evt);

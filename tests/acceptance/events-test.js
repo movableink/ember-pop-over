@@ -3,6 +3,8 @@ import moduleForAcceptance from '../helpers/module-for-acceptance';
 import mouseUp from '../helpers/mouse-up';
 import simpleClick from '../helpers/simple-click';
 import mouseDown from '../helpers/mouse-down';
+import touchStart from '../helpers/touch-start';
+import touchEnd from '../helpers/touch-end';
 import mouseEnter from '../helpers/mouse-enter';
 import mouseLeave from '../helpers/mouse-leave';
 import focus from '../helpers/focus';
@@ -21,7 +23,7 @@ var wait = function (ms) {
 moduleForAcceptance('Acceptance: Events');
 
 test('on="click"', function (assert) {
-  assert.expect(6);
+  expect(9);
   visit('/');
 
   simpleClick("#click");
@@ -53,10 +55,33 @@ test('on="click"', function (assert) {
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 1);
   });
+
+  simpleClick("#click");
+  andThen(function () {
+    ok(find(".pop-over-container:visible").length === 0);
+  });
+
+  touchStart("#click");
+  andThen(function () {
+    ok(find(".pop-over-container:visible").length === 1);
+  });
+
+  andThen(function () {
+    var defer = Ember.RSVP.defer();
+    later(defer, 'resolve', 400);
+    return defer.promise;
+  });
+
+  touchEnd("#click");
+  andThen(function () {
+    ok(find(".pop-over-container:visible").length === 1);
+  });
+
+
 });
 
 test('on="click hold"', function (assert) {
-  assert.expect(4);
+  expect(6);
   visit('/');
 
   mouseDown("#click-hold");
@@ -69,6 +94,22 @@ test('on="click hold"', function (assert) {
   mouseUp("#click-hold");
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 0);
+  });
+
+  touchStart("#click-hold");
+  andThen(function () {
+    ok(find(".pop-over-container:visible").length === 1);
+  });
+
+  andThen(function () {
+    var defer = Ember.RSVP.defer();
+    later(defer, 'resolve', 400);
+    return defer.promise;
+  });
+
+  touchStop("#click-hold");
+  andThen(function () {
+    ok(find(".pop-over-container:visible").length === 0);
   });
 
   simpleClick("#click-hold");
