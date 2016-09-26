@@ -96,6 +96,7 @@ export default Component.extend({
     }
 
     next(this, function () {
+      if (this.isDestroyed) { return; }
       get(this, 'targets').invoke('attach');
       let didinsert = get(this, 'ondidinsert');
       if (didinsert) {
