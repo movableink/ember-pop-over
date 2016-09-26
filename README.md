@@ -89,7 +89,7 @@ For horizontal flows (`orientTop`, `orientBottom`), the possible names are:
 
 Tooltips:
 ```javascript
-import PopOver from "ember-pop-over/components/pop-over";
+import PopOver from "ember-pop-over/components/pop-over/component";
 
 var ToolTip = PopOver.extend({
   classNames: ['tool-tip'],
@@ -110,7 +110,7 @@ export default ToolTip;
 
 Dropdown menu:
 ```javascript
-import PopOver from "ember-pop-over/components/pop-over";
+import PopOver from "ember-pop-over/components/pop-over/component";
 
 var DropDown = PopOver.extend({
   classNames: ['drop-down'],
