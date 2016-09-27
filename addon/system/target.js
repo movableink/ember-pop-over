@@ -101,10 +101,15 @@ export default EmberObject.extend(Evented, {
     this.eventManager = {
       focusin:    bind(this, 'focus'),
       focusout:   bind(this, 'blur'),
-      mouseenter: bind(this, 'mouseEnter'),
       mouseleave: bind(this, 'mouseLeave'),
       mousedown:  bind(this, 'mouseDown')
     };
+
+    if (get(this, 'intent')) {
+      this.eventManager.mousemove = bind(this, 'mouseMove');
+    } else {
+      this.eventManager.mouseenter = bind(this, 'mouseEnter');
+    }
 
     if (get(target, 'element')) {
       this.attach();
@@ -241,7 +246,21 @@ export default EmberObject.extend(Evented, {
     set(this, 'focused', false);
   }),
 
-  mouseEnter: guard(function () {
+  mouseMove: guard(function (ev) {
+    if (get(this, 'hovered')) {
+      return;
+    }
+
+    if (ev.timeStamp - this._lastMouseMove < 20) {
+      this._willLeave = false;
+      set(this, 'hovered', true);
+      this._willLeave = false;
+    } else {
+      this._lastMouseMove = ev.timeStamp;
+    }
+  }),
+
+  mouseEnter: guard(function() {
     this._willLeave = false;
     set(this, 'hovered', true);
     this._willLeave = false;
