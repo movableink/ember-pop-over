@@ -32,7 +32,10 @@ export default Ember.Service.extend({
 
   init() {
     this._super(...arguments);
-    $(document).on('mousemove', bind(this, this.onMouseMove));
+
+    const onMouseMove = bind(this, this.onMouseMove);
+
+    $(document).on('mousemove', onMouseMove);
   },
 
   getVelocity(ev) {
@@ -86,16 +89,20 @@ export default Ember.Service.extend({
   },
 
   onMouseMove(ev) {
-    const getVelocity = bind(this, get(this, 'getVelocity'));
+    // Throttle the mousemove event for performance
+    const timeSinceLast = Date.now() - this._timestamp;
+    if (this._timestamp && timeSinceLast < 50) {
+      return;
+    }
 
     /**
-      Set up a debounce to catch edge case where user is moving quickly, then
-      stops suddenly, causing the event listener not to update its velocity to 0.
+    Set up a debounce to catch edge case where user is moving quickly, then
+    stops suddenly, causing the event listener not to update its velocity to 0.
     */
     cancel(get(this, '_timeout'));
     set(this, '_timeout', later(this, this.checkForHover, 200));
 
-    const mouseVelocity = getVelocity(ev);
+    const mouseVelocity = this.getVelocity(ev);
     const threshold = get(this, 'threshold');
 
     if (mouseVelocity < threshold) {
