@@ -51,12 +51,6 @@ export default Component.extend({
   cover: false,
 
   /**
-    If true, the pop-over will not appear unless the user hovers over the element
-    intentionally, measured by mouse velocity.
-   */
-  requireIntent: false,
-
-  /**
     The target element of the pop over.
     Can be a view, id, or element.
    */
@@ -97,8 +91,7 @@ export default Component.extend({
     // Add implicit target
     if (get(this, 'for') && get(this, 'on')) {
       this.addTarget(get(this, 'for'), {
-        on: get(this, 'on'),
-        requireIntent: get(this, 'requireIntent'),
+        on: get(this, 'on')
       });
     }
 

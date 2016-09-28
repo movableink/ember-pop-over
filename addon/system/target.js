@@ -107,14 +107,9 @@ export default EmberObject.extend(Evented, {
       focusin:    bind(this, 'focus'),
       focusout:   bind(this, 'blur'),
       mouseleave: bind(this, 'mouseLeave'),
-      mousedown:  bind(this, 'mouseDown')
+      mousedown:  bind(this, 'mouseDown'),
+      mousemove:  bind(this, 'mouseMove')
     };
-
-    if (get(this, 'requireIntent')) {
-      this.eventManager.mousemove = bind(this, 'mouseMove');
-    } else {
-      this.eventManager.mouseenter = bind(this, 'mouseEnter');
-    }
 
     if (get(target, 'element')) {
       this.attach();
@@ -303,12 +298,6 @@ export default EmberObject.extend(Evented, {
       clearTimeout(this._debounce);
       this._debounce = setTimeout(this.triggerMouseMove.bind(this), 200);
     }
-  }),
-
-  mouseEnter: guard(function(ev) {
-    this._willLeave = false;
-    set(this, 'hovered', true);
-    this._willLeave = false;
   }),
 
   mouseLeave: guard(function () {
