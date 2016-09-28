@@ -101,7 +101,7 @@ export default EmberObject.extend(Evented, {
       focusin:    bind(this, 'focus'),
       focusout:   bind(this, 'blur'),
       mouseleave: bind(this, 'mouseLeave'),
-      mousedown:  bind(this, 'mouseDown'),
+      mousedown:  bind(this, 'mouseDown')
     };
 
 

@@ -62,9 +62,9 @@ export default Component.extend({
   addTarget(target, options) {
     const hoverIntent = get(this, 'hoverIntent');
     get(this, 'targets').pushObject(Target.create(options, {
-      component: this,
       target,
       hoverIntent,
+      component: this
     }));
   },
 
