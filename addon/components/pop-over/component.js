@@ -54,7 +54,7 @@ export default Component.extend({
     If true, the pop-over will not appear unless the user hovers over the element
     intentionally, measured by mouse velocity.
    */
-  intent: false,
+  requireIntent: false,
 
   /**
     The target element of the pop over.
@@ -98,7 +98,7 @@ export default Component.extend({
     if (get(this, 'for') && get(this, 'on')) {
       this.addTarget(get(this, 'for'), {
         on: get(this, 'on'),
-        intent: get(this, 'intent'),
+        requireIntent: get(this, 'requireIntent'),
       });
     }
 

@@ -105,7 +105,7 @@ export default EmberObject.extend(Evented, {
       mousedown:  bind(this, 'mouseDown')
     };
 
-    if (get(this, 'intent')) {
+    if (get(this, 'requireIntent')) {
       this.eventManager.mousemove = bind(this, 'mouseMove');
     } else {
       this.eventManager.mouseenter = bind(this, 'mouseEnter');
