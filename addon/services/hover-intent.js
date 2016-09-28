@@ -90,9 +90,13 @@ export default Service.extend({
     const mouseVelocity = get(this, 'mouseVelocity');
     const threshold = get(this, 'threshold');
 
+    /**
+      Set up a debounce to catch edge case where user is moving quickly, then
+      stops suddenly, causing the event listener not to update its velocity to 0.
+     */
     const isNativeEvent  = !!ev.originalEvent;
     if (isNativeEvent) {
-      set(this, '_timeout', setTimeout(() => {
+      set(this, '_timeout', Ember.run.later(this, () => {
         $(document).trigger('mousemove')
       }, 200));
     }
