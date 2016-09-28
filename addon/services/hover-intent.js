@@ -1,10 +1,12 @@
 import Ember from 'ember';
+import computed from 'ember-computed';
 import get from 'ember-metal/get';
 import set from 'ember-metal/set';
 import guidFor from 'ember-metal/utils';
 import $ from 'jquery';
+import { bind, later, cancel } from 'ember-runloop';
+import { assert } from 'ember-metal/utils';
 
-const { assert, Service, computed } = Ember;
 
 /**
  * This service sets up a single event listener bound to the document for the
@@ -17,7 +19,7 @@ const { assert, Service, computed } = Ember;
  * @class HoverIntent
  * @extends Ember.Service
  */
-export default Service.extend({
+export default Ember.Service.extend({
   // private properties used to calculate the mouse velocity
   _mouseX: null,
   _mouseY: null,
