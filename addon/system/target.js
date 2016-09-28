@@ -93,12 +93,6 @@ function poll(target, scope, fn) {
 
 
 export default EmberObject.extend(Evented, {
-  // Private properties used for calculating mouse velocity 
-  _lastX: null,
-  _lastY: null,
-  _lastMouseMove: null,
-  _velocity: null,
-
   init: function () {
     let target = get(this, 'target');
     assert("You cannot make the {{pop-over}} a target of itself.", get(this, 'component') !== target);
@@ -108,8 +102,8 @@ export default EmberObject.extend(Evented, {
       focusout:   bind(this, 'blur'),
       mouseleave: bind(this, 'mouseLeave'),
       mousedown:  bind(this, 'mouseDown'),
-      mousemove:  bind(this, 'mouseMove')
     };
+
 
     if (get(target, 'element')) {
       this.attach();
@@ -136,6 +130,13 @@ export default EmberObject.extend(Evented, {
       id = generateGuid();
       $element.attr('id', id);
     }
+
+    const hoverIntent = get(this, 'hoverIntent');
+    hoverIntent.addTarget({
+      id,
+      $element,
+      callback: get(this, 'mouseEnter').bind(this)
+    });
 
     let eventManager = this.eventManager;
 
@@ -245,64 +246,15 @@ export default EmberObject.extend(Evented, {
   blur: guard(function () {
     set(this, 'focused', false);
   }),
-
-  setMouseVelocity: guard(function(ev) {
-    if (this._lastX && this._lastY && this._lastMouseMove) {
-      const changeInX = ev.pageX - this._lastX;
-      const changeInY = ev.pageY - this._lastY;
-
-      const distanceMoved = Math.sqrt(Math.pow(changeInX, 2) + Math.pow(changeInY, 2));
-      const changeInTime = Date.now() - this._lastMouseMove;
-
-      this._velocity = distanceMoved / changeInTime;
-    }
-
-    this._lastX = ev.pageX; 
-    this._lastY = ev.pageY;
-    this._lastMouseMove = Date.now();
-
-    return this._velocity;
-  }),
-
-  resetVelocityData: guard(function() {
-    Ember.setProperties(this, {
-      _lastX: null,
-      _lastY: null,
-      _lastMouseMove: null,
-      _velocity: null
-    });
-  }),
-
-  triggerMouseMove: guard(function() {
-    const $element = $(getElementForTarget(this.target));
-    $element.mousemove();
-  }),
-
-  mouseMove: guard(function (ev) {
-    this.setMouseVelocity(ev);
-    if (get(this, 'hovered')) {
-      return;
-    }
-
-    if (this._velocity && this._velocity < 0.2) {
-      this._willLeave = false;
-      set(this, 'hovered', true);
-      this._willLeave = false;
-    } else {
-      this._lastMouseMove = Date.now();
-    }
-
-    if (ev.originalEvent) {
-      // Trigger another mousemove to catch when user stops mouse too suddenly
-      // for the mousemove listener to catch it.
-      clearTimeout(this._debounce);
-      this._debounce = setTimeout(this.triggerMouseMove.bind(this), 200);
-    }
+  
+  mouseEnter: guard(function() {
+    this._willLeave = false;
+    set(this, 'hovered', true);
+    this._willLeave = false;
   }),
 
   mouseLeave: guard(function () {
     this._willLeave = true;
-    this.resetVelocityData();
     later(() => {
       if (get(this, 'component.disabled')) { return; }
       if (this._willLeave) {
