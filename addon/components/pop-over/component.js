@@ -23,7 +23,7 @@ const getOwner = Ember.getOwner || function (object) {
 };
 
 export default Component.extend({
-  hoverIntent: Ember.inject.service(),
+  hoverIntent: Ember.inject.service('-hover-intent'),
 
   layout,
 
