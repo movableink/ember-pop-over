@@ -27,7 +27,7 @@ export default Ember.Service.extend({
   _mouseY: null,
   _timestamp: null,
   _mouseVelocity: null,
-  threshold: .05, // pixels moved per millisecond
+  threshold: .1, // pixels moved per millisecond
 
 
   init() {
