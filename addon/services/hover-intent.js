@@ -73,7 +73,17 @@ export default Service.extend({
 
     assert(
       !targets.hasOwnProperty(id),
-      `The target ${hoverTarget} has already been registered to the hoverIntent service`
+      `The target ${hoverTarget} has already been registered to the hover-intent service`
+    );
+
+    assert(
+      hoverTarget.hasOwnProperty('callback') && typeof hoverTarget['callback'] === 'function',
+      'The hover-intent service requires targets to supply a callback function'
+    );
+
+    assert(
+      hoverTarget.hasOwnProperty('$element'),
+      'The hover-intent service requires targets to include a jQuery object to track hover events'
     );
 
     targets[id] = hoverTarget; 
