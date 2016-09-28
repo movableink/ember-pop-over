@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import computed from 'ember-computed';
 import get from 'ember-metal/get';
 import set from 'ember-metal/set';
 import guidFor from 'ember-metal/utils';
@@ -7,6 +6,9 @@ import $ from 'jquery';
 import { bind, later, cancel } from 'ember-runloop';
 import { assert } from 'ember-metal/utils';
 
+function distance(x1, x2, y1, y2) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
 
 /**
  * This service sets up a single event listener bound to the document for the
@@ -25,38 +27,30 @@ export default Ember.Service.extend({
   _mouseY: null,
   _timestamp: null,
   _mouseVelocity: null,
-  threshold: .1, // pixels moved per millisecond
+  threshold: .05, // pixels moved per millisecond
 
-  mouseVelocity: computed({
-    get() {
-      return this._mouseVelocity;
-    },
-
-    set(_, ev) {
-      if (this._mouseX && this._mouseY && this._timestamp) {
-        const changeInX = ev.pageX - this._mouseX;
-        const changeInY = ev.pageY - this._mouseY;
-        const distanceMoved = Math.sqrt(Math.pow(changeInX, 2) + Math.pow(changeInY, 2));
-        const changeInTime = Date.now() - this._timestamp;
-
-        const actualMouseVelocity = distanceMoved / changeInTime;
-
-        this._mouseVelocity = Math.round(actualMouseVelocity * 100) / 100;
-      } else {
-        this._mouseVelocity = 0;
-      }
-
-      this._mouseX = ev.pageX; 
-      this._mouseY = ev.pageY;
-      this._timestamp = Date.now();
-
-      return this._mouseVelocity;
-    }
-  }),
 
   init() {
     this._super(...arguments);
-    this.setListener();
+    $(document).on('mousemove', bind(this, this.onMouseMove));
+  },
+
+  getVelocity(ev) {
+    const now = Date.now();
+
+    if (this._mouseX && this._mouseY && this._timestamp) {
+      const d = distance(this._mouseX, ev.pageX, this._mouseY, ev.pageY);
+      const changeInTime = now - this._timestamp;
+      this._mouseVelocity = d / changeInTime;
+    } else {
+      this._mouseVelocity = 0;
+    }
+
+    this._mouseX = ev.pageX; 
+    this._mouseY = ev.pageY;
+    this._timestamp = now;
+
+    return this._mouseVelocity;
   },
 
   /**
@@ -91,32 +85,25 @@ export default Ember.Service.extend({
     targets[id] = hoverTarget; 
   },
 
-  setListener() {
-    $(document).on('mousemove', this.onMouseMove.bind(this));
-  },
-
   onMouseMove(ev) {
-    clearTimeout(get(this, '_timeout'));
-
-    set(this, 'mouseVelocity', ev);
-    const mouseVelocity = get(this, 'mouseVelocity');
-    const threshold = get(this, 'threshold');
+    const getVelocity = bind(this, get(this, 'getVelocity'));
 
     /**
       Set up a debounce to catch edge case where user is moving quickly, then
       stops suddenly, causing the event listener not to update its velocity to 0.
-     */
-    const isNativeEvent  = !!ev.originalEvent;
-    if (isNativeEvent) {
-      set(this, '_timeout', Ember.run.later(this, () => {
-        $(document).trigger('mousemove')
-      }, 200));
-    }
+    */
+    cancel(get(this, '_timeout'));
+    set(this, '_timeout', later(this, this.checkForHover, 200));
 
-    if (isNativeEvent && mouseVelocity > threshold) {
-      return;
-    }
+    const mouseVelocity = getVelocity(ev);
+    const threshold = get(this, 'threshold');
 
+    if (mouseVelocity < threshold) {
+      this.checkForHover();
+    }
+  },
+
+  checkForHover() {
     const targets = get(this, 'targets');
     for(const target in targets) {
       const targetObj = targets[target];
