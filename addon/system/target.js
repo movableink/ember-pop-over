@@ -104,7 +104,6 @@ export default EmberObject.extend(Evented, {
       mousedown:  bind(this, 'mouseDown')
     };
 
-
     if (get(target, 'element')) {
       this.attach();
     } else if (target.one) {
@@ -246,7 +245,7 @@ export default EmberObject.extend(Evented, {
   blur: guard(function () {
     set(this, 'focused', false);
   }),
-  
+
   mouseEnter: guard(function() {
     this._willLeave = false;
     set(this, 'hovered', true);
