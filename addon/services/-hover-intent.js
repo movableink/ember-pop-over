@@ -89,6 +89,13 @@ export default Ember.Service.extend({
     targets[id] = hoverTarget; 
   },
 
+  removeTarget(id) {
+    const targets = get(this, 'targets');
+    if (targets[id]) {
+      delete targets[id];
+    }
+  },
+
   onMouseMove(ev) {
     /**
     Set up a debounce to catch edge case where user is moving quickly, then
