@@ -171,7 +171,7 @@ export default EmberObject.extend(Evented, {
     }
 
     const hoverIntent = get(this, 'hoverIntent');
-    hoverIntent.removeTarget({ id });
+    hoverIntent.removeTarget(id);
 
     // Remove references for GC
     this.eventManager = null;
