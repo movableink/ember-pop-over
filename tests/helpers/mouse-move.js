@@ -3,4 +3,3 @@ export default function (selector) {
     findWithAssert(selector).trigger('mousemove');
   });
 }
-
