@@ -97,6 +97,10 @@ export default Ember.Service.extend({
   },
 
   onMouseMove(ev) {
+    if (get(this, 'isDestroyed')) {
+      return;
+    }
+
     /**
     Set up a debounce to catch edge case where user is moving quickly, then
     stops suddenly, causing the event listener not to update its velocity to 0.
