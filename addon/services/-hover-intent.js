@@ -112,15 +112,24 @@ export default Ember.Service.extend({
     const threshold = get(this, 'threshold');
 
     if (mouseVelocity < threshold) {
-      this.checkForHover();
+      this.checkForHover(ev);
     }
   },
 
-  checkForHover() {
+  checkForHover(ev = {}) {
+    const eventTarget = ev.target;
     const targets = get(this, 'targets');
     for(const target in targets) {
+      let elementIsHovered = false;
       const targetObj = targets[target];
-      if (targetObj.$element.is(':hover')) {
+
+      if (eventTarget) {
+        elementIsHovered = $.contains(targetObj.$element[0], eventTarget) || targetObj.$element[0] === eventTarget;
+      } else {
+        elementIsHovered = targetObj.$element.is(":hover");
+      }
+
+      if (elementIsHovered) {
         get(targetObj, 'callback')();
       }
     }

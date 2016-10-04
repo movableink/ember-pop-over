@@ -131,11 +131,13 @@ export default EmberObject.extend(Evented, {
     }
 
     const hoverIntent = get(this, 'hoverIntent');
-    hoverIntent.addTarget({
-      id,
-      $element,
-      callback: get(this, 'mouseEnter').bind(this)
-    });
+    if (hoverIntent) {
+      hoverIntent.addTarget({
+        id,
+        $element,
+        callback: get(this, 'mouseEnter').bind(this)
+      });
+    }
 
     let eventManager = this.eventManager;
 
@@ -171,7 +173,9 @@ export default EmberObject.extend(Evented, {
     }
 
     const hoverIntent = get(this, 'hoverIntent');
-    hoverIntent.removeTarget(id);
+    if (hoverIntent) {
+      hoverIntent.removeTarget(id);
+    }
 
     // Remove references for GC
     this.eventManager = null;
