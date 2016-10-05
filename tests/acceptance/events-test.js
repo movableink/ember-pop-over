@@ -4,6 +4,7 @@ import mouseUp from '../helpers/mouse-up';
 import simpleClick from '../helpers/simple-click';
 import mouseDown from '../helpers/mouse-down';
 import mouseEnter from '../helpers/mouse-enter';
+import mouseMove from '../helpers/mouse-move';
 import mouseLeave from '../helpers/mouse-leave';
 import focus from '../helpers/focus';
 import blur from '../helpers/blur';
@@ -87,7 +88,7 @@ test('on="hover"', function (assert) {
   assert.expect(2);
   visit('/');
 
-  mouseEnter("#hover");
+  mouseMove("#hover");
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 1);
   });
@@ -103,7 +104,7 @@ test('on="hover hold"', function (assert) {
   assert.expect(4);
   visit('/');
 
-  mouseEnter("#hover-hold");
+  mouseMove("#hover-hold");
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 1);
   });
@@ -151,7 +152,7 @@ test('on="hover focus"', function (assert) {
   });
 
   blur("#hover-focus");
-  mouseEnter("#hover-focus");
+  mouseMove("#hover-focus");
   andThen(function () {
     assert.ok(find(".pop-over-container:visible").length === 1);
   });

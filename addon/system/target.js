@@ -93,7 +93,6 @@ function poll(target, scope, fn) {
 
 
 export default EmberObject.extend(Evented, {
-
   init: function () {
     let target = get(this, 'target');
     assert("You cannot make the {{pop-over}} a target of itself.", get(this, 'component') !== target);
@@ -101,7 +100,6 @@ export default EmberObject.extend(Evented, {
     this.eventManager = {
       focusin:    bind(this, 'focus'),
       focusout:   bind(this, 'blur'),
-      mouseenter: bind(this, 'mouseEnter'),
       mouseleave: bind(this, 'mouseLeave'),
       mousedown:  bind(this, 'mouseDown')
     };
@@ -130,6 +128,15 @@ export default EmberObject.extend(Evented, {
     if (id == null) {
       id = generateGuid();
       $element.attr('id', id);
+    }
+
+    const hoverIntent = get(this, 'hoverIntent');
+    if (hoverIntent) {
+      hoverIntent.addTarget({
+        id,
+        $element,
+        callback: get(this, 'mouseEnter').bind(this)
+      });
     }
 
     let eventManager = this.eventManager;
@@ -163,6 +170,11 @@ export default EmberObject.extend(Evented, {
       Object.keys(eventManager).forEach(function (event) {
         $document.off(event, selector, eventManager[event]);
       });
+    }
+
+    const hoverIntent = get(this, 'hoverIntent');
+    if (hoverIntent) {
+      hoverIntent.removeTarget(id);
     }
 
     // Remove references for GC
@@ -241,7 +253,7 @@ export default EmberObject.extend(Evented, {
     set(this, 'focused', false);
   }),
 
-  mouseEnter: guard(function () {
+  mouseEnter: guard(function() {
     this._willLeave = false;
     set(this, 'hovered', true);
     this._willLeave = false;
