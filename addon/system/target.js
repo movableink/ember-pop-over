@@ -93,6 +93,7 @@ function poll(target, scope, fn) {
 
 
 export default EmberObject.extend(Evented, {
+
   init: function () {
     let target = get(this, 'target');
     assert("You cannot make the {{pop-over}} a target of itself.", get(this, 'component') !== target);
@@ -130,12 +131,10 @@ export default EmberObject.extend(Evented, {
       $element.attr('id', id);
     }
 
-    const hoverIntent = get(this, 'hoverIntent');
-    if (hoverIntent) {
-      hoverIntent.addTarget({
-        id,
-        $element,
-        callback: get(this, 'mouseEnter').bind(this)
+    let onhover = get(this, 'onhover');
+    if (onhover) {
+      onhover.addEventListener(element, (evt) => {
+        this.mouseEnter(evt);
       });
     }
 
@@ -172,9 +171,9 @@ export default EmberObject.extend(Evented, {
       });
     }
 
-    const hoverIntent = get(this, 'hoverIntent');
-    if (hoverIntent) {
-      hoverIntent.removeTarget(id);
+    let onhover = get(this, 'onhover');
+    if (onhover) {
+      onhover.removeEventListener(element);
     }
 
     // Remove references for GC
