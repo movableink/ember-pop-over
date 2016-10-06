@@ -39,6 +39,7 @@ export default Ember.Service.extend({
     this._super(...args);
 
     $(document).on('mousemove', (evt) => {
+      this._lastEvt = evt;
       Ember.run.throttle(this, this.mouseMove, evt, 50);
     });
   },
@@ -59,7 +60,9 @@ export default Ember.Service.extend({
 
     // Check when the mouse has a full-stop
     cancel(this._fullStop);
-    this._fullStop = later(this, this._didHover, evt, 200);
+    this._fullStop = later(this, () => {
+      this._didHover(this._lastEvt);
+    }, 200);
 
     let velocity = velocityFromEvents(this._evt, evt);
     let threshold = get(this, 'threshold');
