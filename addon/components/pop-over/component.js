@@ -212,7 +212,7 @@ export default Component.extend({
 
       if (active && hidden) {
         document.addEventListener('mousedown', proxy);
-        let target = get(this, 'activeTarget');
+        let target = get(this, 'activeTarget') || { element: $('#' + get(this, 'for'))[0] };
         if (target) {
           let targetRect = Rectangle.ofElement(target.element, 'padding');
           let $offsetParent = this.$().offsetParent();
@@ -256,7 +256,7 @@ export default Component.extend({
   },
 
   tile() {
-    let target = get(this, 'activeTarget');
+    let target = get(this, 'activeTarget') || { element: $('#' + get(this, 'for'))[0] };
     // Don't tile if there's nothing to constrain the pop over around
     if (!get(this, 'element') || !target) {
       return;
