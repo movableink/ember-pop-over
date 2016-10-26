@@ -38,10 +38,17 @@ export default Ember.Service.extend({
   init(...args) {
     this._super(...args);
 
-    $(document).on('mousemove', (evt) => {
+    this._mousemove = (evt) => {
       this._lastEvt = evt;
       Ember.run.throttle(this, this.mouseMove, evt, 50);
-    });
+    }
+    $(document).on('mousemove', this._mousemove);
+  },
+
+  destroy(...args) {
+    this._super(...args);
+    this._listeners.clear();
+    $(document).off('mousemove', this._mousemove);
   },
 
   addEventListener(element, callback) {
