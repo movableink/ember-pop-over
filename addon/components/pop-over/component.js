@@ -37,7 +37,8 @@ export default Component.extend({
 
   classNameBindings: ['orientationClassName',
                       'pointerClassName',
-                      'cover:position-over'],
+                      'cover:position-over',
+                      'hidden:-hidden'],
 
   orientationClassName: classify('orient-{{orientation}}'),
 
@@ -267,11 +268,8 @@ export default Component.extend({
 
     let $boundingElement = scrollParent(this.$().parent());
     let boundingRect = Rectangle.ofElement($boundingElement[0]);
-    boundingRect.top += $boundingElement.scrollTop();
-    boundingRect.left += $boundingElement.scrollLeft();
-
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
-    let targetRect = Rectangle.ofElement(target.element, 'padding');
+    let targetRect = Rectangle.ofElement(target.element, 'borders');
 
     let $pointer = $popover.find('> .pop-over-container > .pop-over-pointer');
     let pointerRect;
@@ -313,12 +311,15 @@ export default Component.extend({
       pointer:     solution.pointer
     });
 
+    set(this, 'hidden', Rectangle.intersection(boundingRect, targetRect).area === 0);
+
     if ($boundingElement[0] === document) {
-      popOverRect.top -= $boundingElement.scrollTop();
-      popOverRect.left -= $boundingElement.scrollLeft();
-      targetRect.top -= $boundingElement.scrollTop();
-      targetRect.left -= $boundingElement.scrollLeft();
+      popOverRect.translateY(-1 * $boundingElement.scrollTop());
+      popOverRect.translateX(-1 * $boundingElement.scrollLeft());
+      targetRect.translateY(-1 * $boundingElement.scrollTop());
+      targetRect.translateX(-1 * $boundingElement.scrollLeft());
     }
+
 
     if (get(this, 'supportsLiquidFire')) {
       // Position the container over the target

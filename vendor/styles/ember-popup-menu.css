@@ -17,6 +17,10 @@
   pointer-events: all;
 }
 
+.pop-over.-hidden {
+  opacity: 0;
+}
+
 .pop-over-compass,
 .pop-over-container,
 .liquid-pop-over,
