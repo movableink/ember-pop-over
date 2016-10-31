@@ -3,9 +3,10 @@ import layout from './template';
 
 import { assert } from 'ember-metal/utils';
 import Component from 'ember-component';
-import Target from "../../system/target";
-import Rectangle from "../../system/rectangle";
-import gravity from "../../system/gravity";
+import Target from '../../system/target';
+import Rectangle from '../../system/rectangle';
+import gravity from '../../system/gravity';
+import scrollParent from '../../system/scroll-parent';
 
 import { bind, scheduleOnce, next, once, later } from 'ember-runloop';
 import get from 'ember-metal/get';
@@ -34,7 +35,9 @@ export default Component.extend({
 
   classNames: ['pop-over'],
 
-  classNameBindings: ['orientationClassName', 'pointerClassName', 'cover:position-over'],
+  classNameBindings: ['orientationClassName',
+                      'pointerClassName',
+                      'cover:position-over'],
 
   orientationClassName: classify('orient-{{orientation}}'),
 
@@ -73,7 +76,6 @@ export default Component.extend({
       return A();
     }
   }),
-
 
   // ..............................................
   // Event management
@@ -212,16 +214,6 @@ export default Component.extend({
 
       if (active && hidden) {
         document.addEventListener('mousedown', proxy);
-        let target = get(this, 'activeTarget') || { element: $('#' + get(this, 'for'))[0] };
-        if (target) {
-          let targetRect = Rectangle.ofElement(target.element, 'padding');
-          let $offsetParent = this.$().offsetParent();
-          let offset = $offsetParent.offset();
-          this.$().css({
-            top: (targetRect.top + targetRect.height / 2 - offset.top + $offsetParent.scrollTop()) + 'px',
-            left: (targetRect.left + targetRect.width / 2 - offset.left + $offsetParent.scrollLeft()) + 'px'
-          });
-        }
         this.show();
 
       // Remove click events immediately
@@ -265,10 +257,19 @@ export default Component.extend({
     let $popover = this.$('> .pop-over-compass');
     if (get(this, 'supportsLiquidFire')) {
       $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
+      if (this.$('> .liquid-animating').length) {
+        this.$('> .liquid-container > .liquid-child').css({
+          width: $(target.element).width() + 'px',
+          height: $(target.element).height() + 'px'
+        });
+      }
     }
 
-    let boundingElement = this.$().offsetParent()[0] || window;
-    let boundingRect = Rectangle.ofElement(boundingElement);
+    let $boundingElement = scrollParent(this.$().parent());
+    let boundingRect = Rectangle.ofElement($boundingElement[0]);
+    boundingRect.top += $boundingElement.scrollTop();
+    boundingRect.left += $boundingElement.scrollLeft();
+
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'padding');
 
@@ -282,58 +283,80 @@ export default Component.extend({
     let shouldCover = this.cover;
     let constraints = [];
 
-    if (boundingRect.intersects(targetRect)) {
-      let gravityName = get(this, 'gravity');
-      if (gravityName) {
-        constraints = get(gravity[gravityName] || {}, 'constraints');
-        assert(
-          `There is no gravity "${gravityName}".
+    let gravityName = get(this, 'gravity');
+    if (gravityName) {
+      constraints = get(gravity[gravityName] || {}, 'constraints');
+      assert(
+        `There is no gravity "${gravityName}".
 
-           Please choose one of ${Object.keys(gravity).map((dir) => `"${dir}"`)}.`, constraints);
-      } else {
-        var flowName = get(this, 'flow');
-        constraints = getOwner(this).lookup('pop-over-constraint:' + flowName);
-        assert(
-          `The flow named '${flowName}' was not registered with the {{pop-over}}.
-           Register your flow by adding an additional export to 'app/flows.js':
+         Please choose one of ${Object.keys(gravity).map((dir) => `"${dir}"`)}.`, constraints);
+    } else {
+      var flowName = get(this, 'flow');
+      constraints = getOwner(this).lookup('pop-over-constraint:' + flowName);
+      assert(
+        `The flow named '${flowName}' was not registered with the {{pop-over}}.
+         Register your flow by adding an additional export to 'app/flows.js':
 
-           export function ${flowName} () {
-             return this.orientBelow().andSnapTo(this.center);
-           });`, constraints);
-      }
+         export function ${flowName} () {
+           return this.orientBelow().andSnapTo(this.center);
+         });`, constraints);
+    }
 
-      let solution;
-      for (let i = 0, len = constraints.length; i < len; i++) {
-        solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect, shouldCover);
-        if (solution.valid) { break; }
-      }
+    let solution;
+    for (let i = 0, len = constraints.length; i < len; i++) {
+      solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect, shouldCover);
+      if (solution.valid) { break; }
+    }
 
-      this.setProperties({
-        orientation: solution.orientation,
-        pointer:     solution.pointer
+    this.setProperties({
+      orientation: solution.orientation,
+      pointer:     solution.pointer
+    });
+
+    if ($boundingElement[0] === document) {
+      popOverRect.top -= $boundingElement.scrollTop();
+      popOverRect.left -= $boundingElement.scrollLeft();
+      targetRect.top -= $boundingElement.scrollTop();
+      targetRect.left -= $boundingElement.scrollLeft();
+    }
+
+    if (get(this, 'supportsLiquidFire')) {
+      // Position the container over the target
+      this.$('> .liquid-container').css({
+        top: targetRect.top + 'px',
+        left: targetRect.left + 'px'
       });
 
-      let offset = $popover.offsetParent().offset();
-      popOverRect.top = popOverRect.top - offset.top;
-      popOverRect.left = popOverRect.left - offset.left;
+      $popover.css({
+        top: (popOverRect.top - targetRect.top) + 'px',
+        left: (popOverRect.left - targetRect.left) + 'px',
+        width: popOverRect.width + 'px',
+        height: popOverRect.height + 'px'
+      });
 
+      // Prevent flashing caused by liquid-fire
+      $popover.css({ opacity: 0 });
+      scheduleOnce('afterRender', this, 'showPopOver', $popover);
+    } else {
       $popover.css({
         top: popOverRect.top + 'px',
         left: popOverRect.left + 'px',
         width: popOverRect.width + 'px',
         height: popOverRect.height + 'px'
       });
-      if ($pointer.length) {
-        scheduleOnce('afterRender', this, 'positionPointer', $pointer, pointerRect);
-      }
     }
+
+    if ($pointer.length) {
+      $pointer.css({
+        top: pointerRect.top + 'px',
+        left: pointerRect.left + 'px'
+      });
+    }
+
   },
 
-  positionPointer($pointer, pointerRect) {
-    $pointer.css({
-      top: pointerRect.top + 'px',
-      left: pointerRect.left + 'px'
-    });
+  showPopOver($popover) {
+    $popover.css({ opacity: 1 });
   }
 
 });

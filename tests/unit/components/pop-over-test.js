@@ -41,8 +41,15 @@ test('classNames are applied when pointer and orientation are set', function(ass
     );
   }
 
-  this.render(hbs`{{pop-over on='click' orientation=orientation pointer=pointer supportsLiquidFire=false}}`);
-  this.click('.pop-over');
+  this.register('pop-over-constraint:test', [{
+    orientation: 'top',
+    pointer: 'center',
+    solveFor() { return true; }
+  }], { instantiate: false });
+
+  this.render(hbs`{{pop-over for="ember-testing" on='click' flow='test' orientation=orientation pointer=pointer active=active supportsLiquidFire=false}}`);
+
+  this.set('active', true);
 
   let $ = this.$('.pop-over');
   assert.hasClasses($, 'ember-view pop-over');
