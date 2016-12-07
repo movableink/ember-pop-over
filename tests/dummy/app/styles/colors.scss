@@ -1,0 +1,34 @@
+$colors: (
+  'siracha': #D82921,
+  'goldenrod': #FFCE5A,
+  'green-tea': #43C483,
+  'pond': #00A0DD,
+  'violet': #7558B5,
+  'pink': #E3397F,
+  'white': #FFFFFF,
+  'snow': #F4F5F7,
+  'black': #1D1F25,
+  'graphite': #404552
+);
+
+@function color($color-name) {
+  @return map-get($colors, $color-name);
+}
+
+// Generate light and dark versions of colors
+@each $color-name in ('siracha', 'goldenrod', 'green-tea', 'pond', 'violet', 'pink') {
+  $colors: map-merge($colors, (
+                       #{'light-' + $color-name}: lighten(color($color-name), 10%),
+                       #{'dark-' + $color-name}: darken(color($color-name), 10%)
+                     ));
+}
+
+$color-attributes: 'background-color', 'color', 'border-color', 'fill';
+
+@each $attr in $color-attributes {
+  @each $color-name, $color in $colors {
+    .#{$attr}-#{$color-name} {
+      #{$attr}: #{$color};
+    }
+  }
+}

@@ -2,90 +2,69 @@ import {
   moduleForComponent,
   test
 } from 'ember-qunit';
-import Ember from "ember";
+import run from 'ember-runloop';
+import hbs from 'htmlbars-inline-precompile';
 
-const get = Ember.get;
-const set = Ember.set;
-const run = Ember.run;
+moduleForComponent('pop-over', {
+  integration: true,
+  setup() {
+    this.click = function (selector) {
+      let $el = this.$(selector);
+      run($el, 'mousedown');
+      this.focus(selector);
+      run($el, 'mouseup');
+      run($el, 'click');
+    };
 
-moduleForComponent('pop-over', 'PopOverComponent', {
-  
-});
-
-test('"retile" is called when will-change properties change', function() {
-  expect(4);
-
-  var RETILE_CALLED = false;
-
-  var component;
-  run(this, function () {
-    component = this.subject({
-      on: "click",
-      retile: function () {
-        RETILE_CALLED = true;
+    this.focus = function (selector) {
+      let $el = this.$(selector);
+      if (!document.hasFocus || document.hasFocus()) {
+        run($el, 'focus');
+      } else {
+        run($el, 'trigger', 'focusin');
       }
-    });
-    this.render();
-  });
-
-  run(function () {
-    set(component, 'willChange', "text");
-  });
-  ok(RETILE_CALLED);
-
-  RETILE_CALLED = false;
-  run(function () {
-    set(component, 'text', "Hello");
-  });
-  ok(RETILE_CALLED);
-
-  RETILE_CALLED = false;
-  run(function () {
-    set(component, 'willChange', null);
-  });
-  ok(RETILE_CALLED);
-
-  RETILE_CALLED = false;
-  run(function () {
-    set(component, 'text', "Hello");
-   });
-  ok(!RETILE_CALLED);
+    };
+  }
 });
 
-test('classNames are applied when pointer and orientation are set', function() {
-  expect(5);
 
-  var component;
-  run(this, function () {
-    component = this.subject({
-      on: "click"
-    });
-    this.render();
-    component.show();
-  });
+test('classNames are applied when pointer and orientation are set', function(assert) {
+  assert.expect(5);
 
-  let $ = component.$();
-  equal($.prop('class'), 'ember-view pop-over');
+  assert.hasClasses = function (element, classes) {
+    let actual = element.prop('class').split(' ');
+    let expected = classes.split(' ');
+    assert.ok(
+      actual.length === expected.length && expected.reduce(function (hasAll, expected) {
+        return hasAll && actual.indexOf(expected) !== -1;
+      }, true)
+    );
+  }
 
-  run(function () {
-    set(component, 'orientation', 'above');
-  });
-  equal($.prop('class'), 'ember-view pop-over orient-above');
+  this.register('pop-over-constraint:test', [{
+    orientation: 'top',
+    pointer: 'center',
+    solveFor() { return true; }
+  }], { instantiate: false });
 
-  run(function () {
-    set(component, 'orientation', 'below');
-    set(component, 'pointer', 'center');
-  });
-  equal($.prop('class'), "ember-view pop-over orient-below pointer-center");
+  this.render(hbs`{{pop-over for="ember-testing" on='click' flow='test' orientation=orientation pointer=pointer active=active supportsLiquidFire=false}}`);
 
-  run(function () {
-    set(component, 'orientation', null);
-    set(component, 'pointer', 'left');
-  });
-  equal($.prop('class'), "ember-view pop-over pointer-left");
+  this.set('active', true);
 
-  run(function () {
-    set(component, 'pointer', null);
-  });
-  equal($.prop('class'), "ember-view pop-over");
+  let $ = this.$('.pop-over');
+  assert.hasClasses($, 'ember-view pop-over');
+
+  this.set('orientation', 'above');
+  assert.hasClasses($, 'ember-view pop-over orient-above');
+
+  this.set('orientation', 'below');
+  this.set('pointer', 'center');
+  assert.hasClasses($, 'ember-view pop-over orient-below pointer-center');
+
+  this.set('orientation', null);
+  this.set('pointer', 'left');
+  assert.hasClasses($, 'ember-view pop-over pointer-left');
+
+  this.set('pointer', null);
+  assert.hasClasses($, 'ember-view pop-over');
 });

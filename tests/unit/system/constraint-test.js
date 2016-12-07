@@ -1,270 +1,288 @@
 import Constraint from "ember-pop-over/system/constraint";
 import Rectangle from "ember-pop-over/system/rectangle";
+import { module } from "qunit";
 import { test } from "ember-qunit";
 
 module("Constraint Solver");
 
-test("above and below solutions (with no pointer)", function () {
-  var bounds = new Rectangle(0, 0, 100, 100);
-  var target = new Rectangle(45, 45, 10, 10);
+test("above and below solutions (with no pointer)", function (assert) {
+  let bounds = new Rectangle(0, 0, 100, 100);
+  let target = new Rectangle(45, 45, 10, 10);
   // Solves for above and below; not left nor right
-  var popover  = new Rectangle(0, 0, 50, 20);
-  var pointer = new Rectangle(0, 0, 0, 0);
+  let popover  = new Rectangle(0, 0, 50, 20);
+  let pointer = new Rectangle(0, 0, 0, 0);
+  let shouldCover = false;
 
-  var constraint = new Constraint({
+  let constraint = new Constraint({
     orientation: 'above',
     behavior: 'snap',
     guideline: 'center'
   });
-  var solution = constraint.solveFor(bounds, target, popover, pointer);
-  equal(solution.orientation, 'above');
-  equal(solution.pointer, 'center');
-  ok(solution.valid);
 
-  equal(popover.x, 25);
-  equal(popover.y, 25);
+  // Snap to above, outside target.
+  let solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
+  assert.equal(solution.orientation, 'above');
+  assert.equal(solution.pointer, 'center');
+  assert.ok(solution.valid);
 
+  assert.equal(popover.x, 25);
+  assert.equal(popover.y, 25);
 
+  // Snap to top edge, outside target.
+  shouldCover = true;
+  solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
+  assert.equal(popover.x, 25);
+  assert.equal(popover.y, 45);
+
+  shouldCover = false;
   constraint = new Constraint({
     orientation: 'below',
     behavior: 'snap',
     guideline: 'center'
   });
-  solution = constraint.solveFor(bounds, target, popover, pointer);
-  equal(solution.orientation, 'below');
-  equal(solution.pointer, 'center');
-  ok(solution.valid);
+  
+  // Snap to bottom edge, outside target.
+  solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
+  assert.equal(solution.orientation, 'below');
+  assert.equal(solution.pointer, 'center');
+  assert.ok(solution.valid);
 
-  equal(popover.x, 25);
-  equal(popover.y, 55);
+  assert.equal(popover.x, 25);
+  assert.equal(popover.y, 55);
+
+  // Snap to bottom edge, covering target.
+  shouldCover = true;
+  solution = constraint.solveFor(bounds, target, popover, pointer, shouldCover);
+  assert.equal(popover.x, 25);
+  assert.equal(popover.y, 35);
 });
 
-test("vertical slide", function () {
-  var bounds = new Rectangle(0, 0, 100, 100);
-  var target = new Rectangle(45, 45, 10, 10);
-  var popover  = new Rectangle(0, 0, 40, 90);
-  var pointer = new Rectangle(0, 0, 0, 0);
+test("vertical slide", function (assert) {
+  let bounds = new Rectangle(0, 0, 100, 100);
+  let target = new Rectangle(45, 45, 10, 10);
+  let popover  = new Rectangle(0, 0, 40, 90);
+  let pointer = new Rectangle(0, 0, 0, 0);
 
  ['right', 'left'].forEach(function (orientation) {
-    var constraint = new Constraint({
+    let constraint = new Constraint({
       orientation: orientation,
       behavior: 'slide',
       guideline: ['bottom-edge', 'top-edge']
     });
 
-    var solution;
-    var left = orientation === 'right' ? 55 : 5;
+    let solution;
+    let left = orientation === 'right' ? 55 : 5;
 
     for (var y = 0; y < 27; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'top-edge');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'top-edge');
+      assert.ok(solution.valid);
 
-      equal(popover.top, 0);
-      equal(popover.left, left);
+      assert.equal(popover.top, 0);
+      assert.equal(popover.left, left);
     }
 
     for (; y < 54; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'center');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'center');
+      assert.ok(solution.valid);
 
-      equal(popover.top, 0);
-      equal(popover.left, left);
+      assert.equal(popover.top, 0);
+      assert.equal(popover.left, left);
     }
 
     for (; y <= 90; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'bottom-edge');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'bottom-edge');
+      assert.ok(solution.valid);
 
       if (y < 80) {
-        equal(popover.top, 0);
+        assert.equal(popover.top, 0);
       } else {
-        equal(popover.top, y - 80);
+        assert.equal(popover.top, y - 80);
       }
-      equal(popover.left, left);
+      assert.equal(popover.left, left);
     }
 
     target = new Rectangle(45, y, 10, 10);
     solution = constraint.solveFor(bounds, target, popover, pointer);
-    equal(solution.orientation, orientation);
-    equal(solution.pointer, 'bottom-edge');
-    ok(!solution.valid);
+    assert.equal(solution.orientation, orientation);
+    assert.equal(solution.pointer, 'bottom-edge');
+    assert.notOk(solution.valid);
   });
 });
 
-test("vertical slide from center -> bottom", function () {
-  var bounds = new Rectangle(0, 0, 100, 100);
-  var target = new Rectangle(45, 45, 10, 10);
-  var popover  = new Rectangle(0, 0, 40, 70);
-  var pointer = new Rectangle(0, 0, 0, 0);
+test("vertical slide from center -> bottom", function (assert) {
+  let bounds = new Rectangle(0, 0, 100, 100);
+  let target = new Rectangle(45, 45, 10, 10);
+  let popover  = new Rectangle(0, 0, 40, 70);
+  let pointer = new Rectangle(0, 0, 0, 0);
 
   ['right', 'left'].forEach(function (orientation) {
-    var constraint = new Constraint({
+    let constraint = new Constraint({
       orientation: orientation,
       behavior: 'slide',
       guideline: ['center', 'top-edge']
     });
 
-    var solution;
-    var left = orientation === 'right' ? 55 : 5;
+    let solution;
+    let left = orientation === 'right' ? 55 : 5;
 
     for (var y = 0; y < 20; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'top-edge');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'top-edge');
+      assert.ok(solution.valid);
 
-      equal(popover.top, 0);
-      equal(popover.left, left);
+      assert.equal(popover.top, 0);
+      assert.equal(popover.left, left);
     }
 
     for (; y <= 60; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'center');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'center');
+      assert.ok(solution.valid);
 
       if (y < 30) {
-        equal(popover.top, 0);
+        assert.equal(popover.top, 0);
       } else {
-        equal(popover.top, y - 30);
+        assert.equal(popover.top, y - 30);
       }
-      equal(popover.left, left);
+      assert.equal(popover.left, left);
     }
 
     target = new Rectangle(45, y, 10, 10);
     solution = constraint.solveFor(bounds, target, popover, pointer);
-    equal(solution.orientation, orientation);
-    equal(solution.pointer, 'center');
-    ok(!solution.valid);
+    assert.equal(solution.orientation, orientation);
+    assert.equal(solution.pointer, 'center');
+    assert.notOk(solution.valid);
 
-    equal(popover.top, 31);
-    equal(popover.left, left);
+    assert.equal(popover.top, 31);
+    assert.equal(popover.left, left);
   });
 });
 
-test("vertical slide from top -> center", function () {
-  var bounds = new Rectangle(0, 0, 100, 100);
-  var target = new Rectangle(45, 45, 10, 10);
-  var popover  = new Rectangle(0, 0, 40, 70);
-  var pointer = new Rectangle(0, 0, 0, 0);
+test("vertical slide from top -> center", function (assert) {
+  let bounds = new Rectangle(0, 0, 100, 100);
+  let target = new Rectangle(45, 45, 10, 10);
+  let popover  = new Rectangle(0, 0, 40, 70);
+  let pointer = new Rectangle(0, 0, 0, 0);
 
   ['right', 'left'].forEach(function (orientation) {
-    var constraint = new Constraint({
+    let constraint = new Constraint({
       orientation: orientation,
       behavior: 'slide',
       guideline: ['bottom-edge', 'center']
     });
 
-    var left = orientation === 'right' ? 55 : 5;
+    let left = orientation === 'right' ? 55 : 5;
 
-    var y = 29;
+    let y = 29;
     target = new Rectangle(45, y++, 10, 10);
-    var solution = constraint.solveFor(bounds, target, popover, pointer);
-    ok(!solution.valid);
+    let solution = constraint.solveFor(bounds, target, popover, pointer);
+    assert.notOk(solution.valid);
 
-    equal(popover.top, -1);
-    equal(popover.left, left);
+    assert.equal(popover.top, -1);
+    assert.equal(popover.left, left);
 
     for (y; y < 40; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'center');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'center');
+      assert.ok(solution.valid);
 
-      equal(popover.top, 0);
-      equal(popover.left, left);
+      assert.equal(popover.top, 0);
+      assert.equal(popover.left, left);
     }
 
     for (; y <= 90; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'bottom-edge');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'bottom-edge');
+      assert.ok(solution.valid);
 
       if (y <= 60) {
-        equal(popover.top, 0);
+        assert.equal(popover.top, 0);
       } else {
-        equal(popover.top, y - 60);
+        assert.equal(popover.top, y - 60);
       }
-      equal(popover.left, left);
+      assert.equal(popover.left, left);
     }
 
     target = new Rectangle(45, y, 10, 10);
     solution = constraint.solveFor(bounds, target, popover, pointer);
-    ok(!solution.valid);
+    assert.notOk(solution.valid);
 
-    equal(popover.top, 31);
-    equal(popover.left, left);
+    assert.equal(popover.top, 31);
+    assert.equal(popover.left, left);
   });
 });
 
-test("vertical slide from bottom -> center", function () {
-  var bounds = new Rectangle(0, 0, 100, 100);
-  var target = new Rectangle(45, 45, 10, 10);
-  var popover  = new Rectangle(0, 0, 40, 70);
-  var pointer = new Rectangle(0, 0, 0, 0);
+test("vertical slide from bottom -> center", function (assert) {
+  let bounds = new Rectangle(0, 0, 100, 100);
+  let target = new Rectangle(45, 45, 10, 10);
+  let popover  = new Rectangle(0, 0, 40, 70);
+  let pointer = new Rectangle(0, 0, 0, 0);
 
   ['right', 'left'].forEach(function (orientation) {
-    var constraint = new Constraint({
+    let constraint = new Constraint({
       orientation: orientation,
       behavior: 'slide',
       guideline: ['top-edge', 'center']
     });
 
-    var left = orientation === 'right' ? 55 : 5;
+    let left = orientation === 'right' ? 55 : 5;
 
-    var y = -1;
+    let y = -1;
     target = new Rectangle(45, y++, 10, 10);
-    var solution = constraint.solveFor(bounds, target, popover, pointer);
-    ok(!solution.valid);
+    let solution = constraint.solveFor(bounds, target, popover, pointer);
+    assert.notOk(solution.valid);
 
-    equal(popover.top, -1);
-    equal(popover.left, left);
+    assert.equal(popover.top, -1);
+    assert.equal(popover.left, left);
 
     for (; y < 50; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'top-edge');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'top-edge');
+      assert.ok(solution.valid);
 
       if (y < 30) {
-        equal(popover.top, y);
+        assert.equal(popover.top, y);
       } else {
-        equal(popover.top, 30);
+        assert.equal(popover.top, 30);
       }
-      equal(popover.left, left);
+      assert.equal(popover.left, left);
     }
 
     for (; y <= 60; y++) {
       target = new Rectangle(45, y, 10, 10);
       solution = constraint.solveFor(bounds, target, popover, pointer);
-      equal(solution.orientation, orientation);
-      equal(solution.pointer, 'center');
-      ok(solution.valid);
+      assert.equal(solution.orientation, orientation);
+      assert.equal(solution.pointer, 'center');
+      assert.ok(solution.valid);
 
-      equal(popover.top, 30);
-      equal(popover.left, left);
+      assert.equal(popover.top, 30);
+      assert.equal(popover.left, left);
     }
 
     target = new Rectangle(45, y, 10, 10);
     solution = constraint.solveFor(bounds, target, popover, pointer);
-    ok(!solution.valid);
+    assert.notOk(solution.valid);
 
-    equal(popover.top, 31);
-    equal(popover.left, left);
+    assert.equal(popover.top, 31);
+    assert.equal(popover.left, left);
   });
 });

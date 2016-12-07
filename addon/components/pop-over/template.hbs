@@ -1,0 +1,21 @@
+{{#if supportsLiquidFire}}
+  {{#liquid-if active class="liquid-pop-over"}}
+    <div class="pop-over-compass">
+      <div class="pop-over-container">
+        {{#unless cover}}
+          <span class="pop-over-pointer orient-{{orientation}}"></span>
+        {{/unless}}
+        {{yield}}
+      </div>
+    </div>
+  {{/liquid-if}}
+{{else if active}}
+  <div class="pop-over-compass">
+    <div class="pop-over-container">
+      {{#unless cover}}
+        <span class="pop-over-pointer orient-{{orientation}}"></span>
+      {{/unless}}
+      {{yield}}
+    </div>
+  </div>
+{{/if}}

@@ -1,3 +1,5 @@
 export default function (selector) {
-  triggerEvent(selector, "mouseleave");
+  andThen(function () {
+    findWithAssert(selector).trigger('mouseleave');
+  });
 }

@@ -1,0 +1,19 @@
+@import 'colors';
+@import 'layout';
+
+html, body {
+  margin: 20px;
+}
+
+.white-space-nowrap {
+  white-space: nowrap;
+}
+
+.scroll {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  overflow: auto;
+}

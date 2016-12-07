@@ -1,3 +1,4 @@
+/* global node: true */
 module.exports = {
   name: 'ember-pop-over',
   included: function (app) {

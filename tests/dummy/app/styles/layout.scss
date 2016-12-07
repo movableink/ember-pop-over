@@ -1,0 +1,42 @@
+$sizing-attributes: 'padding', 'margin';
+$sizes: (
+  none: 0px,
+  xs: 0.25rem,
+  s: 0.75rem,
+  m: 1.0rem,
+  l: 1.5rem,
+  xl: 2rem
+);
+
+$sides: (top, (top)), (bottom, (bottom)), (vertical, (top, bottom)),
+        (left, (left)), (right, (right)), (horizontal, (left, right));
+
+@each $attr in $sizing-attributes {
+  @each $size-name, $size in $sizes {
+    .#{$attr}-#{$size-name} {
+      #{$attr}: #{$size};
+    }
+    @each $side-name, $side-attributes in $sides {
+      .#{$attr}-#{$side-name}-#{$size-name} {
+        @each $side-attr in $side-attributes {
+          #{$attr}-#{$side-attr}: #{$size};
+        }
+      }
+    }
+  }
+}
+
+.border-s {
+  border-size: 1px;
+  border-weight: solid;
+}
+
+.border-m {
+  border-size: 2px;
+  border-weight: solid;
+}
+
+.border-l {
+  border-size: 4px;
+  border-weight: solid;
+}

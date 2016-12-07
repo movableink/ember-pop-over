@@ -1,4 +1,4 @@
-# ember {{pop-over}}
+# ember {{pop-over}} [![Build Status](https://travis-ci.org/tim-evans/ember-pop-over.svg?branch=master)](https://travis-ci.org/tim-evans/ember-pop-over) [![Code Climate](https://codeclimate.com/github/tim-evans/ember-pop-over/badges/gpa.svg)](https://codeclimate.com/github/tim-evans/ember-pop-over)
 
 **NOTE: This is still pre-1.0 software and is subject to change.**
 
@@ -8,7 +8,7 @@ For use of the pop-over as a tooltip, the following handlebars will do the trick
 
 ```handlebars
 <span id="help-me" class="icon-help"></span>
-{{#pop-over for="help-me" on="hover"}}
+{{#pop-over for="help-me" on="hover" flow="popup"}}
   Hey there!
 {{/pop-over}}
 ```
@@ -16,6 +16,22 @@ For use of the pop-over as a tooltip, the following handlebars will do the trick
 ## Installation
 
 * `ember install ember-pop-over`
+
+## Gravity
+
+`ember-pop-over` has two approaches to positioning elements. `gravity` is provided as a quick and easy way to position elements according to cardinal directions:
+
+Gravity | Description
+--------|--------------
+`n`     | Positions the pop over above the target.
+`s`     | Positions the pop over below the target.
+`e`     | Positions the pop over to the right of the target.
+`w`     | Positions the pop over to the left of the target.
+`nw`    | Positions the pop over in the top left corner of the target.
+`ne`    | Positions the pop over in the top right corner of the target.
+`sw`    | Positions the pop over in the bottom left corner of the target.
+`se`    | Positions the pop over in the bottom right corner of the target.
+`none`  | Positions the pop over directly over the target. (Available only using `cover`).
 
 ## Flows
 
@@ -41,12 +57,13 @@ export function right() {
 
 If no flow satisfies the constraints of the page, then the last flow in the cascade will be picked.
 
- Orientation | Description
--------------|----------------
- orientAbove | Orients the pop over above the target
- orientLeft  | Orients the pop over to the left of the target
- orientBelow | Orients the pop over below the target
- orientRight | Orients the pop over to the right of the target
+ Orientation  | Description
+--------------|----------------
+ orientAbove  | Orients the pop over above the target
+ orientLeft   | Orients the pop over to the left of the target
+ orientBelow  | Orients the pop over below the target
+ orientRight  | Orients the pop over to the right of the target
+ orientCenter | Orients the pop over directly over the center of the target (in `cover` mode)
 
  Behavior        | Description
 -----------------|----------------
@@ -72,7 +89,7 @@ For horizontal flows (`orientTop`, `orientBottom`), the possible names are:
 
 Tooltips:
 ```javascript
-import PopOver from "ember-pop-over/components/pop-over";
+import PopOver from "ember-pop-over/components/pop-over/component";
 
 var ToolTip = PopOver.extend({
   classNames: ['tool-tip'],
@@ -93,7 +110,7 @@ export default ToolTip;
 
 Dropdown menu:
 ```javascript
-import PopOver from "ember-pop-over/components/pop-over";
+import PopOver from "ember-pop-over/components/pop-over/component";
 
 var DropDown = PopOver.extend({
   classNames: ['drop-down'],
