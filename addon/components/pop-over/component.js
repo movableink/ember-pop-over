@@ -192,6 +192,18 @@ export default Component.extend({
     }
   }),
 
+  addActiveClass() {
+    var $target = $(get(this,'activeTarget.element'));
+    $target.addClass(get(this,'activeClassName'));
+  },
+
+  removeActiveClass() {
+    var $targets = $(get(this,'targets'));
+    $targets.each( (i, el) => {
+      $(el.element).removeClass(get(this,'activeClassName'));
+    });
+  },
+
   activate(target) {
     get(this, 'targets').findBy('target', target).set('active', true);
   },
@@ -227,6 +239,7 @@ export default Component.extend({
 
   hide() {
     if (this.isDestroyed) { return; }
+    this.removeActiveClass();
     get(this, 'targets').setEach('active', false);
     set(this, 'active', false);
     if (get(this, 'onhide')) {
@@ -236,6 +249,7 @@ export default Component.extend({
 
   show() {
     if (this.isDestroyed) { return; }
+    this.addActiveClass();
     set(this, 'active', true);
     if (get(this, 'onshow')) {
       get(this, 'onshow')();
