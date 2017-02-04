@@ -41,7 +41,7 @@
     "popover"
   ],
   "dependencies": {
-    "dom-ruler": "^0.2.4",
+    "dom-ruler": "^0.2.5",
     "ember-cli-babel": "^5.1.6",
     "ember-cli-htmlbars": "^1.0.3",
     "ember-cli-node-assets": "^0.1.6"
