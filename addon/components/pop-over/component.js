@@ -20,9 +20,7 @@ import integrates from '../../computed/integrates';
 import classify from '../../computed/classify';
 import service from 'ember-service/inject';
 
-const getOwner = Ember.getOwner || function (object) {
-  return object.container;
-};
+const getOwner = Ember.getOwner;
 
 export default Component.extend({
   _mouseHover: service('-mouse-hover'),
