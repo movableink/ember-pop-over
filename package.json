@@ -28,6 +28,7 @@
     "ember-cli-qunit": "^2.0.0",
     "ember-cli-release": "0.2.9",
     "ember-cli-sass": "5.3.1",
+    "ember-cli-surge": "1.1.17",
     "ember-cli-uglify": "^1.2.0",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-load-initializers": "0.5.1",
@@ -47,6 +48,7 @@
     "ember-cli-node-assets": "^0.1.6"
   },
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "demoURL": "http://ember-pop-over.surge.sh"
   }
 }
