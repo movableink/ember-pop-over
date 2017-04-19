@@ -1,5 +1,7 @@
 # ember {{pop-over}} [![Build Status](https://travis-ci.org/tim-evans/ember-pop-over.svg?branch=master)](https://travis-ci.org/tim-evans/ember-pop-over) [![Code Climate](https://codeclimate.com/github/tim-evans/ember-pop-over/badges/gpa.svg)](https://codeclimate.com/github/tim-evans/ember-pop-over)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/tim-evans/ember-pop-over.svg)](https://greenkeeper.io/)
+
 **NOTE: This is still pre-1.0 software and is subject to change.**
 
 This pop-over provides a pluggable interface for dealing with pop overs around your site. It has an inteface for registering constraint behaviors and animations.
