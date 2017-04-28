@@ -1,14 +1,14 @@
 module.exports = {
   root: true,
   parserOptions: {
-    ecmaVersion: 6,
+    ecmaVersion: 8,
     sourceType: 'module'
   },
-  parser: 'babel-eslint',
   extends: 'eslint:recommended',
   env: {
     'browser': true
   },
   rules: {
+    'require-await': 1
   }
 };
