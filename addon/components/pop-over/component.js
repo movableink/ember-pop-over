@@ -18,12 +18,10 @@ import on from 'ember-evented/on';
 import $ from 'jquery';
 import integrates from '../../computed/integrates';
 import classify from '../../computed/classify';
-import service from 'ember-service/inject';
 
 const getOwner = Ember.getOwner;
 
 export default Component.extend({
-  _mouseHover: service('-mouse-hover'),
 
   layout,
 
@@ -65,7 +63,6 @@ export default Component.extend({
   addTarget(target, options) {
     get(this, 'targets').pushObject(Target.create(options, {
       target,
-      onhover: get(this, '_mouseHover'),
       component: this
     }));
   },

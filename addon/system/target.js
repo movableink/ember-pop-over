@@ -1,5 +1,4 @@
 import Ember from "ember";
-const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 
 import get from 'ember-metal/get';
 import set from 'ember-metal/set';
@@ -7,7 +6,6 @@ import { copy, generateGuid } from 'ember-metal/utils';
 import computed from 'ember-computed';
 import { w } from 'ember-string';
 import { bind, next, later } from 'ember-runloop';
-import $ from 'jquery';
 import { assert } from 'ember-metal/utils';
 import { A } from 'ember-array/utils';
 import Evented from 'ember-evented';
@@ -21,7 +19,7 @@ function includes(haystack, needle) {
   }
 }
 
-function guard (fn) {
+function guard(fn) {
   return function (evt) {
     if (get(this, 'component.disabled')) { return; }
     fn.call(this, evt);
@@ -36,29 +34,6 @@ function getElementForTarget(target) {
   } else {
     return target;
   }
-}
-
-function getLabelSelector($element) {
-  let id = $element.attr('id');
-  if (id) {
-    return `label[for="${id}"]`;
-  }
-}
-
-function labelForEvent(evt) {
-  let $target = $(evt.target);
-  if ($target[0].tagName.toLowerCase() === 'label') {
-    return $target;
-  } else {
-    return $target.parents('label');
-  }
-}
-
-function isLabelClicked(target, label) {
-  if (label == null) {
-    return false;
-  }
-  return $(label).attr('for') === $(target).attr('id');
 }
 
 const VALID_ACTIVATORS = ["focus", "hover", "click", "hold"];
@@ -99,10 +74,7 @@ export default EmberObject.extend(Evented, {
     assert("You cannot make the {{pop-over}} a target of itself.", get(this, 'component') !== target);
 
     this.eventManager = {
-      focusin:    bind(this, 'focus'),
-      focusout:   bind(this, 'blur'),
-      mouseleave: bind(this, 'mouseLeave'),
-      mousedown:  bind(this, 'mouseDown')
+
     };
 
     if (get(target, 'element')) {
@@ -116,8 +88,6 @@ export default EmberObject.extend(Evented, {
 
   attach: function () {
     let element = getElementForTarget(this.target);
-    let $element = $(element);
-    let $document = $(document);
 
     // Already attached or awaiting an element to exist
     if (get(this, 'attached') || element == null) { return; }
@@ -125,59 +95,27 @@ export default EmberObject.extend(Evented, {
     set(this, 'attached', true);
     set(this, 'element', element);
 
-    let id = $element.attr('id');
+    let id = element.id;
     if (id == null) {
       id = generateGuid();
-      $element.attr('id', id);
+      element.id = id;
     }
 
-    let onhover = get(this, 'onhover');
-    if (onhover) {
-      onhover.addEventListener(element, (evt) => {
-        this.mouseEnter(evt);
-      });
-    }
-
-    let eventManager = this.eventManager;
-
-    Object.keys(eventManager).forEach(function (event) {
-      $document.on(event, `#${id}`, eventManager[event]);
+    listener.addEventListeners(`#${id}`, {
+      focus:        bind(this, 'focus'),
+      blur:         bind(this, 'blur'),
+      pointerenter: bind(this, 'pointerEnter'),
+      pointerleave: bind(this, 'pointerLeave'),
+      pointerdown:  bind(this, 'pointerDown')
+      pointerup:    bind(this, 'pointerUp')
     });
-
-    let selector = getLabelSelector($element);
-    if (selector) {
-      Object.keys(eventManager).forEach(function (event) {
-        $document.on(event, selector, eventManager[event]);
-      });
-    }
   },
 
   detach: function () {
     let element = this.element;
-    let $element = $(element);
-    let $document = $(document);
+    let id = element.id;
+    listener.removeEventListeners(`#${id}`);
 
-    let eventManager = this.eventManager;
-
-    let id = $element.attr('id');
-    Object.keys(eventManager).forEach(function (event) {
-      $document.off(event, '#' + id, eventManager[event]);
-    });
-
-    let selector = getLabelSelector($element);
-    if (selector) {
-      Object.keys(eventManager).forEach(function (event) {
-        $document.off(event, selector, eventManager[event]);
-      });
-    }
-
-    let onhover = get(this, 'onhover');
-    if (onhover) {
-      onhover.removeEventListener(element);
-    }
-
-    // Remove references for GC
-    this.eventManager = null;
     set(this, 'element', null);
     set(this, 'target', null);
     set(this, 'component', null);
@@ -188,16 +126,6 @@ export default EmberObject.extend(Evented, {
       return parseActivators(value);
     }
   }),
-
-  isClicked: function (evt) {
-    if (isSimpleClick(evt)) {
-      let label = labelForEvent(evt);
-      let element = this.element;
-      return evt.target === element || $.contains(element, evt.target) ||
-        isLabelClicked(element, label);
-    }
-    return false;
-  },
 
   active: computed('focused', 'hovered', 'pressed', 'component.hovered', 'component.pressed', {
     set(key, value) {
@@ -252,66 +180,34 @@ export default EmberObject.extend(Evented, {
     set(this, 'focused', false);
   }),
 
-  mouseEnter: guard(function() {
-    this._willLeave = false;
+  pointerEnter: guard(function() {
     set(this, 'hovered', true);
-    this._willLeave = false;
   }),
 
-  mouseLeave: guard(function () {
-    this._willLeave = true;
-    later(() => {
-      if (get(this, 'component.disabled')) { return; }
-      if (this._willLeave) {
-        this._willLeave = false;
-        set(this, 'hovered', false);
-      }
-    }, 150);
+  pointerLeave: guard(function () {
+    set(this, 'hovered', false);
   }),
 
-  mouseDown: guard(function (evt) {
-    if (!this.isClicked(evt)) {
-      return false;
-    }
-
+  pointerDown: guard(function (evt) {
     let element = this.element;
     let active = !get(this, 'active');
     set(this, 'pressed', active);
 
     if (active) {
       this.holdStart = new Date().getTime();
-
-      let eventManager = this.eventManager;
-      eventManager.mouseup = bind(this, 'mouseUp');
-      $(document).on('mouseup', eventManager.mouseup);
-
       evt.preventDefault();
     }
 
-    $(element).focus();
-    return true;
+    element.focus();
   }),
 
-  mouseUp: function (evt) {
-    // Remove mouseup event
-    let eventManager = this.eventManager;
-    $(document).off('mouseup', eventManager.mouseup);
-    eventManager.mouseup = null;
-
-    let label = labelForEvent(evt);
-
-    // Treat clicks on <label> elements as triggers to
-    // open the menu
-    if (isLabelClicked(this.element, label)) {
-      return true;
-    }
-
+  pointerUp: function (evt) {
     let activators = get(this, 'on');
 
     if (includes(activators, 'click') && includes(activators, 'hold')) {
-      // If the user waits more than 400ms between mouseDown and mouseUp,
+      // If the user waits more than 400ms between pointerDown and pointerUp,
       // we can assume that they are clicking and dragging to the menu item,
-      // and we should close the menu if they mouseup anywhere not inside
+      // and we should close the menu if they pointerup anywhere not inside
       // the menu.
       if (new Date().getTime() - this.holdStart > 400) {
         set(this, 'pressed', false);
