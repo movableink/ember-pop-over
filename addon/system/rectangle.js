@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import get from 'ember-metal/get';
 import { getLayout } from "dom-ruler";
 
 let Rectangle = function (x, y, width, height) {
@@ -66,10 +65,6 @@ Rectangle.intersection = function (rectA, rectB) {
   return new Rectangle(x, y, width, height);
 };
 
-Rectangle.ofView = function (view, boxModel) {
-  return this.ofElement(get(view, 'element'), boxModel);
-};
-
 Rectangle.ofElement = function (element, boxModel) {
   let size = getLayout(element);
   if (boxModel) {
@@ -78,7 +73,10 @@ Rectangle.ofElement = function (element, boxModel) {
 
   let offset;
   if (element === document || element === window) {
-    offset = { top: $(element).scrollTop(), left: $(element).scrollLeft() };
+    offset = {
+      top: document.scrollingElement.scrollTop,
+      left: document.scrollingElement.scrollLeft
+    };
   } else {
     offset = $(element).offset();
   }

@@ -15,7 +15,6 @@ import computed, { bool, filterBy } from 'ember-computed';
 import observer, { addObserver, removeObserver } from 'ember-metal/observer';
 import { A } from 'ember-array/utils';
 import on from 'ember-evented/on';
-import $ from 'jquery';
 import integrates from '../../computed/integrates';
 import classify from '../../computed/classify';
 
@@ -54,7 +53,7 @@ export default Component.extend({
 
   /**
     The target element of the pop over.
-    Can be a view, id, or element.
+    Can be a component, id, or element.
    */
   for: null,
 
@@ -163,13 +162,13 @@ export default Component.extend({
     set(this, 'pressed', false);
     var targets = get(this, 'targets');
     var element = get(this, 'element');
-    var clicked = evt.target === element || $.contains(element, evt.target);
+    var clicked = evt.target === element || element.contains(evt.target);
     var clickedAnyTarget = targets.any(function (target) {
-      return target.isClicked(evt);
+      return evt.target === target.element || target.element.contains(evt.target);
     });
 
     if (!clicked && !clickedAnyTarget) {
-      targets.setEach('pressed', false);
+      this.hide();
     }
   },
 
@@ -186,14 +185,6 @@ export default Component.extend({
       return null;
     }
   }),
-
-  activate(target) {
-    get(this, 'targets').findBy('target', target).set('active', true);
-  },
-
-  deactivate(target) {
-    get(this, 'targets').findBy('target', target).set('active', false);
-  },
 
   /**
     Before the menu is shown, setup click events
@@ -239,40 +230,65 @@ export default Component.extend({
 
   retile() {
     if (get(this, 'active')) {
+      this.notifyPropertyChange('targetRect');
+      this.notifyPropertyChange('boundingElement');
       scheduleOnce('afterRender', this, 'tile');
     }
   },
 
+  targetRect: computed('activeTarget', {
+    get() {
+      let target = get(this, 'activeTarget') ||
+          { element: document.querySelector('#' + get(this, 'for')) };
+      if (target.element) {
+        return Rectangle.ofElement(target.element, 'borders');
+      }
+    }
+  }),
+
+  boundingElement: computed({
+    get() {
+      return scrollParent(get(this, 'element').parentElement);
+    }
+  }),
+
+  boundingRect: computed('boundingElement', {
+    get() {
+      let boundingElement = get(this, 'boundingElement');
+      if (boundingElement === document.scrollingElement) {
+        return Rectangle.ofElement(document);
+      }
+      return Rectangle.ofElement(boundingElement);
+    }
+  }),
+
   tile() {
-    let target = get(this, 'activeTarget') || { element: $('#' + get(this, 'for'))[0] };
+    let element = get(this, 'element');
+    let targetRect = get(this, 'targetRect');
+
+    let boundingElement = get(this, 'boundingElement')
+    let boundingRect = get(this, 'boundingRect');
+
     // Don't tile if there's nothing to constrain the pop over around
-    if (!get(this, 'element') || !target) {
+    if (!element || !targetRect) {
       return;
     }
 
-    let $popover = this.$('> .pop-over-compass');
+    let popover = element.querySelector(':scope > .pop-over-compass');
     if (get(this, 'supportsLiquidFire')) {
-      $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
-      if (this.$('> .liquid-animating').length) {
-        this.$('> .liquid-container > .liquid-child').css({
-          width: $(target.element).width() + 'px',
-          height: $(target.element).height() + 'px'
-        });
+      popover = element.querySelector(':scope > .liquid-container > .liquid-child > .pop-over-compass');
+      if (element.querySelector(':scope > .liquid-animating')) {
+        let child = element.querySelector(':scope > .liquid-container > .liquid-child');
+        child.width = targetRect.width + 'px';
+        child.height = targetRect.height + 'px';
       }
     }
 
-    let $boundingElement = scrollParent(this.$().parent());
-    let boundingRect = Rectangle.ofElement($boundingElement[0]);
-    let popOverRect = Rectangle.ofElement($popover[0], 'borders');
-    let targetRect = Rectangle.ofElement(target.element, 'borders');
+    let popoverRect = Rectangle.ofElement(popover, 'borders');
 
-    let $pointer = $popover.find('> .pop-over-container > .pop-over-pointer');
-    let pointerRect;
-    if ($pointer.length) {
-      pointerRect = Rectangle.ofElement($pointer[0], 'borders');
-    } else {
-      pointerRect = new Rectangle(0,0,0,0);
-    }
+    let pointer = popover.querySelector(':scope > .pop-over-container > .pop-over-pointer');
+    let pointerRect = pointer ? Rectangle.ofElement(pointer, 'borders') : new Rectangle(0,0,0,0);
+
     let shouldCover = this.cover;
     let constraints = [];
 
@@ -297,7 +313,7 @@ export default Component.extend({
 
     let solution;
     for (let i = 0, len = constraints.length; i < len; i++) {
-      solution = constraints[i].solveFor(boundingRect, targetRect, popOverRect, pointerRect, shouldCover);
+      solution = constraints[i].solveFor(boundingRect, targetRect, popoverRect, pointerRect, shouldCover);
       if (solution.valid) { break; }
     }
 
@@ -308,51 +324,44 @@ export default Component.extend({
 
     set(this, 'hidden', Rectangle.intersection(boundingRect, targetRect).area === 0);
 
-    if ($boundingElement[0] === document) {
-      popOverRect.translateY(-1 * $boundingElement.scrollTop());
-      popOverRect.translateX(-1 * $boundingElement.scrollLeft());
-      targetRect.translateY(-1 * $boundingElement.scrollTop());
-      targetRect.translateX(-1 * $boundingElement.scrollLeft());
+    if (boundingElement === document.scrollingElement) {
+      popoverRect.translateY(-1 * boundingElement.scrollTop);
+      popoverRect.translateX(-1 * boundingElement.scrollLeft);
+      targetRect.translateY(-1 * boundingElement.scrollTop);
+      targetRect.translateX(-1 * boundingElement.scrollLeft);
     }
-
 
     if (get(this, 'supportsLiquidFire')) {
       // Position the container over the target
-      this.$('> .liquid-container').css({
-        top: targetRect.top + 'px',
-        left: targetRect.left + 'px'
-      });
+      let container = element.querySelector(':scope > .liquid-container');
+      let centerY = targetRect.top + targetRect.height / 2;
+      let centerX = targetRect.left + targetRect.width / 2;
+      container.style.top = centerY + 'px';
+      container.style.left = centerX + 'px';
 
-      $popover.css({
-        top: (popOverRect.top - targetRect.top) + 'px',
-        left: (popOverRect.left - targetRect.left) + 'px',
-        width: popOverRect.width + 'px',
-        height: popOverRect.height + 'px'
-      });
+      popover.style.top = (popoverRect.top - centerY) + 'px';
+      popover.style.left = (popoverRect.left - centerX) + 'px';
+      popover.style.width = popoverRect.width + 'px';
+      popover.style.height = popoverRect.height + 'px';
 
       // Prevent flashing caused by liquid-fire
-      $popover.css({ opacity: 0 });
-      scheduleOnce('afterRender', this, 'showPopOver', $popover);
+      popover.style.opacity = 0;
+      scheduleOnce('afterRender', this, 'showPopOver', popover);
     } else {
-      $popover.css({
-        top: popOverRect.top + 'px',
-        left: popOverRect.left + 'px',
-        width: popOverRect.width + 'px',
-        height: popOverRect.height + 'px'
-      });
+      popover.style.top = popoverRect.top + 'px';
+      popover.style.left = popoverRect.left + 'px';
+      popover.style.width = popoverRect.width + 'px';
+      popover.style.height = popoverRect.height + 'px';
     }
 
-    if ($pointer.length) {
-      $pointer.css({
-        top: pointerRect.top + 'px',
-        left: pointerRect.left + 'px'
-      });
+    if (pointer) {
+      pointer.style.top = pointerRect.top + 'px';
+      pointer.style.left = pointerRect.left + 'px';
     }
-
   },
 
-  showPopOver($popover) {
-    $popover.css({ opacity: 1 });
+  showPopOver(popover) {
+    popover.style.opacity = 1;
   }
 
 });

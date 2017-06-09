@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
-const { run: { bind, next, cancel } } = Ember;
+const { run: { bind, later, cancel } } = Ember;
 
 function labelFor(element) {
   while (element.parent) {
@@ -43,18 +43,19 @@ function velocityFromEvents(lastEvt, evt) {
  */
 export default class {
 
-  threshold = 0.1
-
-  constructor() {
+  constructor(threshold=0.1) {
     this._listeners = Ember.A();
+    this.threshold = threshold;
+    this._uid = 0;
   }
 
   beginListening() {
     let handlers = this._handlers = {
       focusin:    bind(this, 'focus'),
       focusout:   bind(this, 'blur'),
+      mousemove: bind(this, 'mousemove'),
       mouseleave: bind(this, 'mouseleave'),
-      mousedown:  bind(this, 'mousedown')
+      mousedown:  bind(this, 'mousedown'),
       mouseup:    bind(this, 'mouseup')
     };
 
@@ -102,7 +103,7 @@ export default class {
     });
   }
 
-  addEventListeners(selector, handlers) {
+  addEventListeners(element, handlers) {
     if (this._listeners.length === 0) {
       this.beginListening();
     }
@@ -112,30 +113,30 @@ export default class {
 
     for (let i = 0, len = this._listeners.length; i < len; i++) {
       let listener = this._listeners[i];
-      Ember.assert(`Cannot add multiple listeners for the same element ${selector}, ${listener.selector}`, document.querySelector(selector) !== document.querySelector(listener.selector));
 
-      if (document.querySelector(`${listener.selector} ${selector}`) ||
-          document.querySelector(selector) === document.querySelector(listener.selector)) {
+      if (listener.element.contains(element) ||
+          element === listener.element) {
         insertAt = i;
       }
     }
 
-    this._listeners.splice(insertAt, 0, { selector, handlers });
+    let id = this._uid++;
+    this._listeners.splice(insertAt, 0, { id, element, handlers });
+    return id;
   }
 
-  removeEventListeners(selector) {
-    this._listeners.removeObject(this._listeners.findBy('selector', selector));
+  removeEventListeners(id) {
+    this._listeners.removeObject(this._listeners.findBy('id', id));
 
     if (this._listeners.length === 0) {
       this.endListening();
     }
   }
 
-  findListener(evt) {
+  findListeners(evt) {
     let label = labelFor(evt.target);
 
-    return this._listeners.find(function ({ selector }) {
-      let element = document.querySelector(selector);
+    return this._listeners.filter(function ({ element }) {
       return element === evt.target ||
              element.contains(evt.target) ||
              (label && label.attributes.for.value === element.id);
@@ -171,19 +172,33 @@ export default class {
   }
 
   mouseenter(evt) {
-    this._willLeave = false;
-    this.triggerEvent('pointerenter', evt);
-    this._willLeave = false;
+    let oldEnteredListeners = this._enteredListeners || [];
+    let enteredListeners = this.findListeners(evt);
+
+    oldEnteredListeners.forEach(function (oldListener) {
+      let exists = enteredListeners.indexOf(oldListener) !== -1;
+      if (!exists) {
+        oldListener.handlers.pointerleave(evt);
+      }
+    });
+
+    enteredListeners.forEach(function (listener) {
+      let exists = oldEnteredListeners.indexOf(listener) !== -1;
+      if (!exists) {
+        listener.handlers.pointerenter(evt);
+      }
+    });
+
+    this._enteredListeners = enteredListeners;
   }
 
   mouseleave(evt) {
-    this._willLeave = true;
-    later(() => {
-      if (this._willLeave) {
-        this._willLeave = false;
-        this.triggerEvent('pointerleave', evt);
+    let listeners = this._enteredListeners;
+    if (listeners) {
+      for (let i = 0, len = listeners.length; i < len; i++) {
+        listeners[i].handlers.pointerleave(evt);
       }
-    }, 150);
+    }
   }
 
   mousedown(evt) {
@@ -221,9 +236,12 @@ export default class {
   }
 
   triggerEvent(eventName, evt) {
-    let listener = this.findListener(evt);
-    if (listener) {
-      listener.handlers[eventName](evt);
+    console.log(eventName, evt);
+    let listeners = this.findListeners(evt);
+    if (listeners) {
+      for (let i = 0, len = listeners.length; i < len; i++) {
+        listeners[i].handlers[eventName](evt);
+      }
       return true;
     }
     return false;

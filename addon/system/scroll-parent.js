@@ -1,20 +1,24 @@
-import Ember from 'ember';
-const { $ } = Ember;
-
-export default function ($element) {
-  let position = $element.css('position');
+export default function (element) {
+  let position = element.style.position;
   let excludeStaticParent = position === 'absolute';
-  let $scrollParent = $element.parents().filter(function () {
-    let $parent = $(this);
-    if (excludeStaticParent && $parent.css('position') === 'static') {
-      return false;
-    }
-    let { overflow, overflowX, overflowY } = $parent.css(['overflow', 'overflowX', 'overflowY']);
-    return /(auto|scroll)/.test(overflow + overflowX + overflowY);
-  }).eq(0);
+  let parent = element.parentElement;
 
-  if ($scrollParent.length === 0) {
-    $scrollParent = $(document);
+  while (parent) {
+    if (excludeStaticParent && parent.style.position === 'static') {
+      parent = parent.parentElement;
+      continue;
+    }
+
+    let { overflow, overflowX, overflowY } = parent.style;
+    if (/(auto|scroll)/.test(overflow + overflowX + overflowY)) {
+      break;
+    }
+    parent = parent.parentElement;
   }
-  return position === 'fixed' || $scrollParent;
+
+  if (parent == null) {
+    parent = document.scrollingElement;
+  }
+
+  return position === 'fixed' || parent;
 }

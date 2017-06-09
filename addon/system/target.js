@@ -1,11 +1,12 @@
 import Ember from "ember";
+import EventListener from './event-listener';
 
 import get from 'ember-metal/get';
 import set from 'ember-metal/set';
-import { copy, generateGuid } from 'ember-metal/utils';
+import { copy } from 'ember-metal/utils';
 import computed from 'ember-computed';
 import { w } from 'ember-string';
-import { bind, next, later } from 'ember-runloop';
+import { bind, next } from 'ember-runloop';
 import { assert } from 'ember-metal/utils';
 import { A } from 'ember-array/utils';
 import Evented from 'ember-evented';
@@ -66,16 +67,13 @@ function poll(target, scope, fn) {
   }
 }
 
+const listener = new EventListener();
 
 export default EmberObject.extend(Evented, {
 
-  init: function () {
+  init() {
     let target = get(this, 'target');
     assert("You cannot make the {{pop-over}} a target of itself.", get(this, 'component') !== target);
-
-    this.eventManager = {
-
-    };
 
     if (get(target, 'element')) {
       this.attach();
@@ -86,7 +84,7 @@ export default EmberObject.extend(Evented, {
     }
   },
 
-  attach: function () {
+  attach() {
     let element = getElementForTarget(this.target);
 
     // Already attached or awaiting an element to exist
@@ -95,26 +93,18 @@ export default EmberObject.extend(Evented, {
     set(this, 'attached', true);
     set(this, 'element', element);
 
-    let id = element.id;
-    if (id == null) {
-      id = generateGuid();
-      element.id = id;
-    }
-
-    listener.addEventListeners(`#${id}`, {
+    this._listenerId = listener.addEventListeners(element, {
       focus:        bind(this, 'focus'),
       blur:         bind(this, 'blur'),
       pointerenter: bind(this, 'pointerEnter'),
       pointerleave: bind(this, 'pointerLeave'),
-      pointerdown:  bind(this, 'pointerDown')
+      pointerdown:  bind(this, 'pointerDown'),
       pointerup:    bind(this, 'pointerUp')
     });
   },
 
-  detach: function () {
-    let element = this.element;
-    let id = element.id;
-    listener.removeEventListeners(`#${id}`);
+  detach() {
+    listener.removeEventListeners(this._listenerId);
 
     set(this, 'element', null);
     set(this, 'target', null);
@@ -128,24 +118,6 @@ export default EmberObject.extend(Evented, {
   }),
 
   active: computed('focused', 'hovered', 'pressed', 'component.hovered', 'component.pressed', {
-    set(key, value) {
-      let activators = get(this, 'on');
-      if (value) {
-        if (includes(activators, 'focus')) {
-          set(this, 'focused', true);
-        } else if (includes(activators, 'hover')) {
-          set(this, 'hovered', true);
-        } else if (includes(activators, 'click')) {
-          set(this, 'pressed', true);
-        }
-      } else {
-        set(this, 'focused', false);
-        set(this, 'hovered', false);
-        set(this, 'pressed', false);
-      }
-      return value;
-    },
-
     get() {
       let activators = get(this, 'on');
       let active = false;
@@ -169,6 +141,24 @@ export default EmberObject.extend(Evented, {
       }
 
       return !!active;
+    },
+
+    set(key, value) {
+      let activators = get(this, 'on');
+      if (value) {
+        if (includes(activators, 'focus')) {
+          set(this, 'focused', true);
+        } else if (includes(activators, 'hover')) {
+          set(this, 'hovered', true);
+        } else if (includes(activators, 'click')) {
+          set(this, 'pressed', true);
+        }
+      } else {
+        set(this, 'focused', false);
+        set(this, 'hovered', false);
+        set(this, 'pressed', false);
+      }
+      return value;
     }
   }),
 
@@ -201,7 +191,7 @@ export default EmberObject.extend(Evented, {
     element.focus();
   }),
 
-  pointerUp: function (evt) {
+  pointerUp: guard(function () {
     let activators = get(this, 'on');
 
     if (includes(activators, 'click') && includes(activators, 'hold')) {
@@ -214,7 +204,7 @@ export default EmberObject.extend(Evented, {
       }
     }
     return true;
-  }
+  })
 
 });
 
