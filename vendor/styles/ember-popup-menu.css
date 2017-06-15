@@ -54,6 +54,10 @@
   pointer-events: none;
 }
 
+.liquid-pop-over.liquid-animating {
+  pointer-events: none;
+}
+
 .pop-over-pointer.orient-above {
   border-top-color: inherit;
   bottom: -20px;

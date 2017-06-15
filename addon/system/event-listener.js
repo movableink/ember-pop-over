@@ -43,7 +43,7 @@ function velocityFromEvents(lastEvt, evt) {
  */
 export default class {
 
-  constructor(threshold=0.1) {
+  constructor(threshold=0.05) {
     this._listeners = Ember.A();
     this.threshold = threshold;
     this._uid = 0;
