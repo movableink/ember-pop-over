@@ -1,4 +1,3 @@
-/* global node: true */
 module.exports = {
   name: 'ember-pop-over',
   options: {
