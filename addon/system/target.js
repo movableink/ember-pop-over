@@ -1,17 +1,15 @@
+import { copy } from '@ember/object/internals';
+import { later, next, bind } from '@ember/runloop';
+import { assert } from '@ember/debug';
+import { A } from '@ember/array';
+import Evented from '@ember/object/evented';
 import Ember from "ember";
+import EmberObject, { computed, set, get } from '@ember/object';
 const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 
-import get from 'ember-metal/get';
-import set from 'ember-metal/set';
-import { copy, generateGuid } from 'ember-metal/utils';
-import computed from 'ember-computed';
-import { w } from 'ember-string';
-import { bind, next, later } from 'ember-runloop';
 import $ from 'jquery';
-import { assert } from 'ember-metal/utils';
-import { A } from 'ember-array/utils';
-import Evented from 'ember-evented';
-import EmberObject from 'ember-object';
+
+let guid = 0;
 
 function includes(haystack, needle) {
   if (haystack.includes) {
@@ -66,7 +64,7 @@ function parseActivators(value) {
   if (value) {
     let activators = value;
     if (typeof value === "string") {
-      activators = A(w(value));
+      activators = A(value.split(' '));
     }
     assert(
       `${value} are not valid activators.
@@ -127,7 +125,7 @@ export default EmberObject.extend(Evented, {
 
     let id = $element.attr('id');
     if (id == null) {
-      id = generateGuid();
+      id = `popover-${guid++}`;
       $element.attr('id', id);
     }
 
@@ -199,7 +197,7 @@ export default EmberObject.extend(Evented, {
     return false;
   },
 
-  active: computed('focused', 'hovered', 'pressed', 'component.hovered', 'component.pressed', {
+  active: computed('focused', 'hovered', 'pressed', 'component.{hovered,pressed}', {
     set(key, value) {
       let activators = get(this, 'on');
       if (value) {

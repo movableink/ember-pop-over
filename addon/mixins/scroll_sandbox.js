@@ -1,11 +1,7 @@
-import Ember from "ember";
-
-const debounce = Ember.run.debounce;
-const set = Ember.set;
-const get = Ember.get;
-const bind = Ember.run.bind;
-
-const on = Ember.on;
+import Mixin from '@ember/object/mixin';
+import { debounce, bind } from '@ember/runloop';
+import { on } from '@ember/object/evented';
+import { set, get } from '@ember/object';
 
 // Normalize mouseWheel events
 function mouseWheel(evt) {
@@ -58,7 +54,7 @@ function mouseWheel(evt) {
   @class ScrollSandbox
   @extends Ember.Mixin
  */
-export default Ember.Mixin.create({
+export default Mixin.create({
 
   setupScrollHandlers: on('didInsertElement', function () {
     this._mouseWheelHandler = bind(this, mouseWheel);

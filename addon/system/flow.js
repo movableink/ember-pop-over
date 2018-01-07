@@ -1,7 +1,7 @@
-import Object from 'ember-object';
+import EmberObject from '@ember/object';
 import Orientation from './orientation';
 
-export default Object.extend({
+export default EmberObject.extend({
   init() {
     this.orientAbove = Orientation.create({ orientation: 'above' });
     this.orientBelow = Orientation.create({ orientation: 'below' });

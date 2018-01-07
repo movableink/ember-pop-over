@@ -1,6 +1,4 @@
-import Ember from "ember";
-
-var run = Ember.run;
+import { run } from '@ember/runloop';
 
 export default function (selector) {
   andThen(function () {

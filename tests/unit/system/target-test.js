@@ -1,4 +1,4 @@
-import Ember from "ember";
+import Component from '@ember/component';
 import Target from "ember-pop-over/system/target";
 import { moduleForComponent, test } from "ember-qunit";
 import hbs from 'htmlbars-inline-precompile';
@@ -32,7 +32,7 @@ test('"for" takes an element', function (assert) {
 });
 
 test('"for" takes a component', function (assert) {
-  this.register('component:place-holder', Ember.Component.extend({
+  this.register('component:place-holder', Component.extend({
     didInsertElement() {
       this.get('oninsert')(this);
     }

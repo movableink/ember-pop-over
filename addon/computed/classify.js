@@ -1,5 +1,4 @@
-import computed from 'ember-computed';
-import get from 'ember-metal/get';
+import { get, computed } from '@ember/object';
 
 export default function (template) {
   var dependentKeys = template.match(/{{([^}]*)}}/g).map(function (key) {

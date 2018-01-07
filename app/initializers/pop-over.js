@@ -1,8 +1,7 @@
 import Flow from "ember-pop-over/system/flow";
-import config from "../config/environment";
 import * as flows from "../flows";
-import get from 'ember-metal/get';
-import { A } from 'ember-array/utils';
+import { get } from '@ember/object';
+import { A } from '@ember/array';
 
 export var initialize = function (app) {
   A(Object.keys(flows)).forEach(function (flowName) {

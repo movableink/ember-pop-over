@@ -1,26 +1,29 @@
-import Ember from "ember";
+import { bool, filterBy } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
+import { assert } from '@ember/debug';
+import {
+  later,
+  once,
+  next,
+  scheduleOnce,
+  bind
+} from '@ember/runloop';
+import { observer, computed, set, get } from '@ember/object';
+import { removeObserver, addObserver } from '@ember/object/observers';
+import { on } from '@ember/object/evented';
+import { A } from '@ember/array';
+import { getOwner } from '@ember/application';
 import layout from './template';
 
-import { assert } from 'ember-metal/utils';
-import Component from 'ember-component';
 import Target from '../../system/target';
 import Rectangle from '../../system/rectangle';
 import gravity from '../../system/gravity';
 import scrollParent from '../../system/scroll-parent';
 
-import { bind, scheduleOnce, next, once, later } from 'ember-runloop';
-import get from 'ember-metal/get';
-import set from 'ember-metal/set';
-import computed, { bool, filterBy } from 'ember-computed';
-import observer, { addObserver, removeObserver } from 'ember-metal/observer';
-import { A } from 'ember-array/utils';
-import on from 'ember-evented/on';
 import $ from 'jquery';
 import integrates from '../../computed/integrates';
 import classify from '../../computed/classify';
-import service from 'ember-service/inject';
-
-const getOwner = Ember.getOwner;
 
 export default Component.extend({
   _mouseHover: service('-mouse-hover'),

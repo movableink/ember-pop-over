@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { later } from '@ember/runloop';
 import moduleForAcceptance from '../helpers/module-for-acceptance';
 import mouseUp from '../helpers/mouse-up';
 import simpleClick from '../helpers/simple-click';
@@ -10,10 +10,9 @@ import focus from '../helpers/focus';
 import blur from '../helpers/blur';
 import { test } from 'ember-qunit';
 
-var later = Ember.run.later;
 var wait = function (ms) {
   return andThen(function () {
-    var defer = Ember.RSVP.defer();
+    var defer = defer();
     later(defer, 'resolve', ms);
     return defer.promise;
   });

@@ -1,18 +1,16 @@
-import Ember from "ember";
+import { reads } from '@ember/object/computed';
+import { isArray, A } from '@ember/array';
+import EmberObject, { get, set } from '@ember/object';
 import Constraint from "./constraint";
 
-const reads = Ember.computed.reads;
 const slice = Array.prototype.slice;
-const get = Ember.get;
-const set = Ember.set;
-const isArray = Ember.isArray;
 
-export default Ember.Object.extend({
+export default EmberObject.extend({
 
   init: function () {
     this._super();
 
-    this._constraints = Ember.A();
+    this._constraints = A();
     set(this, 'defaultConstraint', {
       orientation: get(this, 'orientation')
     });
@@ -25,7 +23,7 @@ export default Ember.Object.extend({
   constraints: reads('defaultConstraint'),
 
   andSnapTo: function (snapGuidelines) {
-    let constraints = Ember.A();
+    let constraints = A();
     let guideline;
     let orientation = get(this, 'orientation');
 
@@ -44,7 +42,7 @@ export default Ember.Object.extend({
     }
 
     if (!isArray(get(this, 'constraints'))) {
-      set(this, 'constraints', Ember.A());
+      set(this, 'constraints', A());
     }
 
     this._constraints.pushObjects(constraints);
@@ -61,7 +59,7 @@ export default Ember.Object.extend({
     });
 
     if (!isArray(get(this, 'constraints'))) {
-      set(this, 'constraints', Ember.A());
+      set(this, 'constraints', A());
     }
 
     this._constraints.pushObject(constraint);

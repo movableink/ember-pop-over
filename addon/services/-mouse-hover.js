@@ -1,8 +1,9 @@
-import Ember from 'ember';
-import get from 'ember-metal/get';
+import { get } from '@ember/object';
+import { assert } from '@ember/debug';
+import EmberMap from '@ember/map';
+import { throttle, cancel, later } from '@ember/runloop';
+import Service from '@ember/service';
 import $ from 'jquery';
-import { later, cancel } from 'ember-runloop';
-import { assert } from 'ember-metal/utils';
 
 function distance(x1, x2, y1, y2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -32,7 +33,7 @@ function velocityFromEvents(lastEvt, evt) {
   @class HoverIntent
   @extends Ember.Service
  */
-export default Ember.Service.extend({
+export default Service.extend({
   threshold: 0.1,
 
   init(...args) {
@@ -40,7 +41,7 @@ export default Ember.Service.extend({
 
     this._mousemove = (evt) => {
       this._lastEvt = evt;
-      Ember.run.throttle(this, this.mouseMove, evt, 50);
+      throttle(this, this.mouseMove, evt, 50);
     }
     $(document).on('mousemove', this._mousemove);
   },
@@ -52,7 +53,7 @@ export default Ember.Service.extend({
   },
 
   addEventListener(element, callback) {
-    let listeners = this._listeners = this._listeners || Ember.Map.create();
+    let listeners = this._listeners = this._listeners || EmberMap.create();
 
     assert(listeners.has(element), 'The element you provided was already registered for hover events');
     listeners.set(element, callback);

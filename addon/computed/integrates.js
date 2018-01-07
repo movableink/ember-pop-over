@@ -1,5 +1,5 @@
 /* global require */
-import computed from 'ember-computed';
+import { computed } from '@ember/object';
 
 export default function (module) {
   return computed(function () {

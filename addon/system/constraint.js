@@ -1,8 +1,6 @@
-import Ember from "ember";
-import { A } from 'ember-array/utils';
-import { assert } from 'ember-metal/utils';
-
-const { mixin, compare } = Ember;
+import { assert } from '@ember/debug';
+import { A } from '@ember/array';
+import { compare } from '@ember/utils';
 
 function orientAbove(target, popover, pointer, over) {
   const shiftY = over ? 0 : popover.height + pointer.height;
@@ -210,11 +208,11 @@ Constraint.prototype.solveFor = function (boundingRect, targetRect, popoverRect,
     switch (orientation) {
     case 'above':
     case 'below':
-      mixin(result, slideHorizontally(this.guideline, boundingRect, targetRect, popoverRect, pointerRect, positionOver));
+      Object.assign(result, slideHorizontally(this.guideline, boundingRect, targetRect, popoverRect, pointerRect, positionOver));
       break;
     case 'left':
     case 'right':
-      mixin(result, slideVertically(this.guideline, boundingRect, targetRect, popoverRect, pointerRect, positionOver));
+      Object.assign(result, slideVertically(this.guideline, boundingRect, targetRect, popoverRect, pointerRect, positionOver));
       break;
     }
 
