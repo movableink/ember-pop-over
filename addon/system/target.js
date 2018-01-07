@@ -3,13 +3,18 @@ import { later, next, bind } from '@ember/runloop';
 import { assert } from '@ember/debug';
 import { A } from '@ember/array';
 import Evented from '@ember/object/evented';
-import Ember from "ember";
 import EmberObject, { computed, set, get } from '@ember/object';
-const isSimpleClick = Ember.ViewUtils.isSimpleClick;
 
 import $ from 'jquery';
 
 let guid = 0;
+
+function isSimpleClick(evt) {
+  let modifier = event.shiftKey || event.metaKey || event.altKey || event.ctrlKey;
+  let secondaryClick = event.which > 1; // IE9 may return undefined
+
+  return !modifier && !secondaryClick;
+}
 
 function includes(haystack, needle) {
   if (haystack.includes) {
