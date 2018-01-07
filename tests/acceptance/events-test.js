@@ -1,3 +1,4 @@
+import { defer } from 'rsvp';
 import { later } from '@ember/runloop';
 import moduleForAcceptance from '../helpers/module-for-acceptance';
 import mouseUp from '../helpers/mouse-up';
@@ -12,9 +13,9 @@ import { test } from 'ember-qunit';
 
 var wait = function (ms) {
   return andThen(function () {
-    var defer = defer();
-    later(defer, 'resolve', ms);
-    return defer.promise;
+    var _defer = defer();
+    later(_defer, 'resolve', ms);
+    return _defer.promise;
   });
 }
 

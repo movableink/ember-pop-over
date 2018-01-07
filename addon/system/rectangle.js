@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { get } from '@ember-object';
+import { get } from '@ember/object';
 import { getLayout } from "dom-ruler";
 
 let Rectangle = function (x, y, width, height) {
