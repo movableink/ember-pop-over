@@ -1,0 +1,73 @@
+<div class="other"></div>
+
+<div class="padding-vertical-xl">
+  <div id="click">Click<span></span></div>
+</div>
+{{#pop-over for="click" on="click" class="background-color-siracha border-color-siracha white-space-nowrap"}}
+  <div class="padding-vertical-s padding-horizontal-m">
+    I have been clicked.
+  </div>
+{{/pop-over}}
+
+<div class="padding-vertical-xl">
+  <div id="click-hold">Click + Hold<span></span></div>
+</div>
+{{#pop-over for="click-hold" on="click hold" class="background-color-dark-goldenrod border-color-dark-goldenrod white-space-nowrap"}}
+  <div class="padding-vertical-s padding-horizontal-m">
+    I have been clicked / held.
+  </div>
+{{/pop-over}}
+
+<div class="padding-vertical-xl">
+  <span id="hover">Hover<span></span></span>
+</div>
+{{#pop-over for="hover" on="hover" class="background-color-green-tea border-color-green-tea white-space-nowrap"}}
+  <div class="padding-vertical-s padding-horizontal-m">
+    I have been hovered.
+  </div>
+{{/pop-over}}
+
+<div class="padding-vertical-xl">
+  <span id="hover-hold">Hover + Hold<span></span></span>
+</div>
+{{#pop-over id="hover-hold-menu" for="hover-hold" on="hover hold" class="background-color-pond border-color-pond white-space-nowrap"}}
+  <div class="padding-vertical-s padding-horizontal-m">
+    I have been hovered / held.<span class="inner"></span>
+  </div>
+{{/pop-over}}
+
+<div class="padding-vertical-xl">
+  <div id="focus" tabindex=0>Focus<span></span></div>
+</div>
+{{#pop-over for="focus" on="focus" class="background-color-violet border-color-violet white-space-nowrap"}}
+  <div class="padding-vertical-s padding-horizontal-m">
+    I have been focused.
+  </div>
+{{/pop-over}}
+
+<div class="padding-vertical-xl">
+  <div id="hover-focus" tabindex=0>Hover + Focus<span></span></div>
+</div>
+{{#pop-over for="hover-focus" on="focus hover" class="background-color-pink border-color-pink white-space-nowrap"}}
+  <div class="padding-vertical-s padding-horizontal-m">
+    I have been focused / hovered.
+  </div>
+{{/pop-over}}
+
+
+<table>
+  {{#each (range 0 10) as |i|}}
+    <tr>
+      {{#each (range 0 10) as |j|}}
+        <td>
+          <span id='cell-{{i}}-{{j}}'></span>
+          {{#pop-over for=(concat 'cell-' i '-' j) on='hover' class='white-space-nowrap'}}
+            <div class="padding-vertical-s padding-horizontal-m">
+              {{i}} x {{j}}
+            </div>
+          {{/pop-over}}
+        </td>
+      {{/each}}
+    </tr>
+  {{/each}}
+</table>
