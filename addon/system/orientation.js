@@ -68,7 +68,7 @@ export default Ember.Object.extend({
 
     // Always unshift slide constraints,
     // since they should be handled first
-    get(this, 'constraints').unshiftObjects(constraint);
+    get(this, 'constraints').unshiftObject(constraint);
 
     return this;
   },
