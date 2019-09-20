@@ -1,22 +1,19 @@
+'use strict';
+
 module.exports = {
   name: require('./package').name,
 
   options: {
-    nodeAssets: {
-      'dom-ruler': {
-        srcDir: 'dist/amd',
-        import: ['dom-ruler.js']
+    autoImport: {
+      alias: {
+        'dom-ruler': 'dom-ruler/dist/umd/dom-ruler.js'
       }
     }
   },
 
-  included: function (app) {
+  included(app) {
     this._super.included.apply(this, arguments);
-    app.import('vendor/dom-ruler/dom-ruler.js', {
-      exports: {
-        'dom-ruler': ['default']
-      }
-    });
+
     app.import("vendor/styles/ember-popup-menu.css");
   }
 };
