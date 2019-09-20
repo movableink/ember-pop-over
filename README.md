@@ -15,7 +15,11 @@ For use of the pop-over as a tooltip, the following handlebars will do the trick
 
 ## Installation
 
-* `ember install ember-pop-over`
+```
+ember install ember-pop-over
+```
+
+**Note**: This addon requires that you have [`jQuery` support enabled for your application](https://github.com/emberjs/ember-jquery#installation).
 
 ## Gravity
 
@@ -199,9 +203,9 @@ var DatePicker = Ember.Component.extend({
 
   value: null,
   icon: null,
-  
+
   popover: nearestChild('pop-over'),
-  
+
   attachTargets: function () {
     var popover = get(this, 'popover');
     var icon = get(this, 'icon');
@@ -261,40 +265,40 @@ const get = Ember.get;
 
 var DatePicker = Ember.Component.extend({
   classNames: ['date-picker'],
-  
+
   value: null,
   icon: function () {
     return generateGuid();
   }.property(),
-  
+
   popover: nearestChild('pop-over'),
-  
+
   attachTargets: function () {
     var popover = get(this, 'popover');
     var icon = get(this, 'icon');
 
     popover.addTarget(icon, {
-      on: "click"  
+      on: "click"
     });
   }.on('didInsertElement'),
-  
+
   actions: {
     previousMonth: function () {
       var previousMonth = get(this, 'firstOfMonth').clone().subtract(1, 'month');
       set(this, 'month', previousMonth.month());
       set(this, 'year', previousMonth.year());
     },
-    
+
     nextMonth: function () {
       var nextMonth = get(this, 'firstOfMonth').clone().add(1, 'month');
       set(this, 'month', nextMonth.month());
       set(this, 'year', nextMonth.year());
     }
   },
-  
+
   month: null,
   year: null,
-  
+
   firstOfMonth: function () {
     return moment({ year: get(this, 'year'), month: get(this, 'month') });
   }.property('year', 'month')
@@ -318,14 +322,14 @@ const reads = Ember.computed.reads;
 
 var DatePicker = Ember.Component.extend({
   classNames: ['date-picker'],
-  
+
   value: null,
   icon: function () {
     return generateGuid();
   }.property(),
-  
+
   popover: nearestChild('pop-over'),
-  
+
   attachTargets: function () {
     var popover = get(this, 'popover');
     var icon = get(this, 'icon');
@@ -334,40 +338,40 @@ var DatePicker = Ember.Component.extend({
       on: "click"
     });
   }.on('didInsertElement'),
-  
+
   actions: {
     previousMonth: function () {
       var previousMonth = get(this, 'firstOfMonth').clone().subtract(1, 'month');
       set(this, 'month', previousMonth.month());
       set(this, 'year', previousMonth.year());
     },
-    
+
     nextMonth: function () {
       var nextMonth = get(this, 'firstOfMonth').clone().add(1, 'month');
       set(this, 'month', nextMonth.month());
       set(this, 'year', nextMonth.year());
     }
   },
-  
+
   month: reads('currentMonth'),
   year: reads('currentYear'),
-  
+
   firstOfMonth: function () {
     return moment({ year: get(this, 'year'), month: get(this, 'month') });
   }.property('year', 'month'),
-  
+
   currentMonth: function () {
     return get(this, 'value') ?
            get(this, 'value').getMonth() :
            new Date().getMonth();
   }.property(),
-  
+
   currentYear: function () {
     return get(this, 'value') ?
            get(this, 'value').getFullYear() :
            new Date().getFullYear();
   }.property(),
-  
+
   displayValue: function () {
     var value = get(this, 'value');
     return value ? moment(value).format("MM/DD/YYYY") : null;
@@ -402,14 +406,14 @@ const get = Ember.get;
 var CalendarMonth = Ember.Component.extend({
   classNames: ['calendar-month'],
   tagName: "table",
-  
+
   dayNames: function () {
     var firstWeek = get(this, 'weeks.firstObject');
     return firstWeek.map(function (day) {
       return moment(day).format("ddd");
     });
   }.property('weeks'),
-  
+
   weeks: function () {
     var month = get(this, 'month');
     var day = month.clone().startOf('week');
@@ -480,22 +484,22 @@ var CalendarDay = Ember.Component.extend({
 
   tagName: "td",
   classNameBindings: ['isSelected:selected', 'isToday', 'isDisabled:disabled'],
-  
+
   datePicker: nearestParent('date-picker'),
   selection: reads('datePicker.value'),
-  
+
   isToday: function () {
     return moment(get(this, 'value')).isSame(new Date(), 'day');
   }.property('value'),
-  
+
   isSelected: function () {
     return moment(get(this, 'value')).isSame(get(this, 'selection'), 'day');
   }.property('value', 'selection'),
-  
+
   isDisabled: function () {
     return !moment(get(this, 'value')).isSame(get(this, 'month'), 'month');
   }.property('value', 'month'),
-  
+
   click: function () {
     if (get(this, 'isDisabled')) { return; }
     get(this, 'datePicker').send('selectDate', get(this, 'value'));
@@ -529,9 +533,9 @@ var DatePicker = Ember.Component.extend({
   icon: function () {
     return generateGuid();
   }.property(),
-  
+
   popover: nearestChild('pop-over'),
-  
+
   attachTargets: function () {
     var popover = get(this, 'popover');
     var icon = get(this, 'icon');
@@ -540,29 +544,29 @@ var DatePicker = Ember.Component.extend({
       on: "click"
     });
   }.on('didInsertElement'),
-  
+
   actions: {
     previousMonth: function () {
       var previousMonth = get(this, 'firstOfMonth').clone().subtract(1, 'month');
       set(this, 'month', previousMonth.month());
       set(this, 'year', previousMonth.year());
     },
-    
+
     nextMonth: function () {
       var nextMonth = get(this, 'firstOfMonth').clone().add(1, 'month');
       set(this, 'month', nextMonth.month());
       set(this, 'year', nextMonth.year());
     },
-    
+
     selectDate: function (date) {
       set(this, 'value', date);
       get(this, 'popover').deactivate();
     }
   },
-  
+
   month: reads('currentMonth'),
   year: reads('currentYear'),
-  
+
   firstOfMonth: function () {
     return moment({ year: get(this, 'year'), month: get(this, 'month') });
   }.property('year', 'month'),
@@ -572,13 +576,13 @@ var DatePicker = Ember.Component.extend({
            get(this, 'value').getMonth() :
            new Date().getMonth();
   }.property(),
-  
+
   currentYear: function () {
     return get(this, 'value') ?
            get(this, 'value').getFullYear() :
            new Date().getFullYear();
   }.property(),
-  
+
   displayValue: function () {
     var value = get(this, 'value');
     return value ? moment(value).format("MM/DD/YYYY") : null;
