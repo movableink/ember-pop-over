@@ -1,6 +1,5 @@
 import { later } from '@ember/runloop';
 import mouseUp from '../helpers/mouse-up';
-import simpleClick from '../helpers/simple-click';
 import mouseDown from '../helpers/mouse-down';
 import mouseEnter from '../helpers/mouse-enter';
 import mouseMove from '../helpers/mouse-move';
@@ -24,13 +23,13 @@ module('Acceptance: Events', function(hooks) {
     assert.expect(6);
     await visit('/');
 
-    await simpleClick("#click");
+    await click("#click");
     assert.dom(".pop-over-container").isVisible();
 
-    await simpleClick("#click");
+    await click("#click");
     assert.dom(".pop-over-container").isNotVisible();
 
-    await simpleClick("#click span");
+    await click("#click span");
     assert.dom(".pop-over-container").isVisible();
 
     await click(".other", null, { which: 1 });
@@ -55,10 +54,10 @@ module('Acceptance: Events', function(hooks) {
     await mouseUp("#click-hold");
     assert.dom(".pop-over-container").isNotVisible();
 
-    await simpleClick("#click-hold");
+    await click("#click-hold");
     assert.dom(".pop-over-container").isVisible();
 
-    await simpleClick("#click-hold");
+    await click("#click-hold");
     assert.dom(".pop-over-container").isNotVisible();
   });
 
