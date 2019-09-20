@@ -1,164 +1,122 @@
-import { defer } from 'rsvp';
 import { later } from '@ember/runloop';
-import moduleForAcceptance from '../helpers/module-for-acceptance';
 import mouseUp from '../helpers/mouse-up';
-import simpleClick from '../helpers/simple-click';
 import mouseDown from '../helpers/mouse-down';
 import mouseEnter from '../helpers/mouse-enter';
 import mouseMove from '../helpers/mouse-move';
 import mouseLeave from '../helpers/mouse-leave';
 import focus from '../helpers/focus';
 import blur from '../helpers/blur';
-import { test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupApplicationTest } from 'ember-qunit';
+import { click, visit } from '@ember/test-helpers';
 
-var wait = function (ms) {
-  return andThen(function () {
-    var _defer = defer();
-    later(_defer, 'resolve', ms);
-    return _defer.promise;
+function wait (ms) {
+  return new Promise(function(resolve) {
+    later(resolve, ms);
   });
 }
 
-moduleForAcceptance('Acceptance: Events');
+module('Acceptance: Events', function(hooks) {
+  setupApplicationTest(hooks);
 
-test('on="click"', function (assert) {
-  assert.expect(6);
-  visit('/');
+  test('on="click"', async function(assert) {
+    assert.expect(6);
+    await visit('/');
 
-  simpleClick("#click");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
+    await click("#click");
+    assert.dom(".pop-over-container").isVisible();
+
+    await click("#click");
+    assert.dom(".pop-over-container").isNotVisible();
+
+    await click("#click span");
+    assert.dom(".pop-over-container").isVisible();
+
+    await click(".other", null, { which: 1 });
+    assert.dom(".pop-over-container").isNotVisible();
+
+    await mouseDown("#click");
+    assert.dom(".pop-over-container").isVisible();
+
+    await mouseUp("#click");
+    assert.dom(".pop-over-container").isVisible();
   });
 
-  simpleClick("#click");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
+  test('on="click hold"', async function(assert) {
+    assert.expect(4);
+    await visit('/');
+
+    await mouseDown("#click-hold");
+    assert.dom(".pop-over-container").isVisible();
+
+    await wait(400);
+
+    await mouseUp("#click-hold");
+    assert.dom(".pop-over-container").isNotVisible();
+
+    await click("#click-hold");
+    assert.dom(".pop-over-container").isVisible();
+
+    await click("#click-hold");
+    assert.dom(".pop-over-container").isNotVisible();
   });
 
-  simpleClick("#click span");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
+
+  test('on="hover"', async function(assert) {
+    assert.expect(2);
+    await visit('/');
+
+    await mouseMove("#hover");
+    assert.dom(".pop-over-container").isVisible();
+
+    await mouseLeave("#hover");
+    await wait(200);
+
+    assert.dom(".pop-over-container").isNotVisible();
   });
 
-  click(".other", null, { which: 1 });
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
+  test('on="hover hold"', async function(assert) {
+    assert.expect(4);
+    await visit('/');
+
+    await mouseMove("#hover-hold");
+    assert.dom(".pop-over-container").isVisible();
+
+    await mouseLeave("#hover-hold");
+    await mouseEnter("#hover-hold-menu");
+    assert.dom(".pop-over-container").isVisible();
+
+    await mouseEnter("#hover-hold-menu .inner");
+    assert.dom(".pop-over-container").isVisible();
+
+    await mouseLeave("#hover-hold-menu");
+    await wait(200);
+    assert.dom(".pop-over-container").isNotVisible();
   });
 
-  mouseDown("#click");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
+  test('on="focus"', async function(assert) {
+    assert.expect(2);
+    await visit('/');
+
+    await focus("#focus");
+    assert.dom(".pop-over-container").isVisible();
+
+    await blur("#focus");
+    assert.dom(".pop-over-container").isNotVisible();
   });
 
-  mouseUp("#click");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-});
+  test('on="hover focus"', async function(assert) {
+    assert.expect(3);
+    await visit('/');
 
-test('on="click hold"', function (assert) {
-  assert.expect(4);
-  visit('/');
+    await focus("#hover-focus");
+    assert.dom(".pop-over-container").isVisible();
 
-  mouseDown("#click-hold");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
+    await blur("#hover-focus");
+    await mouseMove("#hover-focus");
+    assert.dom(".pop-over-container").isVisible();
 
-  wait(400);
-
-  mouseUp("#click-hold");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
-  });
-
-  simpleClick("#click-hold");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  simpleClick("#click-hold");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
-  });
-});
-
-
-test('on="hover"', function (assert) {
-  assert.expect(2);
-  visit('/');
-
-  mouseMove("#hover");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  mouseLeave("#hover");
-  wait(200);
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
-  });
-});
-
-test('on="hover hold"', function (assert) {
-  assert.expect(4);
-  visit('/');
-
-  mouseMove("#hover-hold");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  mouseLeave("#hover-hold");
-  mouseEnter("#hover-hold-menu");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  mouseEnter("#hover-hold-menu .inner");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  mouseLeave("#hover-hold-menu");
-  wait(200);
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
-  });
-});
-
-test('on="focus"', function (assert) {
-  assert.expect(2);
-  visit('/');
-
-  focus("#focus");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  blur("#focus");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
-  });
-});
-
-test('on="hover focus"', function (assert) {
-  assert.expect(3);
-  visit('/');
-
-  focus("#hover-focus");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  blur("#hover-focus");
-  mouseMove("#hover-focus");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 1);
-  });
-
-  mouseLeave("#hover-focus");
-  andThen(function () {
-    assert.ok(find(".pop-over-container:visible").length === 0);
+    await mouseLeave("#hover-focus");
+    assert.dom(".pop-over-container").isNotVisible();
   });
 });

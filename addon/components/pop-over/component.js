@@ -21,7 +21,7 @@ import Rectangle from '../../system/rectangle';
 import gravity from '../../system/gravity';
 import scrollParent from '../../system/scroll-parent';
 
-import $ from 'jquery';
+import jQuery from 'jquery';
 import integrates from '../../computed/integrates';
 import classify from '../../computed/classify';
 
@@ -169,7 +169,7 @@ export default Component.extend({
     set(this, 'pressed', false);
     var targets = get(this, 'targets');
     var element = get(this, 'element');
-    var clicked = evt.target === element || $.contains(element, evt.target);
+    var clicked = evt.target === element || jQuery.contains(element, evt.target);
     var clickedAnyTarget = targets.any(function (target) {
       return target.isClicked(evt);
     });
@@ -250,24 +250,26 @@ export default Component.extend({
   },
 
   tile() {
-    let target = get(this, 'activeTarget') || { element: $('#' + get(this, 'for'))[0] };
+    let target = get(this, 'activeTarget') || { element: jQuery('#' + get(this, 'for'))[0] };
     // Don't tile if there's nothing to constrain the pop over around
     if (!get(this, 'element') || !target) {
       return;
     }
 
-    let $popover = this.$('> .pop-over-compass');
+    let $element = jQuery(this.element);
+
+    let $popover = $element.find('> .pop-over-compass');
     if (get(this, 'supportsLiquidFire')) {
-      $popover = this.$('> .liquid-container > .liquid-child > .pop-over-compass');
-      if (this.$('> .liquid-animating').length) {
-        this.$('> .liquid-container > .liquid-child').css({
-          width: $(target.element).width() + 'px',
-          height: $(target.element).height() + 'px'
+      $popover = $element.find('> .liquid-container > .liquid-child > .pop-over-compass');
+      if ($element.find('> .liquid-animating').length) {
+        $element.find('> .liquid-container > .liquid-child').css({
+          width: jQuery(target.element).width() + 'px',
+          height: jQuery(target.element).height() + 'px'
         });
       }
     }
 
-    let $boundingElement = scrollParent(this.$().parent());
+    let $boundingElement = scrollParent($element.parent());
     let boundingRect = Rectangle.ofElement($boundingElement[0]);
     let popOverRect = Rectangle.ofElement($popover[0], 'borders');
     let targetRect = Rectangle.ofElement(target.element, 'borders');
@@ -324,7 +326,7 @@ export default Component.extend({
 
     if (get(this, 'supportsLiquidFire')) {
       // Position the container over the target
-      this.$('> .liquid-container').css({
+      $element.find('> .liquid-container').css({
         top: targetRect.top + 'px',
         left: targetRect.left + 'px'
       });

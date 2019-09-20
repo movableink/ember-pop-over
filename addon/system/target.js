@@ -1,4 +1,3 @@
-import { copy } from '@ember/object/internals';
 import { later, next, bind } from '@ember/runloop';
 import { assert } from '@ember/debug';
 import { A } from '@ember/array';
@@ -66,24 +65,22 @@ function isLabelClicked(target, label) {
 
 const VALID_ACTIVATORS = ["focus", "hover", "click", "hold"];
 function parseActivators(value) {
-  if (value) {
-    let activators = value;
-    if (typeof value === "string") {
-      activators = A(value.split(' '));
-    }
-    assert(
-      `${value} are not valid activators.
-        Valid events are ${VALID_ACTIVATORS.join(', ')}`,
-      A(copy(activators)).removeObjects(VALID_ACTIVATORS).length === 0
-    );
-    return activators;
+  assert(
+    `You must provide an event name to the {{pop-over}}. Valid events are ${VALID_ACTIVATORS.join(', ')}`,
+    value
+  );
+
+  let activators = value;
+  if (typeof value === "string") {
+    activators = value.split(' ');
   }
 
   assert(
-    `You must provide an event name to the {{pop-over}}.
-      Valid events are ${VALID_ACTIVATORS.join(', ')}`,
-    false
+    `${value} are not valid activators. Valid events are ${VALID_ACTIVATORS.join(', ')}`,
+    activators.every(activator => VALID_ACTIVATORS.includes(activator))
   );
+
+  return A(activators);
 }
 
 function poll(target, scope, fn) {

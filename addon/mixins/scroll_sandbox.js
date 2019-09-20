@@ -2,6 +2,7 @@ import Mixin from '@ember/object/mixin';
 import { debounce, bind } from '@ember/runloop';
 import { on } from '@ember/object/evented';
 import { set, get } from '@ember/object';
+import jQuery from 'jquery';
 
 // Normalize mouseWheel events
 function mouseWheel(evt) {
@@ -57,8 +58,10 @@ function mouseWheel(evt) {
 export default Mixin.create({
 
   setupScrollHandlers: on('didInsertElement', function () {
+    this._$element = jQuery(this.element);
     this._mouseWheelHandler = bind(this, mouseWheel);
-    this.$().on('mousewheel DOMMouseScroll', this._mouseWheelHandler);
+
+    this._$element.on('mousewheel DOMMouseScroll', this._mouseWheelHandler);
   }),
 
   scrollingHasStopped: function () {
@@ -70,10 +73,9 @@ export default Mixin.create({
     the window.
    */
   mouseWheel: function (evt) {
-    let $element = this.$();
-    let scrollTop = $element.scrollTop();
-    let maximumScrollTop = $element.prop('scrollHeight') -
-                           $element.outerHeight();
+    let scrollTop = this._$element.scrollTop();
+    let maximumScrollTop = this._$element.prop('scrollHeight') -
+                           this._$element.outerHeight();
     let isAtScrollEdge;
 
     if (evt.wheelDeltaY > 0) {
@@ -92,6 +94,6 @@ export default Mixin.create({
   },
 
   teardownScrollHandlers: on('willDestroyElement', function () {
-    this.$().off('mousewheel DOMMouseScroll', this._mouseWheelHandler);
+    this._$element.off('mousewheel DOMMouseScroll', this._mouseWheelHandler);
   })
 });
