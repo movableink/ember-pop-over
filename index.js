@@ -1,5 +1,6 @@
 module.exports = {
-  name: 'ember-pop-over',
+  name: require('./package').name,
+
   options: {
     nodeAssets: {
       'dom-ruler': {
