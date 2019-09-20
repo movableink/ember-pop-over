@@ -1,19 +1,26 @@
-import $ from 'jquery';
+import $ from "jquery";
 
-export default function ($element) {
-  let position = $element.css('position');
-  let excludeStaticParent = position === 'absolute';
-  let $scrollParent = $element.parents().filter(function () {
-    let $parent = $(this);
-    if (excludeStaticParent && $parent.css('position') === 'static') {
-      return false;
-    }
-    let { overflow, overflowX, overflowY } = $parent.css(['overflow', 'overflowX', 'overflowY']);
-    return /(auto|scroll)/.test(overflow + overflowX + overflowY);
-  }).eq(0);
+export default function($element) {
+  let position = $element.css("position");
+  let excludeStaticParent = position === "absolute";
+  let $scrollParent = $element
+    .parents()
+    .filter(function() {
+      let $parent = $(this);
+      if (excludeStaticParent && $parent.css("position") === "static") {
+        return false;
+      }
+      let { overflow, overflowX, overflowY } = $parent.css([
+        "overflow",
+        "overflowX",
+        "overflowY"
+      ]);
+      return /(auto|scroll)/.test(overflow + overflowX + overflowY);
+    })
+    .eq(0);
 
   if ($scrollParent.length === 0) {
     $scrollParent = $(document);
   }
-  return position === 'fixed' || $scrollParent;
+  return position === "fixed" || $scrollParent;
 }

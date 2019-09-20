@@ -1,27 +1,27 @@
-import { later } from '@ember/runloop';
-import mouseUp from '../helpers/mouse-up';
-import mouseDown from '../helpers/mouse-down';
-import mouseEnter from '../helpers/mouse-enter';
-import mouseMove from '../helpers/mouse-move';
-import mouseLeave from '../helpers/mouse-leave';
-import focus from '../helpers/focus';
-import blur from '../helpers/blur';
-import { module, test } from 'qunit';
-import { setupApplicationTest } from 'ember-qunit';
-import { click, visit } from '@ember/test-helpers';
+import { later } from "@ember/runloop";
+import mouseUp from "../helpers/mouse-up";
+import mouseDown from "../helpers/mouse-down";
+import mouseEnter from "../helpers/mouse-enter";
+import mouseMove from "../helpers/mouse-move";
+import mouseLeave from "../helpers/mouse-leave";
+import focus from "../helpers/focus";
+import blur from "../helpers/blur";
+import { module, test } from "qunit";
+import { setupApplicationTest } from "ember-qunit";
+import { click, visit } from "@ember/test-helpers";
 
-function wait (ms) {
+function wait(ms) {
   return new Promise(function(resolve) {
     later(resolve, ms);
   });
 }
 
-module('Acceptance: Events', function(hooks) {
+module("Acceptance: Events", function(hooks) {
   setupApplicationTest(hooks);
 
   test('on="click"', async function(assert) {
     assert.expect(6);
-    await visit('/');
+    await visit("/");
 
     await click("#click");
     assert.dom(".pop-over-container").isVisible();
@@ -44,7 +44,7 @@ module('Acceptance: Events', function(hooks) {
 
   test('on="click hold"', async function(assert) {
     assert.expect(4);
-    await visit('/');
+    await visit("/");
 
     await mouseDown("#click-hold");
     assert.dom(".pop-over-container").isVisible();
@@ -61,10 +61,9 @@ module('Acceptance: Events', function(hooks) {
     assert.dom(".pop-over-container").isNotVisible();
   });
 
-
   test('on="hover"', async function(assert) {
     assert.expect(2);
-    await visit('/');
+    await visit("/");
 
     await mouseMove("#hover");
     assert.dom(".pop-over-container").isVisible();
@@ -77,7 +76,7 @@ module('Acceptance: Events', function(hooks) {
 
   test('on="hover hold"', async function(assert) {
     assert.expect(4);
-    await visit('/');
+    await visit("/");
 
     await mouseMove("#hover-hold");
     assert.dom(".pop-over-container").isVisible();
@@ -96,7 +95,7 @@ module('Acceptance: Events', function(hooks) {
 
   test('on="focus"', async function(assert) {
     assert.expect(2);
-    await visit('/');
+    await visit("/");
 
     await focus("#focus");
     assert.dom(".pop-over-container").isVisible();
@@ -107,7 +106,7 @@ module('Acceptance: Events', function(hooks) {
 
   test('on="hover focus"', async function(assert) {
     assert.expect(3);
-    await visit('/');
+    await visit("/");
 
     await focus("#hover-focus");
     assert.dom(".pop-over-container").isVisible();

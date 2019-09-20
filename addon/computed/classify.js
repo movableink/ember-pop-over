@@ -1,8 +1,8 @@
-import { get, computed } from '@ember/object';
+import { get, computed } from "@ember/object";
 
-export default function (template) {
-  var dependentKeys = template.match(/{{([^}]*)}}/g).map(function (key) {
-    return key.replace(/{{(.*)}}/, '$1');
+export default function(template) {
+  var dependentKeys = template.match(/{{([^}]*)}}/g).map(function(key) {
+    return key.replace(/{{(.*)}}/, "$1");
   });
   return computed(...dependentKeys, {
     get() {
