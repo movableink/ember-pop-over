@@ -14,7 +14,7 @@ module('pop-over', function(hooks) {
     }], { instantiate: false });
 
     await render(hbs`
-      {{pop-over for="ember-testing" on='click' flow='test' orientation=orientation pointer=pointer active=active supportsLiquidFire=false}}
+      {{pop-over for="ember-testing" on='click' flow='test' orientation=orientation pointer=pointer active=active}}
     `);
 
     this.set('active', true);
