@@ -1,8 +1,8 @@
-import Mixin from '@ember/object/mixin';
-import { debounce, bind } from '@ember/runloop';
-import { on } from '@ember/object/evented';
-import { set, get } from '@ember/object';
-import jQuery from 'jquery';
+import Mixin from "@ember/object/mixin";
+import { debounce, bind } from "@ember/runloop";
+import { on } from "@ember/object/evented";
+import { set, get } from "@ember/object";
+import jQuery from "jquery";
 
 // Normalize mouseWheel events
 function mouseWheel(evt) {
@@ -22,16 +22,16 @@ function mouseWheel(evt) {
 
   if (oevt.hasOwnProperty) {
     // Gecko
-    if (oevt.hasOwnProperty('axis') && oevt.axis === oevt.HORIZONTAL_AXIS) {
+    if (oevt.hasOwnProperty("axis") && oevt.axis === oevt.HORIZONTAL_AXIS) {
       deltaY = 0;
       deltaX = -1 * delta;
     }
 
     // Webkit
-    if (oevt.hasOwnProperty('wheelDeltaY')) {
+    if (oevt.hasOwnProperty("wheelDeltaY")) {
       deltaY = oevt.wheelDeltaY / +120;
     }
-    if (oevt.hasOwnProperty('wheelDeltaX')) {
+    if (oevt.hasOwnProperty("wheelDeltaX")) {
       deltaX = oevt.wheelDeltaX / -120;
     }
   }
@@ -56,26 +56,25 @@ function mouseWheel(evt) {
   @extends Ember.Mixin
  */
 export default Mixin.create({
-
-  setupScrollHandlers: on('didInsertElement', function () {
+  setupScrollHandlers: on("didInsertElement", function() {
     this._$element = jQuery(this.element);
     this._mouseWheelHandler = bind(this, mouseWheel);
 
-    this._$element.on('mousewheel DOMMouseScroll', this._mouseWheelHandler);
+    this._$element.on("mousewheel DOMMouseScroll", this._mouseWheelHandler);
   }),
 
-  scrollingHasStopped: function () {
-    set(this, 'isScrolling', false);
+  scrollingHasStopped: function() {
+    set(this, "isScrolling", false);
   },
 
   /** @private
     Prevent scrolling the result list from scrolling
     the window.
    */
-  mouseWheel: function (evt) {
+  mouseWheel: function(evt) {
     let scrollTop = this._$element.scrollTop();
-    let maximumScrollTop = this._$element.prop('scrollHeight') -
-                           this._$element.outerHeight();
+    let maximumScrollTop =
+      this._$element.prop("scrollHeight") - this._$element.outerHeight();
     let isAtScrollEdge;
 
     if (evt.wheelDeltaY > 0) {
@@ -84,16 +83,16 @@ export default Mixin.create({
       isAtScrollEdge = scrollTop === maximumScrollTop;
     }
 
-    if (get(this, 'isScrolling') && isAtScrollEdge) {
+    if (get(this, "isScrolling") && isAtScrollEdge) {
       evt.preventDefault();
       evt.stopPropagation();
     } else if (!isAtScrollEdge) {
-      set(this, 'isScrolling', true);
+      set(this, "isScrolling", true);
     }
     debounce(this, this.scrollingHasStopped, 75);
   },
 
-  teardownScrollHandlers: on('willDestroyElement', function () {
-    this._$element.off('mousewheel DOMMouseScroll', this._mouseWheelHandler);
+  teardownScrollHandlers: on("willDestroyElement", function() {
+    this._$element.off("mousewheel DOMMouseScroll", this._mouseWheelHandler);
   })
 });

@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
 module.exports = {
-  name: require('./package').name,
+  name: require("./package").name,
 
   options: {
     autoImport: {
       alias: {
-        'dom-ruler': 'dom-ruler/dist/umd/dom-ruler.js'
+        "dom-ruler": "dom-ruler/dist/umd/dom-ruler.js"
       }
     }
   },

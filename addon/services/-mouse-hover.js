@@ -1,8 +1,8 @@
-import { get } from '@ember/object';
-import { assert } from '@ember/debug';
-import { throttle, cancel, later } from '@ember/runloop';
-import Service from '@ember/service';
-import $ from 'jquery';
+import { get } from "@ember/object";
+import { assert } from "@ember/debug";
+import { throttle, cancel, later } from "@ember/runloop";
+import Service from "@ember/service";
+import $ from "jquery";
 
 function distance(x1, x2, y1, y2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -38,23 +38,26 @@ export default Service.extend({
   init(...args) {
     this._super(...args);
 
-    this._mousemove = (evt) => {
+    this._mousemove = evt => {
       this._lastEvt = evt;
       throttle(this, this.mouseMove, evt, 50);
-    }
-    $(document).on('mousemove', this._mousemove);
+    };
+    $(document).on("mousemove", this._mousemove);
   },
 
   destroy(...args) {
     this._super(...args);
     this._listeners.clear();
-    $(document).off('mousemove', this._mousemove);
+    $(document).off("mousemove", this._mousemove);
   },
 
   addEventListener(element, callback) {
-    let listeners = this._listeners = this._listeners || new Map();
+    let listeners = (this._listeners = this._listeners || new Map());
 
-    assert(listeners.has(element), 'The element you provided was already registered for hover events');
+    assert(
+      listeners.has(element),
+      "The element you provided was already registered for hover events"
+    );
     listeners.set(element, callback);
   },
 
@@ -63,16 +66,22 @@ export default Service.extend({
   },
 
   mouseMove(evt) {
-    if (this.isDestroyed) { return; }
+    if (this.isDestroyed) {
+      return;
+    }
 
     // Check when the mouse has a full-stop
     cancel(this._fullStop);
-    this._fullStop = later(this, () => {
-      this._didHover(this._lastEvt);
-    }, 200);
+    this._fullStop = later(
+      this,
+      () => {
+        this._didHover(this._lastEvt);
+      },
+      200
+    );
 
     let velocity = velocityFromEvents(this._evt, evt);
-    let threshold = get(this, 'threshold');
+    let threshold = get(this, "threshold");
     this._evt = evt;
 
     if (velocity < threshold) {
@@ -83,7 +92,7 @@ export default Service.extend({
   _didHover(evt = {}) {
     let targetElement = evt.target;
 
-    this._listeners.forEach(function (callback, element) {
+    this._listeners.forEach(function(callback, element) {
       if ($.contains(element, targetElement) || element === targetElement) {
         callback();
       }

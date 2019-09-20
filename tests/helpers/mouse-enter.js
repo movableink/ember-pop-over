@@ -1,12 +1,12 @@
-import { settled } from '@ember/test-helpers';
-import jQuery from 'jquery';
+import { settled } from "@ember/test-helpers";
+import jQuery from "jquery";
 
-import findWithAssert from './find-with-assert';
+import findWithAssert from "./find-with-assert";
 
-export default async function (selector) {
+export default async function(selector) {
   const element = findWithAssert(selector);
 
-  jQuery(element).trigger('mouseenter');
+  jQuery(element).trigger("mouseenter");
 
   await settled();
 }
