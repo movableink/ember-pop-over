@@ -1,6 +1,5 @@
 import { get } from '@ember/object';
 import { assert } from '@ember/debug';
-import EmberMap from '@ember/map';
 import { throttle, cancel, later } from '@ember/runloop';
 import Service from '@ember/service';
 import $ from 'jquery';
@@ -53,7 +52,7 @@ export default Service.extend({
   },
 
   addEventListener(element, callback) {
-    let listeners = this._listeners = this._listeners || EmberMap.create();
+    let listeners = this._listeners = this._listeners || new Map();
 
     assert(listeners.has(element), 'The element you provided was already registered for hover events');
     listeners.set(element, callback);

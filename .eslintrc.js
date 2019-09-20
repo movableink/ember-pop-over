@@ -15,7 +15,8 @@ module.exports = {
     browser: true
   },
   rules: {
-    'ember/no-on-calls-in-components': 'off'
+    'ember/no-on-calls-in-components': 'off',
+    'ember/no-observers': 'off'
   },
   overrides: [
     // node files

@@ -1,5 +1,12 @@
-export default function (selector) {
-  andThen(function () {
-    findWithAssert(selector).trigger('focusout');
-  });
+import { settled } from '@ember/test-helpers';
+import jQuery from 'jquery';
+
+import findWithAssert from './find-with-assert';
+
+export default async function (selector) {
+  const element = findWithAssert(selector);
+
+  jQuery(element).trigger('focusout');
+
+  await settled();
 }

@@ -1,3 +1,5 @@
-export default function (selector) {
-  triggerEvent(selector, "mouseup");
+import { triggerEvent } from "@ember/test-helpers";
+
+export default async function (selector) {
+  await triggerEvent(selector, "mouseup");
 }
