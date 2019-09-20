@@ -4,6 +4,10 @@ import { on } from "@ember/object/evented";
 import { set, get } from "@ember/object";
 import jQuery from "jquery";
 
+function hasOwnProperty(object, property) {
+  return Object.prototype.hasOwnProperty.call(object, property);
+}
+
 // Normalize mouseWheel events
 function mouseWheel(evt) {
   let oevt = evt.originalEvent;
@@ -22,16 +26,16 @@ function mouseWheel(evt) {
 
   if (oevt.hasOwnProperty) {
     // Gecko
-    if (oevt.hasOwnProperty("axis") && oevt.axis === oevt.HORIZONTAL_AXIS) {
+    if (hasOwnProperty(oevt, "axis") && oevt.axis === oevt.HORIZONTAL_AXIS) {
       deltaY = 0;
       deltaX = -1 * delta;
     }
 
     // Webkit
-    if (oevt.hasOwnProperty("wheelDeltaY")) {
+    if (hasOwnProperty(oevt, "wheelDeltaY")) {
       deltaY = oevt.wheelDeltaY / +120;
     }
-    if (oevt.hasOwnProperty("wheelDeltaX")) {
+    if (hasOwnProperty(oevt, "wheelDeltaX")) {
       deltaX = oevt.wheelDeltaX / -120;
     }
   }
